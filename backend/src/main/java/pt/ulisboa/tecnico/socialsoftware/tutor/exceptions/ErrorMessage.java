@@ -42,6 +42,17 @@ public enum ErrorMessage {
     QUIZ_NO_LONGER_AVAILABLE("This quiz is no longer available"),
     QUIZ_NOT_YET_AVAILABLE("This quiz is not yet available"),
 
+    DUPLICATE_TOURNAMENT("This tournament already exists"),
+    TOURNAMENT_TITLE_IS_EMPTY("The tournament title is empty"),
+    TOURNAMENT_TOPIC_LIST_IS_EMPTY("The tournament topicList is empty"),
+    TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1("The tournament has an invalid number of questions"),
+    TOURNAMENT_DATES_WRONG_FORMAT("The tournament has a wrong date format"),
+    TOURNAMENT_TOPIC_DOESNT_EXIST("The tournament topicList has a topic that doesnt exist"),
+
+
+
+
+
     NO_CORRECT_OPTION("Question does not have a correct option"),
     NOT_ENOUGH_QUESTIONS("Not enough questions to create a quiz"),
     QUESTION_MISSING_DATA("Missing information for quiz"),
