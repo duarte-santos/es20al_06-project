@@ -1,14 +1,20 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.service
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService;
 import spock.lang.Specification
@@ -24,7 +30,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CO
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_NAME_IS_EMPTY
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_TYPE_NOT_DEFINED
 
-
+@DataJpaTest
 class CreateTournamentServiceSpockTest extends Specification{
 
     static final String STUDENT_NAME = "StudentName"
@@ -36,8 +42,12 @@ class CreateTournamentServiceSpockTest extends Specification{
     static final int NUMBER_OF_QUESTIONS = 1
     static final String TOURNAMENT_TITLE = "T12"
 
+    @Autowired
+    TournamentService tournamentService
 
-    def tournamentService
+    @Autowired
+    TournamentRepository tournamentRepository
+
     def student
     def course
     def courseExecution
@@ -54,7 +64,6 @@ class CreateTournamentServiceSpockTest extends Specification{
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
 
-        tournamentService = new TournamentService()
         student = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
 
         topicDto = new TopicDto()
@@ -71,6 +80,7 @@ class CreateTournamentServiceSpockTest extends Specification{
 
     def "a student creates a tournament"(){
         given: "A student, topic list, tournamentDto"
+
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(TOURNAMENT_TITLE)
         tournamentDto.setUserId(student.getId())
@@ -80,15 +90,17 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "The returned data is correct"
-        result.title == TOURNAMENT_TITLE
-        result.userId == student.getId()
-        result.topicList == topicList
-        result.numberOfQuestions == NUMBER_OF_QUESTIONS
-        result.startingDate == startingDate
-        result.conclusionDate == conclusionDate
+        tournamentRepository.count() == 1L
+        def result = tournamentRepository.findAll().get(0)
+        result.getTitle() == TOURNAMENT_TITLE
+        result.getUserId() == student.getId()
+        result.getTopicList() == topicList
+        result.getNumberOfQuestions() == NUMBER_OF_QUESTIONS
+        result.getStartingDate().format(formatter) == startingDate
+        result.getConclusionDate().format(formatter) == conclusionDate
     }
 
     def "choose number of questions smaller than 1"(){
@@ -102,13 +114,13 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
     }
 
-    def "Create tournament with blank title"(){
+    def "create tournament with blank title"(){
         given: "A tournamentDto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle("       ")
@@ -119,13 +131,13 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
     }
 
-    def "Create tournament with null title"(){
+    def "create tournament with null title"(){
         given: "A tournamentDto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(null)
@@ -142,7 +154,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         thrown(TutorException)
     }
 
-    def "Create tournament with empty topicList"(){
+    def "create tournament with empty topicList"(){
         given: "A tournamentDto"
         def tournamentDto = new TournamentDto()
         def topicList2 = new ArrayList()
@@ -154,13 +166,13 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
     }
 
-    def "Create tournament with null topicList"(){
+    def "create tournament with null topicList"(){
         given: "A tournamentDto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(null)
@@ -171,13 +183,13 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
     }
 
-    def "Create tournament with null dates"(){
+    def "create tournament with null dates"(){
         given: "A tournamentDto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(null)
@@ -188,13 +200,13 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(null)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
     }
 
-    def "Create tournament with invalid dates (Dates in the past) "(){
+    def "create tournament with invalid dates (Dates in the past) "(){
         given: "A tournamentDto"
         def tournamentDto = new TournamentDto()
         def startingDate2 = LocalDateTime.now().minusDays(2)
@@ -207,7 +219,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate2.format(formatter))
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
@@ -225,13 +237,13 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(startingDate)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
     }
 
-    def "Create tournament with topics that do not exist"(){
+    def "create tournament with topics that do not exist"(){
         given: "A tournamentDto"
         def tournamentDto = new TournamentDto()
         def topicList2 = new ArrayList()
@@ -244,10 +256,19 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        def result = tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)
+    }
+
+    @TestConfiguration
+    static class TournamentServiceImplTestContextConfiguration {
+
+        @Bean
+        TournamentService TournamentService() {
+            return new TournamentService()
+        }
     }
 
 

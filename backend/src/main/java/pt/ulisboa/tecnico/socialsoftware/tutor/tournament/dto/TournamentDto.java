@@ -1,13 +1,18 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 
+import org.springframework.data.annotation.Transient;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TournamentDto implements Serializable{
 
+    private Integer id;
     private String title;
     private Integer userId;
     private List<Topic> topicList = new ArrayList<>();
@@ -16,7 +21,21 @@ public class TournamentDto implements Serializable{
     private String conclusionDate;
     private String status = "closed";
 
+    @Transient
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     public TournamentDto(){
+    }
+
+    public TournamentDto(Tournament tournament){
+        this.id = tournament.getId();
+        this.title = tournament.getTitle();
+        this.userId = tournament.getUserId();
+        this.topicList = tournament.getTopicList();
+        this.numberOfQuestions = tournament.getNumberOfQuestions();
+        this.startingDate = tournament.getStartingDate().format(formatter);
+        this.conclusionDate = tournament.getConclusionDate().format(formatter);
+        this.status = tournament.getStatus();
     }
 
     public TournamentDto(String t, Integer id, List<Topic> tl, Integer num, String sd, String cd){
@@ -35,6 +54,14 @@ public class TournamentDto implements Serializable{
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getUserId() {
@@ -63,12 +90,13 @@ public class TournamentDto implements Serializable{
         this.numberOfQuestions = numberOfQuestions;
     }
 
-    public String getStartingDate() {
-        return startingDate;
-    }
 
     public void setStartingDate(String startingDate) {
         this.startingDate = startingDate;
+    }
+
+    public String getStartingDate() {
+        return startingDate;
     }
 
     public String getConclusionDate() {
@@ -80,4 +108,18 @@ public class TournamentDto implements Serializable{
     }
 
     public void setStatus(String status){ this.status = status; }
+
+    public LocalDateTime getStartingDateDate() {
+        if (getStartingDate() == null || getStartingDate().isEmpty()) {
+            return null;
+        }
+        return LocalDateTime.parse(getStartingDate(), formatter);
+    }
+
+    public LocalDateTime getConclusionDateDate() {
+        if (getConclusionDate() == null || getConclusionDate().isEmpty()) {
+            return null;
+        }
+        return LocalDateTime.parse(getConclusionDate(), formatter);
+    }
 }
