@@ -49,6 +49,7 @@ public class Tournament{
         Integer numberOfQuestions = tournamentDto.getNumberOfQuestions();
         LocalDateTime startingDate = tournamentDto.getStartingDateDate();
         LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
+        LocalDateTime now = LocalDateTime.now();
         String status = tournamentDto.getStatus();
 
 

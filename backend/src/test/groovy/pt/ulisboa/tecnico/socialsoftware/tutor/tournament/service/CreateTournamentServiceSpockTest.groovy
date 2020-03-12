@@ -7,17 +7,20 @@ import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService;
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -29,6 +32,10 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CO
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_NAME_IS_EMPTY
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_NAME_IS_EMPTY
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_TYPE_NOT_DEFINED
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_DATES_WRONG_FORMAT
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_TITLE_IS_EMPTY
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_TOPIC_LIST_IS_EMPTY
 
 @DataJpaTest
 class CreateTournamentServiceSpockTest extends Specification{
@@ -39,6 +46,7 @@ class CreateTournamentServiceSpockTest extends Specification{
     static final String ACRONYM = "AS1"
     static final String ACADEMIC_TERM = "1st Semester"
     static final String TOPIC_NAME = "TopicName"
+    static final String TOPIC_NAME2 = "TopicName2"
     static final int NUMBER_OF_QUESTIONS = 1
     static final String TOURNAMENT_TITLE = "T12"
 
@@ -48,21 +56,27 @@ class CreateTournamentServiceSpockTest extends Specification{
     @Autowired
     TournamentRepository tournamentRepository
 
+    @Autowired
+    TopicRepository topicRepository
+
+    @Autowired
+    CourseRepository courseRepository
+
+
     def student
     def course
-    def courseExecution
     def topic
     def topicDto
-    def topicList
-    def startingDate
-    def conclusionDate
+    def static topicList
+    def static startingDate
+    def static conclusionDate
     def formatter
 
     def setup(){
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
-        courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
+        courseRepository.save(course)
 
         student = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
 
@@ -70,6 +84,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         topicDto.setName(TOPIC_NAME)
 
         topic = new Topic(course, topicDto)
+        topicRepository.save(topic)
         topicList = new ArrayList()
         topicList.add(topic)
 
@@ -103,131 +118,41 @@ class CreateTournamentServiceSpockTest extends Specification{
         result.getConclusionDate().format(formatter) == conclusionDate
     }
 
-    def "choose number of questions smaller than 1"(){
-        given: "A tournamentDto"
+    @Unroll
+    def "wrong input tests"(){
+        given: "a tournamentDto"
         def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle(TOURNAMENT_TITLE)
+        tournamentDto.setTitle(title)
         tournamentDto.setUserId(student.getId())
-        tournamentDto.setTopicList(topicList)
-        tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(startingDate)
-        tournamentDto.setConclusionDate(conclusionDate)
+        tournamentDto.setTopicList(topiclist)
+        tournamentDto.setNumberOfQuestions(nOfQuestions)
+        tournamentDto.setStartingDate(startingdate)
+        tournamentDto.setConclusionDate(conclusiondate)
+
+        def studId = student.getId();
 
         when:
         tournamentService.createTournament(tournamentDto)
 
-        then: "An exception is thrown"
-        thrown(TutorException)
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == errorMessage
+
+        where:
+        title                | topiclist | nOfQuestions | startingdate | conclusiondate || errorMessage
+        null                 | topicList | 1            | startingDate | conclusionDate || TOURNAMENT_TITLE_IS_EMPTY
+        "       "            | topicList | 1            | startingDate | conclusionDate || TOURNAMENT_TITLE_IS_EMPTY
+        TOURNAMENT_TITLE     | null      | 1            | startingDate | conclusionDate || TOURNAMENT_TOPIC_LIST_IS_EMPTY
+        TOURNAMENT_TITLE     | topicList | 0            | startingDate | conclusionDate || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
+        TOURNAMENT_TITLE     | topicList | -1           | startingDate | conclusionDate || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
+        TOURNAMENT_TITLE     | topicList | 1            | null         | conclusionDate || TOURNAMENT_DATES_WRONG_FORMAT
+        TOURNAMENT_TITLE     | topicList | 1            | startingDate | null           || TOURNAMENT_DATES_WRONG_FORMAT
+
     }
 
-    def "create tournament with blank title"(){
-        given: "A tournamentDto"
-        def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle("       ")
-        tournamentDto.setUserId(student.getId())
-        tournamentDto.setTopicList(topicList)
-        tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(startingDate)
-        tournamentDto.setConclusionDate(conclusionDate)
 
-        when:
-        tournamentService.createTournament(tournamentDto)
-
-        then: "An exception is thrown"
-        thrown(TutorException)
-    }
-
-    def "create tournament with null title"(){
-        given: "A tournamentDto"
-        def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle(null)
-        tournamentDto.setUserId(student.getId())
-        tournamentDto.setTopicList(topicList)
-        tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(startingDate)
-        tournamentDto.setConclusionDate(conclusionDate)
-
-        when:
-        def result = tournamentService.createTournament(tournamentDto)
-
-        then: "An exception is thrown"
-        thrown(TutorException)
-    }
-
-    def "create tournament with empty topicList"(){
-        given: "A tournamentDto"
-        def tournamentDto = new TournamentDto()
-        def topicList2 = new ArrayList()
-        tournamentDto.setTitle(TOURNAMENT_TITLE)
-        tournamentDto.setUserId(student.getId())
-        tournamentDto.setTopicList(topicList2)
-        tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(startingDate)
-        tournamentDto.setConclusionDate(conclusionDate)
-
-        when:
-        tournamentService.createTournament(tournamentDto)
-
-        then: "An exception is thrown"
-        thrown(TutorException)
-    }
-
-    def "create tournament with null topicList"(){
-        given: "A tournamentDto"
-        def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle(null)
-        tournamentDto.setUserId(student.getId())
-        tournamentDto.setTopicList(null)
-        tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(startingDate)
-        tournamentDto.setConclusionDate(conclusionDate)
-
-        when:
-        tournamentService.createTournament(tournamentDto)
-
-        then: "An exception is thrown"
-        thrown(TutorException)
-    }
-
-    def "create tournament with null dates"(){
-        given: "A tournamentDto"
-        def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle(null)
-        tournamentDto.setUserId(student.getId())
-        tournamentDto.setTopicList(topicList)
-        tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(null)
-        tournamentDto.setConclusionDate(null)
-
-        when:
-        tournamentService.createTournament(tournamentDto)
-
-        then: "An exception is thrown"
-        thrown(TutorException)
-    }
-
-    def "create tournament with invalid dates (Dates in the past) "(){
-        given: "A tournamentDto"
-        def tournamentDto = new TournamentDto()
-        def startingDate2 = LocalDateTime.now().minusDays(2)
-        def conclusionDate2 = LocalDateTime.now().minusDays(1)
-        tournamentDto.setTitle(null)
-        tournamentDto.setUserId(student.getId())
-        tournamentDto.setTopicList(topicList)
-        tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(startingDate2.format(formatter))
-        tournamentDto.setConclusionDate(conclusionDate2.format(formatter))
-
-        when:
-        tournamentService.createTournament(tournamentDto)
-
-        then: "An exception is thrown"
-        thrown(TutorException)
-    }
-
-    def "create a tournament with starting hour greater than finishing hour"(){
-
-        given: "A tournamentDto"
+    def "create tournament with conclusion date before starting date "(){
+        given: "a tournamentDto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(TOURNAMENT_TITLE)
         tournamentDto.setUserId(student.getId())
@@ -239,15 +164,18 @@ class CreateTournamentServiceSpockTest extends Specification{
         when:
         tournamentService.createTournament(tournamentDto)
 
-        then: "An exception is thrown"
+        then:
         thrown(TutorException)
+
     }
 
     def "create tournament with topics that do not exist"(){
-        given: "A tournamentDto"
-        def tournamentDto = new TournamentDto()
+        given: "A tournamentDto, a topic that is not in the database"
+        topicDto = new TopicDto()
+        topicDto.setName(TOPIC_NAME2)
         def topicList2 = new ArrayList()
         topicList2.add(topic)
+        def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(TOURNAMENT_TITLE)
         tournamentDto.setUserId(student.getId())
         tournamentDto.setTopicList(topicList2)

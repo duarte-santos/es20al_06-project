@@ -46,6 +46,7 @@ public enum ErrorMessage {
     TOURNAMENT_TOPIC_LIST_IS_EMPTY("The tournament topicList is empty"),
     TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1("The tournament has an invalid number of questions"),
     TOURNAMENT_DATES_WRONG_FORMAT("The tournament has a wrong date format"),
+    TOURNAMENT_TOPIC_DOESNT_EXIST("The tournament topicList has a topic that doesnt exist"),
 
 
 
