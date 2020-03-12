@@ -14,8 +14,19 @@ public class TournamentDto implements Serializable{
     private Integer numberOfQuestions;
     private String startingDate;
     private String conclusionDate;
+    private String status = "closed";
 
     public TournamentDto(){
+    }
+
+    public TournamentDto(String t, Integer id, List<Topic> tl, Integer num, String sd, String cd){
+        this.title = t;
+        this.userId = id;
+        this.topicList = tl;
+        this.numberOfQuestions = num;
+        this.startingDate = sd;
+        this.conclusionDate = cd;
+
     }
 
     public String getTitle() {
@@ -37,6 +48,8 @@ public class TournamentDto implements Serializable{
     public List<Topic> getTopicList() {
         return topicList;
     }
+
+    public String getStatus(){ return this.status; }
 
     public void setTopicList(List<Topic> topicList) {
         this.topicList = topicList;
@@ -65,4 +78,6 @@ public class TournamentDto implements Serializable{
     public void setConclusionDate(String conclusionDate) {
         this.conclusionDate = conclusionDate;
     }
+
+    public void setStatus(String status){ this.status = status; }
 }
