@@ -16,6 +16,7 @@ public class TournamentDto implements Serializable{
     private String title;
     private Integer userId;
     private List<Topic> topicList = new ArrayList<>();
+    private List<Integer> studentList = new ArrayList<>();
     private Integer numberOfQuestions;
     private String startingDate;
     private String conclusionDate;
@@ -32,6 +33,7 @@ public class TournamentDto implements Serializable{
         this.title = tournament.getTitle();
         this.userId = tournament.getUserId();
         this.topicList = tournament.getTopicList();
+        this.studentList = tournament.getStudentList();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
         this.startingDate = tournament.getStartingDate().format(formatter);
         this.conclusionDate = tournament.getConclusionDate().format(formatter);
@@ -121,5 +123,13 @@ public class TournamentDto implements Serializable{
             return null;
         }
         return LocalDateTime.parse(getConclusionDate(), formatter);
+    }
+
+    public List<Integer> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(List<Integer> studentList) {
+        this.studentList = studentList;
     }
 }

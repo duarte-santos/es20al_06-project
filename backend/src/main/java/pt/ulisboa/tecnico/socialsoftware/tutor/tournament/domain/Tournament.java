@@ -30,6 +30,8 @@ public class Tournament{
     @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
 
+    private List<Integer> studentList = new ArrayList<>();
+
 
     private Integer numberOfQuestions;
     private LocalDateTime startingDate;
@@ -38,8 +40,7 @@ public class Tournament{
     @Column(name = "status")
     private String status = "closed";
 
-    public Tournament(String title){
-        this.title = title;
+    public Tournament(){
     }
 
 
@@ -81,6 +82,9 @@ public class Tournament{
         this.status = status;
     }
 
+    public void addStudent(Integer id){
+        studentList.add(id);
+    }
 
 
     public Integer getId() {
@@ -142,5 +146,13 @@ public class Tournament{
     }
 
     public void setStatus(String status){ this.status = status; }
+
+    public List<Integer> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(List<Integer> studentList) {
+        this.studentList = studentList;
+    }
 }
 

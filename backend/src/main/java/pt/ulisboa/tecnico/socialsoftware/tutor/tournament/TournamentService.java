@@ -70,4 +70,11 @@ public class TournamentService{
                 return TournamentsList;
     }
 
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public TournamentDto enrollInTournament(Integer userId, Integer tournamentId){
+        return null;
+    }
 }
