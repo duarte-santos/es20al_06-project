@@ -6,6 +6,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
@@ -15,6 +16,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static java.sql.DriverManager.println;
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
+
 
 @Service
 public class TournamentService{
@@ -74,7 +77,18 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public TournamentDto enrollInTournament(Integer userId, Integer tournamentId){
-        return null;
+    public TournamentDto enrollInTournament(User student, Integer tournamentId){
+        if (tournamentId==null)
+            throw new TutorException(TOURNAMENT_NOT_FOUND);
+        Tournament tournament = new Tournament(
+                tournamentRepository.findById(tournamentId)
+                        .map(TournamentDto::new)
+                                    .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId)));
+        if(tournament.getStudentList().contains(student))
+            throw new TutorException(STUDENT_ALREADY_ENROLLED);
+        tournament.addStudent(student);
+        tournamentRepository.save(tournament);
+        return new TournamentDto(tournament);
+
     }
 }

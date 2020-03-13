@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 import org.springframework.data.annotation.Transient;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class TournamentDto implements Serializable{
     private String title;
     private Integer userId;
     private List<Topic> topicList = new ArrayList<>();
-    private List<Integer> studentList = new ArrayList<>();
+    private List<User> studentList = new ArrayList<>();
     private Integer numberOfQuestions;
     private String startingDate;
     private String conclusionDate;
@@ -125,11 +126,11 @@ public class TournamentDto implements Serializable{
         return LocalDateTime.parse(getConclusionDate(), formatter);
     }
 
-    public List<Integer> getStudentList() {
+    public List<User> getStudentList() {
         return studentList;
     }
 
-    public void setStudentList(List<Integer> studentList) {
+    public void setStudentList(List<User> studentList) {
         this.studentList = studentList;
     }
 }

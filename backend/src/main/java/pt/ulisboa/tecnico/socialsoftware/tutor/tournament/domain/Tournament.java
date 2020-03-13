@@ -4,6 +4,7 @@ import org.apache.tomcat.jni.Local;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 
 import javax.persistence.*;
@@ -30,7 +31,8 @@ public class Tournament{
     @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
 
-    private List<Integer> studentList = new ArrayList<>();
+    @ManyToMany
+    private List<User> studentList = new ArrayList<>();
 
 
     private Integer numberOfQuestions;
@@ -54,6 +56,7 @@ public class Tournament{
         LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
         LocalDateTime now = LocalDateTime.now();
         String status = tournamentDto.getStatus();
+        List<User> students = tournamentDto.getStudentList();
 
 
         if (title == null || title.trim().isEmpty()) {
@@ -80,10 +83,11 @@ public class Tournament{
         this.startingDate = startingDate;
         this.conclusionDate = conclusionDate;
         this.status = status;
+        this.studentList = students;
     }
 
-    public void addStudent(Integer id){
-        studentList.add(id);
+    public void addStudent(User student){
+        studentList.add(student);
     }
 
 
@@ -147,11 +151,11 @@ public class Tournament{
 
     public void setStatus(String status){ this.status = status; }
 
-    public List<Integer> getStudentList() {
+    public List<User> getStudentList() {
         return studentList;
     }
 
-    public void setStudentList(List<Integer> studentList) {
+    public void setStudentList(List<User> studentList) {
         this.studentList = studentList;
     }
 }

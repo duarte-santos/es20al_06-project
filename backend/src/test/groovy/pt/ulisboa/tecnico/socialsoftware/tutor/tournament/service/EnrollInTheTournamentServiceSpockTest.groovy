@@ -1,6 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.service
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
@@ -18,6 +21,7 @@ import spock.lang.Specification
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+@DataJpaTest
 class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     static final String TOURNAMENT_TITLE = "T12"
@@ -28,6 +32,21 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
     static final String ACADEMIC_TERM = "1st Semester"
     static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
+
+    @Autowired
+    TournamentService tournamentService
+
+    @Autowired
+    UserRepository userRepository
+
+    @Autowired
+    TournamentRepository tournamentRepository
+
+    @Autowired
+    TopicRepository topicRepository
+
+    @Autowired
+    CourseRepository courseRepository
 
 
     def student
@@ -40,27 +59,24 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
     def formatter
     def tournamentDto
     def studentId
-    def tournamentService
     def tournamentId
 
     def setup() {
 
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
-        tournamentService = new TournamentService()
-
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
-        //courseRepository.save(course)
+        courseRepository.save(course)
 
         student = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
-        //userRepository.save(student) //required to generate an id
+        userRepository.save(student) //required to generate an id
         studentId = student.getId()
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
 
         topic = new Topic(course, topicDto)
-        //topicRepository.save(topic)
+        topicRepository.save(topic)
         topicList = new ArrayList()
         topicList.add(topic)
 
@@ -72,41 +88,50 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
     def "the tournament exists and a student enrolls in it"(){
         given: "a tournament and a student"
         tournamentDto = new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournamentId = tournamentDto.getId()
+        Tournament tournament = new Tournament(tournamentDto)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
         when:
-        def result = tournamentService.enrollInTournament(studentId, tournamentId)
+        def result = tournamentService.enrollInTournament(student, tournamentId)
         then: "Student is enrolled in the tournament"
 
-        result.getStudentList().get(0) == studentId
+        result.getStudentList().size() == 1
+        result.getStudentList().get(0) == student
     }
 
 
     def "the tournament exists and a student tries to enroll in it for the second time"(){
         given: "a tournament with a student, and that same student"
         tournamentDto = new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournamentId = tournamentDto.getId()
         def studentList = new ArrayList()
-        studentList.add(studentId)
+        studentList.add(student)
         tournamentDto.setStudentList(studentList)
+        Tournament tournament = new Tournament(tournamentDto)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
 
         when:
-        tournamentService.enrollInTournament(studentId, tournamentId)
+        tournamentService.enrollInTournament(student as User, tournamentId)
 
-        then: "Exception"
+        then: "Throw an Exception"
         thrown(TutorException)
     }
 
     def "the tournament doesn't exist and a student tries to enroll in it"(){
-        given: "a non-saved tournament and a student"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournamentId = tournamentDto.getId()
-
         when:
-        // Needs DB implementation
-        tournamentService.enrollInTournament(studentId, null)
+        tournamentService.enrollInTournament(student, null)
 
-        then: "Exception"
+        then: "Throw an Exception"
         thrown(TutorException)
+    }
+
+    @TestConfiguration
+    static class TournamentServiceImplTestContextConfiguration {
+
+        @Bean
+        TournamentService TournamentService() {
+            return new TournamentService()
+        }
     }
 
 }
