@@ -72,6 +72,18 @@ public class StudentQuestionService {
                 .orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, key));
     }
 
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestionDto evaluateStudentQuestion(StudentQuestion.State state, StudentQuestionDto studentQuestionDto) {
+        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionDto.getId()).orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, studentQuestionDto.getId()));
+        studentQuestion.evaluateStudentQuestion(state, null);
+        studentQuestionRepository.save(studentQuestion);
+        return new StudentQuestionDto(studentQuestion);
+    }
+
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -83,18 +95,5 @@ public class StudentQuestionService {
         return new StudentQuestionDto(studentQuestion);
     }
 
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StudentQuestionDto evaluateStudentQuestion(StudentQuestion.State state, StudentQuestionDto studentQuestionDto) {
-        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionDto.getId()).orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, studentQuestionDto.getId()));
-        int maxQuestionNumber = questionRepository.getMaxQuestionNumber() != null ?
-                questionRepository.getMaxQuestionNumber() : 0;
-        studentQuestion.evaluateStudentQuestion(state, null, maxQuestionNumber+1);
-        studentQuestionRepository.save(studentQuestion);
-        return new StudentQuestionDto(studentQuestion);
-    }
 
 }

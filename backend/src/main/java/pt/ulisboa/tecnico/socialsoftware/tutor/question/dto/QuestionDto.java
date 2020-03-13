@@ -59,8 +59,8 @@ public class QuestionDto implements Serializable {
 
     }
 
-    public QuestionDto(StudentQuestion stQuestion, int questionKey) {
-        this.key = questionKey;
+    public QuestionDto(StudentQuestion stQuestion) {
+        this.key = stQuestion.getKey();
         this.title = stQuestion.getTitle();
         this.content = stQuestion.getContent();
         this.status = Question.Status.AVAILABLE.name();

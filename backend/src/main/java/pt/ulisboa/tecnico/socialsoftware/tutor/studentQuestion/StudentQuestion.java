@@ -202,7 +202,7 @@ public class StudentQuestion {
         correspondingQuestion.setStudentQuestion(this);
     }
 
-    public void evaluateStudentQuestion(State result, String justification, int questionKey) {
+    public void evaluateStudentQuestion(State result, String justification) {
         if (this.state != State.AWAITING_APPROVAL)
             throw new TutorException(QUESTION_ALREADY_EVALUATED);
 
@@ -217,7 +217,7 @@ public class StudentQuestion {
 
         setState(result);
         if (result == State.APPROVED) {
-            QuestionDto questionDto = new QuestionDto(this, questionKey);
+            QuestionDto questionDto = new QuestionDto(this);
             Question q = new Question(this.course, questionDto);
             setCorrespondingQuestion(q);
         }
