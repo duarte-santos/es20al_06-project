@@ -95,5 +95,33 @@ public class StudentQuestionService {
         return new StudentQuestionDto(studentQuestion);
     }
 
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<StudentQuestionDto> findStudentQuestionsFromStudent(int studentId) {
+
+        return studentQuestionRepository.findStudentQuestionsFromStudent(studentId).stream().map(StudentQuestionDto::new).collect(Collectors.toList());
+    }
+
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestion.State findSpecificStudentQuestionState(int studentId, int id) {
+
+        return (studentQuestionRepository.findSpecificStudentQuestion(studentId, id)).getState();
+    }
+
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public String findSpecificStudentQuestionJustification(int studentId, int id) {
+
+        return (studentQuestionRepository.findSpecificStudentQuestion(studentId, id)).getJustification();
+    }
 
 }

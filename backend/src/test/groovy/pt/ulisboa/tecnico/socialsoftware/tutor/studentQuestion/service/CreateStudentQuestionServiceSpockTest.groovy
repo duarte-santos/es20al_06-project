@@ -302,6 +302,42 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         thrown(TutorException)
     }
 
+    /*
+   @Unroll("invalid arguments: #key | #title | #content | #correctContent | #incorrectContent | #correctSequence")
+   def "invalid input values"() {
+       given: "a studentQuestionDto"
+       def studentQuestionDto = new StudentQuestionDto()
+       studentQuestionDto.setKey(key)
+       studentQuestionDto.setTitle(title)
+       studentQuestionDto.setContent(content)
+       studentQuestionDto.addOption(correctContent)
+       studentQuestionDto.addOption(incorrectContent)
+       studentQuestionDto.addOption(incorrectContent)
+       studentQuestionDto.addOption(incorrectContent)
+       studentQuestionDto.setCorrect(correctSequence)
+
+       when:
+       studentQuestionService.createStudentQuestion(course.getId(), user.getId(), studentQuestionDto)
+
+       then: "an exception is thrown"
+       def error = thrown(TutorException)
+       error.errorMessage == errorMessage
+
+       where:
+       key     | title             | content           | correctContent            | incorrectContent          | correctSequence   || errorMessage
+       null    | QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 ||
+       1       | null              | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 ||
+       1       | "    "            | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 ||
+       1       | QUESTION_TITLE    | null              | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 ||
+       1       | QUESTION_TITLE    | "    "            | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 ||
+       1       | QUESTION_TITLE    | QUESTION_CONTENT  | null                      | OPTION_INCORRECT_CONTENT  | 1                 ||
+       1       | QUESTION_TITLE    | QUESTION_CONTENT  | "    "                    | OPTION_INCORRECT_CONTENT  | 1                 ||
+       1       | QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | null                      | 1                 ||
+       1       | QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | "    "                    | 1                 ||
+       1       | QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | null              ||
+   }
+   */
+
     @TestConfiguration
     static class StudentQuestionServiceImplTestContextConfiguration {
 

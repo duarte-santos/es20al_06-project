@@ -1,15 +1,21 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.service
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import spock.lang.Specification
 
+@DataJpaTest
 class ViewStudentQuestionServiceSpockTest extends Specification {
     public static final String COURSE_NAME = "CourseOne"
     public static final String ACRONYM = "C1"
@@ -23,7 +29,12 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
     public static final String JUSTIFICATION = "justification"
     public static final String URL = 'URL'
 
-    def studentQuestionService
+    @Autowired
+    StudentQuestionService studentQuestionService
+
+    @Autowired
+    StudentQuestionRepository studentQuestionRepository
+
 
     def course
     def user
@@ -37,7 +48,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
 
     def "student views empty set of studentQuestion"() {
         when:
-        def result = studentQuestionService.findStudentQuestions(user.getId())
+        def result = studentQuestionService.findStudentQuestions(course.getId())
 
         then: "an exception is thrown"
         thrown(TutorException)
@@ -52,11 +63,13 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         options.add(OPTION_INCORRECT_CONTENT)
         studentQuestionDto = new StudentQuestionDto(1, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
         studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
+        studentQuestionRepository.save(studentQuestion)
         studentQuestionDto = new StudentQuestionDto(2, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
         studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
+        studentQuestionRepository.save(studentQuestion)
 
         when:
-        def result = studentQuestionService.findStudentQuestions(user.getId())
+        def result = studentQuestionService.findStudentQuestionsFromStudent(user.getId())
         // result contains a list of existing studentQuestions
 
         then: "the returned data is correct"
@@ -83,9 +96,10 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto = new StudentQuestionDto(1, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
         studentQuestionDto.setJustification(JUSTIFICATION)
         studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
+        studentQuestionRepository.save(studentQuestion)
 
         when:
-        def result = studentQuestionService.findStudentQuestions(user.getId())
+        def result = studentQuestionService.findStudentQuestionsFromStudent(user.getId())
 
         then: "the returned data is correct"
         result.get(0).getId() == 1
@@ -109,9 +123,10 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         image.setWidth(20)
         studentQuestionDto.setImage(image)
         studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
+        studentQuestionRepository.save(studentQuestion)
 
         when:
-        def result = studentQuestionService.findStudentQuestions(user.getId())
+        def result = studentQuestionService.findStudentQuestionsFromStudent(user.getId())
 
         then: "the returned data is correct"
         result.get(0).getId() == 1
@@ -122,6 +137,15 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         result.getImage().getId() != null
         result.getImage().getUrl() == URL
         result.getImage().getWidth() == 20
+    }
+
+    @TestConfiguration
+    static class StudentViewServiceImplTestContextConfiguration {
+
+        @Bean
+        StudentQuestionService studentQuestionService() {
+            return new StudentQuestionService()
+        }
     }
 
 }
