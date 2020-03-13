@@ -87,8 +87,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     def "the tournament exists and a student enrolls in it"(){
         given: "a tournament and a student"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        Tournament tournament = new Tournament(tournamentDto)
+        Tournament tournament = new Tournament(new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate))
 
         tournamentRepository.save(tournament)
         tournamentId = tournament.getId()
@@ -97,24 +96,25 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         def result = tournamentService.enrollInTournament(student, tournamentId)
         then: "Student is enrolled in the tournament"
 
-        result.getStudentList().size() == 1
-        result.getStudentList().get(0) == student
+        tournament.isEnrolled(student)
     }
 
+    def "the tournament doesn't exist and a student tries to enroll in it"(){
+        when:
+        tournamentService.enrollInTournament(student as User, null)
+
+        then: "Throw an Exception"
+        thrown(TutorException)
+    }
 
     def "the tournament exists and a student tries to enroll in it for the second time"(){
         given: "a tournament with a student, and that same student"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
 
-        def studentList = new ArrayList()
-        studentList.add(student)
-
-        tournamentDto.setStudentList(studentList)
-
-        Tournament tournament = new Tournament(tournamentDto)
-
+        Tournament tournament = new Tournament(new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate))
         tournamentRepository.save(tournament)
+
         tournamentId = tournament.getId()
+        tournamentService.enrollInTournament(student as User, tournamentId)
 
         when:
         tournamentService.enrollInTournament(student as User, tournamentId)
@@ -123,13 +123,24 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         thrown(TutorException)
     }
 
-    def "the tournament doesn't exist and a student tries to enroll in it"(){
-        when:
-        tournamentService.enrollInTournament(student, null)
 
-        then: "Throw an Exception"
-        thrown(TutorException)
+    def "student enrolls in multiple existing tournaments"(){
+        given: "a tournament and a student"
+        Tournament tournament = new Tournament(new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate))
+        Tournament tournament2 = new Tournament(new TournamentDto(TOURNAMENT_TITLE+"_another", studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate))
+
+        tournamentRepository.save(tournament)
+        tournamentRepository.save(tournament2)
+
+        when:
+        tournamentService.enrollInTournament(student as User, tournament.getId())
+        tournamentService.enrollInTournament(student as User, tournament2.getId())
+        then: "Student is enrolled in one tournament"
+        tournament.isEnrolled(student as User)
+        and: "Student is enrolled in another tournament"
+        tournament2.isEnrolled(student as User)
     }
+
 
     @TestConfiguration
     static class TournamentServiceImplTestContextConfiguration {

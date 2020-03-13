@@ -48,11 +48,14 @@ public enum ErrorMessage {
     TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1("The tournament has an invalid number of questions"),
     TOURNAMENT_DATES_WRONG_FORMAT("The tournament has a wrong date format"),
     TOURNAMENT_TOPIC_DOESNT_EXIST("The tournament topicList has a topic that doesnt exist"),
-    TOURNAMENT_NOT_FOUND("The tournament doesn't exist"),
+    TOURNAMENT_DOESNT_EXIST("The tournament doesn't exist"),
+    TOURNAMENT_USER_NOT_ENROLLED("The user is not enrolled in the tournament"),
+    TOURNAMENT_USER_ENROLLED_ALREADY("The user is already enrolled in the tournament"),
+    TOURNAMENT_NO_USERS_ENROLLED("The are no users enrolled in the tournament"),
+    TOURNAMENT_ENROLLMENT_NUMBER_DOESNT_EXIST("Invalid enrollment number"),
 
     NO_OPEN_TOURNAMENTS("There are no open tournaments"),
 
-    STUDENT_ALREADY_ENROLLED("The student has signed up for this tournament before"),
 
 
     NO_CORRECT_OPTION("Question does not have a correct option"),

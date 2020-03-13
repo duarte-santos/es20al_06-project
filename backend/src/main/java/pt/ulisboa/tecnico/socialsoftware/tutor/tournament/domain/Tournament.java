@@ -33,7 +33,7 @@ public class Tournament{
     @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "tournaments")
     private List<User> studentList = new ArrayList<>();
 
 
@@ -90,10 +90,6 @@ public class Tournament{
         this.studentList = students;
     }
 
-    public void addStudent(User student){
-        studentList.add(student);
-    }
-
     public Status getStatus() {
         return status;
     }
@@ -125,8 +121,6 @@ public class Tournament{
     public List<Topic> getTopicList() {
         return topicList;
     }
-
-
 
     public void setTopicList(List<Topic> topicList) {
         this.topicList = topicList;
@@ -163,8 +157,41 @@ public class Tournament{
     public void setStudentList(List<User> studentList) {
         this.studentList = studentList;
     }
+
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public void enroll(User student){
+        studentList.add(student);
+    }
+
+    public void unenroll(User student){
+        if(!isEnrolled(student))
+            throw new TutorException(TOURNAMENT_USER_NOT_ENROLLED);
+        studentList.remove(student);
+    }
+
+    public void unenroll(int enrollmentNumber){
+        unenroll(getUserByEnrollmentNumber(enrollmentNumber));
+    }
+
+    public boolean isEnrolled(User student){
+        return studentList.contains(student);
+    }
+
+    public int enrollmentNumber(User student){
+        if(!isEnrolled(student))
+            throw new TutorException(TOURNAMENT_USER_NOT_ENROLLED);
+         return studentList.indexOf(student) + 1;
+    }
+
+    public User getUserByEnrollmentNumber(int enrollmentNumber){
+        if(studentList.isEmpty())
+            throw new TutorException(TOURNAMENT_NO_USERS_ENROLLED);
+        if(enrollmentNumber-1 > studentList.size())
+            throw new TutorException(TOURNAMENT_ENROLLMENT_NUMBER_DOESNT_EXIST);
+        return studentList.get(enrollmentNumber-1);
     }
 }
 

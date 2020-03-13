@@ -6,26 +6,18 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.sql.DriverManager.println;
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
 
@@ -81,17 +73,17 @@ public class TournamentService{
     public TournamentDto enrollInTournament(User student, Integer tournamentId){
 
         if (tournamentId==null)
-            throw new TutorException(TOURNAMENT_NOT_FOUND);
+            throw new TutorException(TOURNAMENT_DOESNT_EXIST);
 
         Tournament tournament = new Tournament( // creates a new tournament from the tournamentDto
                 tournamentRepository.findById(tournamentId) // finds the tournament in the db
                         .map(TournamentDto::new) // creates a tournament dto with the data from the db
-                                    .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId)));
+                                    .orElseThrow(() -> new TutorException(TOURNAMENT_DOESNT_EXIST, tournamentId)));
 
-        if(tournament.getStudentList().contains(student))
-            throw new TutorException(STUDENT_ALREADY_ENROLLED);
+        if(tournament.isEnrolled(student))
+            throw new TutorException(TOURNAMENT_USER_ENROLLED_ALREADY);
 
-        tournament.addStudent(student);
+        tournament.enroll(student);
         tournamentRepository.save(tournament);
         return new TournamentDto(tournament);
 
