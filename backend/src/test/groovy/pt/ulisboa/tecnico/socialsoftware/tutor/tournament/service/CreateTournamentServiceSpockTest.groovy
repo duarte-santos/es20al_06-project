@@ -17,7 +17,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicReposito
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService;
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -62,6 +63,9 @@ class CreateTournamentServiceSpockTest extends Specification{
     @Autowired
     CourseRepository courseRepository
 
+    @Autowired
+    UserRepository userRepository
+
 
     def student
     def course
@@ -79,6 +83,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         courseRepository.save(course)
 
         student = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
+        userRepository.save(student) //required to generate an id
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)

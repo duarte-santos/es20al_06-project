@@ -49,6 +49,7 @@ public enum ErrorMessage {
     TOURNAMENT_DATES_WRONG_FORMAT("The tournament has a wrong date format"),
     TOURNAMENT_TOPIC_DOESNT_EXIST("The tournament topicList has a topic that doesnt exist"),
 
+    NO_OPEN_TOURNAMENTS("There are no open tournaments"),
 
 
 

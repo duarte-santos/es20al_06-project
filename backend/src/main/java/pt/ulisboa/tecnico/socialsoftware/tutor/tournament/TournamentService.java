@@ -20,6 +20,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.sql.DriverManager.println;
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -28,7 +30,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 public class TournamentService{
 
     @Autowired
-    private TournamentRepository tournamentRepository;
+    TournamentRepository tournamentRepository;
 
     @Autowired
     TopicRepository topicRepository;
@@ -56,7 +58,16 @@ public class TournamentService{
         }
     }
 
-    public ArrayList<TournamentDto> ShowAllOpenTournaments(){
-        return null;
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<TournamentDto> ShowAllOpenTournaments(){
+            List<TournamentDto> TournamentsList = tournamentRepository.findStatus("open").stream().map(TournamentDto::new).collect(Collectors.toList());
+            if (TournamentsList.isEmpty())
+                throw new TutorException(NO_OPEN_TOURNAMENTS);
+            else
+                return TournamentsList;
     }
+
 }

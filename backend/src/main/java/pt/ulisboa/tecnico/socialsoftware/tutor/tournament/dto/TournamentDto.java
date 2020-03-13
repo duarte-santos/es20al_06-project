@@ -38,13 +38,13 @@ public class TournamentDto implements Serializable{
         this.status = tournament.getStatus();
     }
 
-    public TournamentDto(String t, Integer id, List<Topic> tl, Integer num, String sd, String cd){
-        this.title = t;
+    public TournamentDto(String title, Integer id, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
+        this.title = title;
         this.userId = id;
-        this.topicList = tl;
-        this.numberOfQuestions = num;
-        this.startingDate = sd;
-        this.conclusionDate = cd;
+        this.topicList = topicList;
+        this.numberOfQuestions = numOfQuestions;
+        this.startingDate = startingDate;
+        this.conclusionDate = conclusionDate;
 
     }
 

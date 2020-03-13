@@ -23,21 +23,23 @@ public class Tournament{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "title")
     private String title;
 
     private Integer userId;
 
-    @OneToMany
+    @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
 
 
     private Integer numberOfQuestions;
     private LocalDateTime startingDate;
     private LocalDateTime conclusionDate;
+
+    @Column(name = "status")
     private String status = "closed";
 
-    public Tournament(){
+    public Tournament(String title){
+        this.title = title;
     }
 
 
@@ -78,6 +80,7 @@ public class Tournament{
         this.conclusionDate = conclusionDate;
         this.status = status;
     }
+
 
 
     public Integer getId() {
