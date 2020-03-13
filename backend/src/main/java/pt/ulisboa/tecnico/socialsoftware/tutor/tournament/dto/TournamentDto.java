@@ -15,7 +15,7 @@ public class TournamentDto implements Serializable{
 
     private Integer id;
     private String title;
-    private Integer userId;
+    private User creatingUser;
     private List<Topic> topicList = new ArrayList<>();
     private List<User> studentList = new ArrayList<>();
     private Integer numberOfQuestions;
@@ -33,7 +33,7 @@ public class TournamentDto implements Serializable{
     public TournamentDto(Tournament tournament){
         this.id = tournament.getId();
         this.title = tournament.getTitle();
-        this.userId = tournament.getUserId();
+        this.creatingUser = tournament.getCreatingUser();
         this.topicList = tournament.getTopicList();
         this.studentList = tournament.getStudentList();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
@@ -42,9 +42,9 @@ public class TournamentDto implements Serializable{
         this.status = tournament.getStatus();
     }
 
-    public TournamentDto(String title, Integer id, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
+    public TournamentDto(String title, User user, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
         this.title = title;
-        this.userId = id;
+        this.creatingUser = user;
         this.topicList = topicList;
         this.numberOfQuestions = numOfQuestions;
         this.startingDate = startingDate;
@@ -77,12 +77,12 @@ public class TournamentDto implements Serializable{
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getCreatingUser() {
+        return creatingUser;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setCreatingUser(User creatingUser) {
+        this.creatingUser = creatingUser;
     }
 
     public List<Topic> getTopicList() {

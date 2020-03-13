@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
-import org.apache.tomcat.jni.Local;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
@@ -8,8 +7,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +25,8 @@ public class Tournament{
 
     private String title;
 
-    private Integer userId;
+    @ManyToOne
+    private User creatingUser;
 
     @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
@@ -53,7 +51,7 @@ public class Tournament{
     public Tournament(TournamentDto tournamentDto){
 
         String title = tournamentDto.getTitle();
-        Integer userId = tournamentDto.getUserId();
+        User creatingUser = tournamentDto.getCreatingUser();
         List<Topic> topicList = tournamentDto.getTopicList();
         Integer numberOfQuestions = tournamentDto.getNumberOfQuestions();
         LocalDateTime startingDate = tournamentDto.getStartingDateDate();
@@ -65,6 +63,10 @@ public class Tournament{
 
         if (title == null || title.trim().isEmpty()) {
             throw new TutorException(TOURNAMENT_TITLE_IS_EMPTY);
+        }
+
+        if (creatingUser == null){
+            throw new TutorException(TOURNAMENT_CREATOR_DOESNT_EXIST);
         }
 
         if (topicList == null || topicList.isEmpty()){
@@ -81,7 +83,7 @@ public class Tournament{
         }
 
         this.title = title;
-        this.userId = userId;
+        this.creatingUser = creatingUser;
         this.topicList = topicList;
         this.numberOfQuestions = numberOfQuestions;
         this.startingDate = startingDate;
@@ -114,12 +116,12 @@ public class Tournament{
         this.title = title;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getCreatingUser() {
+        return creatingUser;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setCreatingUser(User creatingUser) {
+        this.creatingUser = creatingUser;
     }
 
     public List<Topic> getTopicList() {
