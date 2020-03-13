@@ -4,6 +4,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
 
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
@@ -55,6 +56,28 @@ public class QuestionDto implements Serializable {
             this.image = new ImageDto(question.getImage());
         if (question.getCreationDate() != null)
             this.creationDate = question.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+    }
+
+    public QuestionDto(StudentQuestion stQuestion) {
+        this.key = stQuestion.getKey();
+        this.title = stQuestion.getTitle();
+        this.content = stQuestion.getContent();
+        this.status = Question.Status.AVAILABLE.name();
+        int i = 1;
+        for (String stOption : stQuestion.getOptions()) {
+            OptionDto option = new OptionDto();
+            option.setContent(stOption);
+            if (i == stQuestion.getCorrect())
+                option.setCorrect(true);
+            else
+                option.setCorrect(false);
+            this.options.add(option);
+            i++;
+        }
+
+        if (stQuestion.getImage() != null)
+            this.image = new ImageDto(stQuestion.getImage());
 
     }
 
