@@ -18,6 +18,7 @@ public class StudentQuestionDto implements Serializable {
     private ImageDto image;
     private Set<String> topics = new HashSet<>();
     private StudentQuestion.State state = AWAITING_APPROVAL;
+    private String justification;
     private QuestionDto correspondingQuestion;
 
     public StudentQuestionDto() {
@@ -34,6 +35,7 @@ public class StudentQuestionDto implements Serializable {
             this.image = new ImageDto(stQuestion.getImage());
         this.topics.addAll(stQuestion.getTopics());
         this.state = stQuestion.getState();
+        this.justification = stQuestion.getJustification();
         if (stQuestion.getCorrespondingQuestion() != null)
             this.correspondingQuestion = new QuestionDto(stQuestion.getCorrespondingQuestion());
     }
@@ -125,6 +127,14 @@ public class StudentQuestionDto implements Serializable {
 
     public void setState(StudentQuestion.State state) {
         this.state = state;
+    }
+
+    public String getJustification() {
+        return justification;
+    }
+
+    public void setJustification(String justification) {
+        this.justification = justification;
     }
 
     public QuestionDto getCorrespondingQuestion() {

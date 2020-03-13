@@ -4,6 +4,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
@@ -59,7 +60,9 @@ public class StudentQuestion {
     @Enumerated(EnumType.STRING)
     private State state = State.AWAITING_APPROVAL;
 
-    @OneToOne
+    private String justification;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "studentQuestion")
     private Question correspondingQuestion;
 
     public StudentQuestion() {}
@@ -182,11 +185,41 @@ public class StudentQuestion {
         this.state = state;
     }
 
+    public String getJustification() {
+        return justification;
+    }
+
+    public void setJustification(String justification) {
+        this.justification = justification;
+    }
+
     public Question getCorrespondingQuestion() {
         return correspondingQuestion;
     }
 
     public void setCorrespondingQuestion(Question correspondingQuestion) {
         this.correspondingQuestion = correspondingQuestion;
+        correspondingQuestion.setStudentQuestion(this);
+    }
+
+    public void evaluateStudentQuestion(State result, String justification, int questionKey) {
+        if (this.state != State.AWAITING_APPROVAL)
+            throw new TutorException(QUESTION_ALREADY_EVALUATED);
+
+        else if (justification != null && justification.trim().length() == 0)
+            throw new TutorException(JUSTIFICATION_MISSING_DATA);
+
+        else if (justification != null)
+            setJustification(justification);
+
+        else if (result == State.REJECTED)
+            throw new TutorException(JUSTIFICATION_MISSING_DATA);
+
+        setState(result);
+        if (result == State.APPROVED) {
+            QuestionDto questionDto = new QuestionDto(this, questionKey);
+            Question q = new Question(this.course, questionDto);
+            setCorrespondingQuestion(q);
+        }
     }
 }

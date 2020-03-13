@@ -19,4 +19,5 @@ public interface StudentQuestionRepository extends JpaRepository<StudentQuestion
 
     @Query(value = "SELECT MAX(key) FROM student_questions", nativeQuery = true)
     Integer getMaxStudentQuestionNumber();
+    
 }

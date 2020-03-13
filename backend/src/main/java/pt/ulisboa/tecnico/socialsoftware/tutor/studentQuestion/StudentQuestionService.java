@@ -8,13 +8,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +31,8 @@ public class StudentQuestionService {
     @Autowired
     private UserRepository userRepository;
 
-    @PersistenceContext
-    EntityManager entityManager;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     @Retryable(
             value = { SQLException.class },
@@ -45,14 +43,15 @@ public class StudentQuestionService {
         User student = userRepository.findById(studentId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, studentId));
 
         if (studentQuestionDto.getKey() == null) {
-            int maxStudentQuestionNumber = studentQuestionRepository.getMaxStudentQuestionNumber() != null ?
+            int maxStQuestionNumber = studentQuestionRepository.getMaxStudentQuestionNumber() != null ?
                     studentQuestionRepository.getMaxStudentQuestionNumber() : 0;
-            studentQuestionDto.setKey(maxStudentQuestionNumber + 1);
+            int maxQuestionNumber = questionRepository.getMaxQuestionNumber() != null ?
+                    questionRepository.getMaxQuestionNumber() : 0;
+            studentQuestionDto.setKey(Math.max(maxStQuestionNumber, maxQuestionNumber) + 1);
         }
 
         StudentQuestion stQuestion = new StudentQuestion(course, student, studentQuestionDto);
         studentQuestionRepository.save(stQuestion);
-        this.entityManager.persist(stQuestion);
         return new StudentQuestionDto(stQuestion);
     }
 
@@ -72,4 +71,30 @@ public class StudentQuestionService {
         return studentQuestionRepository.findByKey(key).map(StudentQuestionDto::new)
                 .orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, key));
     }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestionDto evaluateStudentQuestion(StudentQuestion.State state, String justification, StudentQuestionDto studentQuestionDto) {
+        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionDto.getId()).orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, studentQuestionDto.getId()));
+        studentQuestion.evaluateStudentQuestion(state, justification);
+        studentQuestionRepository.save(studentQuestion);
+        return new StudentQuestionDto(studentQuestion);
+    }
+
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestionDto evaluateStudentQuestion(StudentQuestion.State state, StudentQuestionDto studentQuestionDto) {
+        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionDto.getId()).orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, studentQuestionDto.getId()));
+        int maxQuestionNumber = questionRepository.getMaxQuestionNumber() != null ?
+                questionRepository.getMaxQuestionNumber() : 0;
+        studentQuestion.evaluateStudentQuestion(state, null, maxQuestionNumber+1);
+        studentQuestionRepository.save(studentQuestion);
+        return new StudentQuestionDto(studentQuestion);
+    }
+
 }
