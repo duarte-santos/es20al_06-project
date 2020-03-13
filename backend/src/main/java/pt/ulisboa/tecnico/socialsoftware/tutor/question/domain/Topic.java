@@ -36,6 +36,9 @@ public class Topic {
     @JoinColumn(name = "course_id")
     private Course course;
 
+    @ManyToMany
+    private List<Topic> tournaments = new ArrayList<>();
+
     public Topic() {
     }
 
@@ -43,6 +46,14 @@ public class Topic {
         this.name = topicDto.getName();
         this.course = course;
         course.addTopic(this);
+    }
+
+    public List<Topic> getTournaments() {
+        return tournaments;
+    }
+
+    public void setTournaments(List<Topic> tournaments) {
+        this.tournaments = tournaments;
     }
 
     public Integer getId() {
@@ -107,7 +118,6 @@ public class Topic {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(name);
     }
 
