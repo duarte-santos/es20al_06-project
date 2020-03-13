@@ -30,21 +30,21 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     def studentQuestion
 
     def setup() {
-        studentQuestionService = new StudentQuestionService()
-        questionService = new QuestionService()
+        //studentQuestionService = new StudentQuestionService()
+        //questionService = new QuestionService()
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
 
-        user = new User(FIRST_NAME, USERNAME, 1, User.Role.TEACHER)
+        user = new User(FIRST_NAME, USERNAME, 1, User.Role.STUDENT)
 
         List<String> options = new ArrayList<String>()
         options.add(OPTION_CORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
-        studentQuestionDto = new StudentQuestionDto(QUESTION_TITLE, QUESTION_CONTENT, 1, options)
+        studentQuestionDto = new StudentQuestionDto(1, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
 
-        studentQuestion = new StudentQuestion(course.getId(), user.getId(), studentQuestionDto)
+        studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
     }
 
     def "teacher marks student question as approved without justification"() {
@@ -54,6 +54,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
 
         then: "the returned data is correct"
         result.getId() != null
+        result.getKey() == 1
         result.getCourse().getName() == COURSE_NAME
         result.getStudent().getId() == user.getId()
         result.getTitle() == QUESTION_TITLE
@@ -85,6 +86,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
 
         then: "the returned data is correct"
         result.getId() != null
+        result.getKey() == 1
         result.getCourse().getName() == COURSE_NAME
         result.getStudent().getId() == user.getId()
         result.getTitle() == QUESTION_TITLE
@@ -124,6 +126,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
 
         then: "the returned data is correct"
         result.getId() != null
+        result.getKey() == 1
         result.getCourse().getName() == COURSE_NAME
         result.getStudent().getId() == user.getId()
         result.getTitle() == QUESTION_TITLE
