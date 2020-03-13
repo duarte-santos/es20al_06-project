@@ -20,6 +20,8 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 @Table(name = "tournaments")
 public class Tournament{
 
+    public enum Status {OPEN, CLOSED}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -39,10 +41,12 @@ public class Tournament{
     private LocalDateTime startingDate;
     private LocalDateTime conclusionDate;
 
-    @Column(name = "status")
-    private String status = "closed";
+
+    @Enumerated(EnumType.STRING)
+    private Tournament.Status status;
 
     public Tournament(){
+        this.status = Tournament.Status.CLOSED;
     }
 
 
@@ -55,7 +59,7 @@ public class Tournament{
         LocalDateTime startingDate = tournamentDto.getStartingDateDate();
         LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
         LocalDateTime now = LocalDateTime.now();
-        String status = tournamentDto.getStatus();
+        Tournament.Status status = tournamentDto.getStatus();
         List<User> students = tournamentDto.getStudentList();
 
 
@@ -90,6 +94,9 @@ public class Tournament{
         studentList.add(student);
     }
 
+    public Status getStatus() {
+        return status;
+    }
 
     public Integer getId() {
         return id;
@@ -119,7 +126,7 @@ public class Tournament{
         return topicList;
     }
 
-    public String getStatus(){ return this.status; }
+
 
     public void setTopicList(List<Topic> topicList) {
         this.topicList = topicList;
@@ -149,14 +156,15 @@ public class Tournament{
         this.conclusionDate = conclusionDate;
     }
 
-    public void setStatus(String status){ this.status = status; }
-
     public List<User> getStudentList() {
         return studentList;
     }
 
     public void setStudentList(List<User> studentList) {
         this.studentList = studentList;
+    }
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
 

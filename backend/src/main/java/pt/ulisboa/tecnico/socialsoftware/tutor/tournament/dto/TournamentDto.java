@@ -21,12 +21,13 @@ public class TournamentDto implements Serializable{
     private Integer numberOfQuestions;
     private String startingDate;
     private String conclusionDate;
-    private String status = "closed";
+    private Tournament.Status status;
 
     @Transient
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public TournamentDto(){
+        this.status = Tournament.Status.CLOSED;
     }
 
     public TournamentDto(Tournament tournament){
@@ -48,7 +49,16 @@ public class TournamentDto implements Serializable{
         this.numberOfQuestions = numOfQuestions;
         this.startingDate = startingDate;
         this.conclusionDate = conclusionDate;
+        this.status = Tournament.Status.CLOSED;
 
+    }
+
+    public Tournament.Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Tournament.Status status) {
+        this.status = status;
     }
 
     public String getTitle() {
@@ -79,7 +89,6 @@ public class TournamentDto implements Serializable{
         return topicList;
     }
 
-    public String getStatus(){ return this.status; }
 
     public void setTopicList(List<Topic> topicList) {
         this.topicList = topicList;
@@ -110,7 +119,6 @@ public class TournamentDto implements Serializable{
         this.conclusionDate = conclusionDate;
     }
 
-    public void setStatus(String status){ this.status = status; }
 
     public LocalDateTime getStartingDateDate() {
         if (getStartingDate() == null || getStartingDate().isEmpty()) {

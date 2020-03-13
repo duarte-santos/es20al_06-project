@@ -66,7 +66,8 @@ public class TournamentService{
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<TournamentDto> ShowAllOpenTournaments(){
-            List<TournamentDto> TournamentsList = tournamentRepository.findStatus("open").stream().map(TournamentDto::new).collect(Collectors.toList());
+
+            List<TournamentDto> TournamentsList = tournamentRepository.findOpen().stream().map(TournamentDto::new).collect(Collectors.toList());
             if (TournamentsList.isEmpty())
                 throw new TutorException(NO_OPEN_TOURNAMENTS);
             else
@@ -78,14 +79,18 @@ public class TournamentService{
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public TournamentDto enrollInTournament(User student, Integer tournamentId){
+
         if (tournamentId==null)
             throw new TutorException(TOURNAMENT_NOT_FOUND);
-        Tournament tournament = new Tournament(
-                tournamentRepository.findById(tournamentId)
-                        .map(TournamentDto::new)
+
+        Tournament tournament = new Tournament( // creates a new tournament from the tournamentDto
+                tournamentRepository.findById(tournamentId) // finds the tournament in the db
+                        .map(TournamentDto::new) // creates a tournament dto with the data from the db
                                     .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId)));
+
         if(tournament.getStudentList().contains(student))
             throw new TutorException(STUDENT_ALREADY_ENROLLED);
+
         tournament.addStudent(student);
         tournamentRepository.save(tournament);
         return new TournamentDto(tournament);

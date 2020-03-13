@@ -89,8 +89,10 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         given: "a tournament and a student"
         tournamentDto = new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
         Tournament tournament = new Tournament(tournamentDto)
+
         tournamentRepository.save(tournament)
         tournamentId = tournament.getId()
+
         when:
         def result = tournamentService.enrollInTournament(student, tournamentId)
         then: "Student is enrolled in the tournament"
@@ -103,10 +105,14 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
     def "the tournament exists and a student tries to enroll in it for the second time"(){
         given: "a tournament with a student, and that same student"
         tournamentDto = new TournamentDto(TOURNAMENT_TITLE, studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+
         def studentList = new ArrayList()
         studentList.add(student)
+
         tournamentDto.setStudentList(studentList)
+
         Tournament tournament = new Tournament(tournamentDto)
+
         tournamentRepository.save(tournament)
         tournamentId = tournament.getId()
 

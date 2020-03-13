@@ -107,10 +107,10 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     def "Both open and close tournaments exist"(){
         given: "several open tournaments"
 
-        tournament1.setStatus("open")
-        tournament2.setStatus("closed")
-        tournament3.setStatus("open")
-        tournament4.setStatus("closed")
+        tournament1.setStatus(Tournament.Status.OPEN)
+        tournament2.setStatus(Tournament.Status.CLOSED)
+        tournament3.setStatus(Tournament.Status.OPEN)
+        tournament4.setStatus(Tournament.Status.CLOSED)
 
         tournamentRepository.save(tournament1)
         tournamentRepository.save(tournament2)
@@ -129,10 +129,10 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
     def "No tournaments are open"(){
         given: "Only close tournaments"
-        tournament1.setStatus("closed")
-        tournament2.setStatus("closed")
-        tournament3.setStatus("closed")
-        tournament4.setStatus("closed")
+        tournament1.setStatus(Tournament.Status.CLOSED)
+        tournament2.setStatus(Tournament.Status.CLOSED)
+        tournament3.setStatus(Tournament.Status.CLOSED)
+        tournament4.setStatus(Tournament.Status.CLOSED)
 
         tournamentRepository.save(tournament1);
         tournamentRepository.save(tournament2);
@@ -141,7 +141,6 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
         when:
         def result = tournamentService.ShowAllOpenTournaments()
-
         then: "An exception is thrown"
         thrown(TutorException)
     }
