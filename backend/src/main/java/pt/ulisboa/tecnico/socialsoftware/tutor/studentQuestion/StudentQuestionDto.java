@@ -1,43 +1,31 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
-
 import java.io.Serializable;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion.State.*;
 
 public class StudentQuestionDto implements Serializable {
-    public enum State {
-        AWAITING_APPROVAL, APPROVED, REJECTED
-    }
 
     private Integer id;
+    private Integer key;
     private String title;
     private String content;
-    private Integer correct;
+    private Integer correct = 0;
     private List<String> options = new ArrayList<>();
     private ImageDto image;
     private Set<String> topics = new HashSet<>();
-    private String state;
-    //private String justification; // TODO approval/rejection class?
-    private QuestionDto correspondingQuestion; //TODO necessario?
+    private StudentQuestion.State state = AWAITING_APPROVAL;
+    private QuestionDto correspondingQuestion;
 
     public StudentQuestionDto() {
     }
 
     public StudentQuestionDto(StudentQuestion stQuestion) {
         this.id = stQuestion.getId();
+        this.key = stQuestion.getKey();
         this.title = stQuestion.getTitle();
         this.content = stQuestion.getContent();
         this.correct = stQuestion.getCorrect();
@@ -45,29 +33,38 @@ public class StudentQuestionDto implements Serializable {
         if (stQuestion.getImage() != null)
             this.image = new ImageDto(stQuestion.getImage());
         this.topics.addAll(stQuestion.getTopics());
-        this.state = stQuestion.getState().name();
-        this.correspondingQuestion = new QuestionDto(stQuestion.getCorrespondingQuestion());
+        this.state = stQuestion.getState();
+        if (stQuestion.getCorrespondingQuestion() != null)
+            this.correspondingQuestion = new QuestionDto(stQuestion.getCorrespondingQuestion());
     }
 
-    public StudentQuestionDto(String title, String content, Integer correct, List<String> options) {
+    public StudentQuestionDto(Integer key, String title, String content, Integer correct, List<String> options) {
+        this.key = key;
         this.title = title;
         this.content = content;
         this.correct = correct;
         this.options.addAll(options);
-        this.state = "AWAITING_APPROVAL";
     }
 
-    public StudentQuestionDto(String title, String content, Integer correct, List<String> options, ImageDto img) {
+    public StudentQuestionDto(Integer key, String title, String content, Integer correct, List<String> options, ImageDto img) {
+        this.key = key;
         this.title = title;
         this.content = content;
         this.correct = correct;
         this.options.addAll(options);
-        this.state = "AWAITING_APPROVAL";
         this.image = img;
     }
 
     public Integer getId() {
         return id;
+    }
+
+    public Integer getKey() {
+        return key;
+    }
+
+    public void setKey(Integer key) {
+        this.key = key;
     }
 
     public String getTitle() {
@@ -122,11 +119,11 @@ public class StudentQuestionDto implements Serializable {
         this.topics.add(topic);
     }
 
-    public String getState() {
+    public StudentQuestion.State getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(StudentQuestion.State state) {
         this.state = state;
     }
 

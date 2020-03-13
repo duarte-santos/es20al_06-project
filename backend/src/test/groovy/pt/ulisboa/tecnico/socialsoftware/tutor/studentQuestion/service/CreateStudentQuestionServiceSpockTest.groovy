@@ -6,18 +6,17 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
-
-import java.util.function.Supplier
-
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_NOT_FOUND
 
 
 @DataJpaTest
@@ -33,11 +32,15 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
     public static final String OPTION_INCORRECT_CONTENT = "Incorrect Content"
     public static final String URL = 'URL'
 
+
     @Autowired
     StudentQuestionService studentQuestionService
 
     @Autowired
     CourseRepository courseRepository
+
+    @Autowired
+    CourseExecutionRepository courseExecutionRepository
 
     @Autowired
     UserRepository userRepository
@@ -47,12 +50,11 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
     def user
 
     def setup() {
-        studentQuestionService = new StudentQuestionService() //TODO verificar que funciona como novo em cada teste
-
-        course = new Course(COURSE_NAME, Course.Type.TECNICO) //TODO preciso???
+        course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
+
         courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
-        courseRepository.save(courseExecution)
+        courseExecutionRepository.save(courseExecution)
 
         user = new User(FIRST_NAME, USERNAME, 1, User.Role.STUDENT)
         userRepository.save(user)
@@ -62,6 +64,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // the student question is created
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
@@ -75,21 +78,19 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
 
         then: "the returned data is correct"
         result.getId() != null
-        //result.getCourse().getName() == COURSE_NAME
-        //result.getStudent().getId() == user.getId()
+        result.getKey() == 1
         result.getTitle() == QUESTION_TITLE
         result.getContent() == QUESTION_CONTENT
         result.getImage() == null
         result.getOptions().size() == 4
         result.getCorrectOption() == OPTION_CORRECT_CONTENT
         and: "the student question is created"
-        studentQuestionService.getStudentQuestions().size() == 1
-        def studentQuestion = new ArrayList<>(studentQuestionService.getStudentQuestions()).get(0)
+        studentQuestionService.findStudentQuestions(course.getId()).size() == 1
+        def studentQuestion = new ArrayList<>(studentQuestionService.findStudentQuestions(course.getId())).get(0)
         studentQuestion != null
         and: "has the correct value"
         studentQuestion.getId() != null
-        studentQuestion.getCourse().getName() == COURSE_NAME
-        studentQuestion.getStudent().getId() == user.getId()
+        studentQuestion.getKey() == 1
         studentQuestion.getTitle() == QUESTION_TITLE
         studentQuestion.getContent() == QUESTION_CONTENT
         studentQuestion.getImage() == null
@@ -101,6 +102,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // the student question is created
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
@@ -119,8 +121,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
 
         then: "the returned data is correct"
         result.getId() != null
-        //result.getCourse().getName() == COURSE_NAME
-        //result.getStudent().getId() == user.getId()
+        result.getKey() == 1
         result.getTitle() == QUESTION_TITLE
         result.getContent() == QUESTION_CONTENT
         result.getOptions().size() == 4
@@ -129,13 +130,12 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         result.getImage().getUrl() == URL
         result.getImage().getWidth() == 20
         and: "the student question is created"
-        studentQuestionService.getStudentQuestions().size() == 1
-        def studentQuestion = new ArrayList<>(course.getStudentQuestions()).get(0)
+        studentQuestionService.findStudentQuestions(course.getId()).size() == 1
+        def studentQuestion = new ArrayList<>(studentQuestionService.findStudentQuestions(course.getId())).get(0)
         studentQuestion != null
         and: "has the correct value"
         studentQuestion.getId() != null
-        studentQuestion.getCourse().getName() == COURSE_NAME
-        studentQuestion.getStudent().getId() == user.getId()
+        studentQuestion.getKey() == 1
         studentQuestion.getTitle() == QUESTION_TITLE
         studentQuestion.getContent() == QUESTION_CONTENT
         studentQuestion.getOptions().size() == 4
@@ -150,6 +150,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // an exception is thrown
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
         studentQuestionDto.addOption(OPTION_INCORRECT_CONTENT)
@@ -168,6 +169,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // an exception is thrown
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle("    ")
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
@@ -187,6 +189,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // an exception is thrown
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
         studentQuestionDto.addOption(OPTION_INCORRECT_CONTENT)
@@ -205,6 +208,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // an exception is thrown
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.setContent("    ")
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
@@ -223,7 +227,8 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
     def "create question with less than four options"() {
         // an exception is thrown
         given: "a studentQuestionDto"
-        def studentQuestionDto = new StudentQuestionDto() //TODO qts respostas pode ter a pergunta
+        def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
@@ -241,6 +246,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // an exception is thrown
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_INCORRECT_CONTENT)
@@ -259,6 +265,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // an exception is thrown
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_INCORRECT_CONTENT)
@@ -278,6 +285,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         // an exception is thrown
         given: "a studentQuestionDto"
         def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setKey(1)
         studentQuestionDto.setTitle(QUESTION_TITLE)
         studentQuestionDto.setContent(QUESTION_CONTENT)
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
@@ -303,6 +311,12 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         }
     }
 
+    //TODO addtopics!
     //TODO verificar blank e empty opcoes?
+
+    //TODO key question = key student question??
+    //private String justification; em StudentQuestion // TODO approval/rejection class?
+
+
 
 }
