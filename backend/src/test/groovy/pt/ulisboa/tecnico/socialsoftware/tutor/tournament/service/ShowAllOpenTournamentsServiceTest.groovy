@@ -69,6 +69,10 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     def tournament4
     def studentId
 
+    private Tournament createTournament(String title,Integer id, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
+        def tournamentDto = new TournamentDto(title, id, topicList, numOfQuestions, startingDate, conclusionDate)
+        return new Tournament(tournamentDto)
+    }
 
     def setup(){
 
@@ -92,15 +96,10 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         startingDate = LocalDateTime.now().format(formatter)
         conclusionDate = LocalDateTime.now().plusDays(1).format(formatter)
 
-        def tournamentDto1 = new TournamentDto("T1",studentId,topicList,NUMBER_OF_QUESTIONS,startingDate,conclusionDate)
-        def tournamentDto2 = new TournamentDto("T2",studentId,topicList,NUMBER_OF_QUESTIONS,startingDate,conclusionDate)
-        def tournamentDto3 = new TournamentDto("T3",studentId,topicList,NUMBER_OF_QUESTIONS,startingDate,conclusionDate)
-        def tournamentDto4 = new TournamentDto("T4",studentId,topicList,NUMBER_OF_QUESTIONS,startingDate,conclusionDate)
-
-        tournament1 = new Tournament(tournamentDto1)
-        tournament2 = new Tournament(tournamentDto2)
-        tournament3 = new Tournament(tournamentDto3)
-        tournament4 = new Tournament(tournamentDto4)
+        tournament1 = createTournament("T1", studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament2 = createTournament("T2", studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament3 = createTournament("T3", studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament4 = createTournament("T4", studentId, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
 
 
     }
@@ -108,20 +107,15 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     def "Both open and close tournaments exist"(){
         given: "several open tournaments"
 
-
         tournament1.setStatus("open")
         tournament2.setStatus("closed")
         tournament3.setStatus("open")
         tournament4.setStatus("closed")
 
-
         tournamentRepository.save(tournament1)
         tournamentRepository.save(tournament2)
         tournamentRepository.save(tournament3)
         tournamentRepository.save(tournament4)
-
-
-
 
         when:
         def result = tournamentService.ShowAllOpenTournaments()
