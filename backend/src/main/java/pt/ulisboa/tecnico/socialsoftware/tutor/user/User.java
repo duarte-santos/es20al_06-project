@@ -8,6 +8,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -57,6 +58,12 @@ public class User implements UserDetails {
     @ManyToMany
     private Set<CourseExecution> courseExecutions = new HashSet<>();
 
+    @OneToMany
+    private Set<Tournament> tournamentsCreated = new HashSet<>();
+
+    @ManyToMany
+    private Set<Tournament> tournamentsEnrolled = new HashSet<>();
+
     public User() {
     }
 
@@ -75,6 +82,22 @@ public class User implements UserDetails {
         this.numberOfCorrectTeacherAnswers = 0;
         this.numberOfCorrectInClassAnswers = 0;
         this.numberOfCorrectStudentAnswers = 0;
+    }
+
+    public Set<Tournament> getTournamentsCreated() {
+        return tournamentsCreated;
+    }
+
+    public void setTournamentsCreated(Set<Tournament> tournamentsCreated) {
+        this.tournamentsCreated = tournamentsCreated;
+    }
+
+    public Set<Tournament> getTournamentsEnrolled() {
+        return tournamentsEnrolled;
+    }
+
+    public void setTournamentsEnrolled(Set<Tournament> tournamentsEnrolled) {
+        this.tournamentsEnrolled = tournamentsEnrolled;
     }
 
     public Integer getId() {
