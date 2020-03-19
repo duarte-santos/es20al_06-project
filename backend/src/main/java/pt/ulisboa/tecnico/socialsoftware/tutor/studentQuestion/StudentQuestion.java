@@ -97,6 +97,8 @@ public class StudentQuestion {
         }
 
         this.options.addAll(stQuestionDto.getOptions());
+
+        this.justification = stQuestionDto.getJustification();
     }
 
 
