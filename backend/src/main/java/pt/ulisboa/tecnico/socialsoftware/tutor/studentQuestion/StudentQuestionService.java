@@ -93,7 +93,7 @@ public class StudentQuestionService {
         return studentQuestionRepository.findStudentQuestionsFromStudent(studentId).stream().map(StudentQuestionDto::new).collect(Collectors.toList());
     }
 
-
+    /*
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -112,5 +112,5 @@ public class StudentQuestionService {
 
         return (studentQuestionRepository.findSpecificStudentQuestion(studentId, id)).getJustification();
     }
-
+    */
 }
