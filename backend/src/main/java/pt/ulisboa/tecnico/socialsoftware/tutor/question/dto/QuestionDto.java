@@ -64,6 +64,13 @@ public class QuestionDto implements Serializable {
         this.title = stQuestion.getTitle();
         this.content = stQuestion.getContent();
         this.status = Question.Status.AVAILABLE.name();
+        addStudentOptions(stQuestion);
+        if (stQuestion.getImage() != null)
+            this.image = new ImageDto(stQuestion.getImage());
+
+    }
+
+    private void addStudentOptions(StudentQuestion stQuestion) {
         for (String stOption : stQuestion.getOptions()) {
             OptionDto option = new OptionDto();
             option.setContent(stOption);
@@ -71,10 +78,6 @@ public class QuestionDto implements Serializable {
             this.options.add(option);
         }
         this.options.get(stQuestion.getCorrect() - 1).setCorrect(true);
-
-        if (stQuestion.getImage() != null)
-            this.image = new ImageDto(stQuestion.getImage());
-
     }
 
     public Integer getId() {
