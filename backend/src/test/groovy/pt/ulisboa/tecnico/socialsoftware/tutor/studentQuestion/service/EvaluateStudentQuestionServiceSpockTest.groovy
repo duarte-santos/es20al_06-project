@@ -7,14 +7,19 @@ import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
-import spock.lang.Specification;
+import spock.lang.Specification
+import spock.lang.Unroll
+
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.JUSTIFICATION_MISSING_DATA
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.QUESTION_ALREADY_EVALUATED
 
 @DataJpaTest
 public class EvaluateStudentQuestionServiceSpockTest extends Specification {
@@ -27,13 +32,14 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     public static final String QUESTION_CONTENT = "Question Content"
     public static final String OPTION_CORRECT_CONTENT = "Correct Content"
     public static final String OPTION_INCORRECT_CONTENT = "Incorrect Content"
+    public static final String URL = 'URL'
     public static final String JUSTIFICATION = "justification"
 
     @Autowired
     StudentQuestionService studentQuestionService
 
     @Autowired
-    QuestionService questionService
+    QuestionRepository questionRepository
 
     @Autowired
     CourseRepository courseRepository
@@ -62,108 +68,88 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         options.add(OPTION_INCORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
         studentQuestionDto = new StudentQuestionDto(1, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
+        def image = new ImageDto()
+        image.setUrl(URL)
+        image.setWidth(20)
+        studentQuestionDto.setImage(image)
         studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
         studentQuestionRepository.save(studentQuestion)
         studentQuestionDto = new StudentQuestionDto(studentQuestion)
     }
 
-    def "teacher marks student question as approved without justification"() {
+    @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated ")
+    def "teacher evaluates question with or without justification"() {
         // question is created, studentQuestion marked as approved
         when:
-        def result = studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.APPROVED, studentQuestionDto)
+        def result = studentQuestionService.evaluateStudentQuestion(evaluation, justification, studentQuestionDto)
 
         then: "the returned data is correct"
         result.getId() != null
         result.getKey() == 1
         result.getTitle() == QUESTION_TITLE
         result.getContent() == QUESTION_CONTENT
-        result.getImage() == null
         result.getOptions().size() == 4
         result.getCorrectOption() == OPTION_CORRECT_CONTENT
-        result.getState() == StudentQuestion.State.APPROVED
-        and: "the question is created"
-        questionService.findQuestions(course.getId()).size() == 1
-        def question = new ArrayList<>(questionService.findQuestions(course.getId())).get(0)
-        question != null
-        and: "has the correct value"
-        question.getId() != null
-        question.getKey() == 1
-        question.getTitle() == QUESTION_TITLE
-        question.getContent() == QUESTION_CONTENT
-        question.getImage() == null
-        question.getOptions().size() == 4
-        question.getOptions().get(0).getCorrect() == true
-        question.getOptions().get(1).getCorrect() == false
+        result.getState() == evaluation
+        and: "the new question is or is not created"
+        questionWasCreated(questionCreated)
+        and: "if created, has the correct value"
+        checkNewQuestion(questionCreated)
 
+        where:
+        evaluation                           | justification      || questionCreated
+        StudentQuestion.State.APPROVED       | null               || true
+        StudentQuestion.State.APPROVED       | JUSTIFICATION      || true
+        StudentQuestion.State.REJECTED       | JUSTIFICATION      || false
     }
 
-    def "teacher marks student question as approved with justification"() {
-        // question is created, studentQuestion marked as approved
-        when:
-        def result = studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.APPROVED, JUSTIFICATION, studentQuestionDto)
-
-        then: "the returned data is correct"
-        result.getId() != null
-        result.getKey() == 1
-        result.getTitle() == QUESTION_TITLE
-        result.getContent() == QUESTION_CONTENT
-        result.getImage() == null
-        result.getOptions().size() == 4
-        result.getCorrectOption() == OPTION_CORRECT_CONTENT
-        result.getState() == StudentQuestion.State.APPROVED
-        result.getJustification() == JUSTIFICATION
-        and: "the question is created"
-        questionService.findQuestions(course.getId()).size() == 1
-        def question = new ArrayList<>(questionService.findQuestions(course.getId())).get(0)
-        question != null
-        and: "has the correct value"
-        question.getId() != null
-        question.getKey() == 1
-        question.getTitle() == QUESTION_TITLE
-        question.getContent() == QUESTION_CONTENT
-        question.getImage() == null
-        question.getOptions().size() == 4
-        question.getOptions().get(0).getCorrect() == true
+    def questionWasCreated(boolean questionCreated) {
+        if (!questionCreated)
+            return questionRepository.count() == 0L
+        if (questionCreated)
+            return questionRepository.count() == 1L
     }
 
-    def "teacher marks student question as rejected without justification"() {
+    def checkNewQuestion(boolean questionCreated) {
+        if (questionCreated) {
+            def question = questionRepository.findAll().get(0)
+            return (question.getId() != null
+                    && question.getKey() == 1
+                    && question.getTitle() == QUESTION_TITLE
+                    && question.getContent() == QUESTION_CONTENT
+                    && question.getOptions().size() == 4
+                    && question.getOptions().get(0).getCorrect()
+                    && !question.getOptions().get(1).getCorrect()
+                    && question.getImage().getId() != null
+                    && question.getImage().getUrl() == URL
+                    && question.getImage().getWidth() == 20)
+        }
+        return true;
+    }
+
+    @Unroll("invalid arguments: #previousState | #newState | #justification || errorMessage ")
+    def "invalid input values"() {
         // question is not created and exception is thrown
+        given: "a studentQuestion"
+        studentQuestion.setState(previousState)
+
         when:
-        studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, studentQuestionDto)
+        studentQuestionService.evaluateStudentQuestion(newState, justification, studentQuestionDto)
 
         then: "an exception is thrown"
-        thrown(TutorException)
-    }
+        def error = thrown(TutorException)
+        error.errorMessage == errorMessage
 
-    def "teacher marks student question as rejected with justification"() {
-        // question is not created and studentQuestion marked as rejected
-        when:
-        def result = studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, JUSTIFICATION, studentQuestionDto)
+        where:
+        previousState                           | newState                        | justification      || errorMessage
+        StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.APPROVED  | '  '               || JUSTIFICATION_MISSING_DATA
+        StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | '  '               || JUSTIFICATION_MISSING_DATA
+        StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | null               || JUSTIFICATION_MISSING_DATA
+        StudentQuestion.State.APPROVED          | StudentQuestion.State.APPROVED  | null               || QUESTION_ALREADY_EVALUATED
+        StudentQuestion.State.APPROVED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || QUESTION_ALREADY_EVALUATED
+        StudentQuestion.State.REJECTED          | StudentQuestion.State.APPROVED  | null               || QUESTION_ALREADY_EVALUATED
+        StudentQuestion.State.REJECTED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || QUESTION_ALREADY_EVALUATED
 
-        then: "the returned data is correct"
-        result.getId() != null
-        result.getKey() == 1
-        result.getTitle() == QUESTION_TITLE
-        result.getContent() == QUESTION_CONTENT
-        result.getImage() == null
-        result.getOptions().size() == 4
-        result.getCorrectOption() == OPTION_CORRECT_CONTENT
-        result.getState() == StudentQuestion.State.REJECTED
-        result.getJustification() == JUSTIFICATION
-        and: "the question is not created"
-        questionService.findQuestions(course.getId()).size() == 0
-    }
-
-    def "teacher evaluates previously evaluated student question"() {
-        // question is not created and exception is thrown
-        given: "an evaluated question"
-        studentQuestion.setState(StudentQuestion.State.APPROVED)
-
-        when:
-        studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, studentQuestionDto)
-
-        then: "an exception is thrown"
-        thrown(TutorException)
     }
 
     @TestConfiguration
@@ -174,11 +160,6 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
             return new StudentQuestionService()
         }
 
-        @Bean
-        QuestionService questionService() {
-            return new QuestionService()
-        }
     }
 
-    //TODO testar imagem
 }

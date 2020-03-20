@@ -62,7 +62,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         userRepository.save(user)
     }
 
-    @Unroll("question creation: image #hasImage ")
+    @Unroll("studentQuestion creation: image #hasImage ")
     def "create question with or without image"() {
         // the student question is created
         given: "a studentQuestionDto"
