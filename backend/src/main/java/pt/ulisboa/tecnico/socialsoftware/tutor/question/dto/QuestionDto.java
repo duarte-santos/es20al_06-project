@@ -64,17 +64,13 @@ public class QuestionDto implements Serializable {
         this.title = stQuestion.getTitle();
         this.content = stQuestion.getContent();
         this.status = Question.Status.AVAILABLE.name();
-        int i = 1;
         for (String stOption : stQuestion.getOptions()) {
             OptionDto option = new OptionDto();
             option.setContent(stOption);
-            if (i == stQuestion.getCorrect())
-                option.setCorrect(true);
-            else
-                option.setCorrect(false);
+            option.setCorrect(false);
             this.options.add(option);
-            i++;
         }
+        this.options.get(stQuestion.getCorrect() - 1).setCorrect(true);
 
         if (stQuestion.getImage() != null)
             this.image = new ImageDto(stQuestion.getImage());

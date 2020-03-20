@@ -81,20 +81,20 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         result.getOptions().size() == 4
         result.getCorrectOption() == OPTION_CORRECT_CONTENT
         result.getState() == StudentQuestion.State.APPROVED
-        result.getCorrespondingQuestion() != null
         and: "the question is created"
         questionService.findQuestions(course.getId()).size() == 1
         def question = new ArrayList<>(questionService.findQuestions(course.getId())).get(0)
         question != null
         and: "has the correct value"
         question.getId() != null
-        question.getKey() != null
+        question.getKey() == 1
         question.getTitle() == QUESTION_TITLE
         question.getContent() == QUESTION_CONTENT
         question.getImage() == null
         question.getOptions().size() == 4
+        question.getOptions().get(0).getCorrect() == true
+        question.getOptions().get(1).getCorrect() == false
 
-        //TODO testar se corresponding question e a mm q a criada
     }
 
     def "teacher marks student question as approved with justification"() {
@@ -112,24 +112,24 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         result.getCorrectOption() == OPTION_CORRECT_CONTENT
         result.getState() == StudentQuestion.State.APPROVED
         result.getJustification() == JUSTIFICATION
-        result.getCorrespondingQuestion() != null
         and: "the question is created"
-        questionService.findQuestions(course).size() == 1
-        def question = new ArrayList<>(questionService.findQuestions(course)).get(0)
+        questionService.findQuestions(course.getId()).size() == 1
+        def question = new ArrayList<>(questionService.findQuestions(course.getId())).get(0)
         question != null
         and: "has the correct value"
         question.getId() != null
-        question.getKey() != null
+        question.getKey() == 1
         question.getTitle() == QUESTION_TITLE
         question.getContent() == QUESTION_CONTENT
         question.getImage() == null
         question.getOptions().size() == 4
+        question.getOptions().get(0).getCorrect() == true
     }
 
     def "teacher marks student question as rejected without justification"() {
         // question is not created and exception is thrown
         when:
-        studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, studentQuestion)
+        studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, studentQuestionDto)
 
         then: "an exception is thrown"
         thrown(TutorException)
@@ -138,7 +138,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     def "teacher marks student question as rejected with justification"() {
         // question is not created and studentQuestion marked as rejected
         when:
-        def result = studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, JUSTIFICATION, studentQuestion)
+        def result = studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, JUSTIFICATION, studentQuestionDto)
 
         then: "the returned data is correct"
         result.getId() != null
@@ -151,8 +151,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         result.getState() == StudentQuestion.State.REJECTED
         result.getJustification() == JUSTIFICATION
         and: "the question is not created"
-        result.getCorrespondingQuestion() == null
-        questionService.findQuestions(course).size() == 0
+        questionService.findQuestions(course.getId()).size() == 0
     }
 
     def "teacher evaluates previously evaluated student question"() {
@@ -161,7 +160,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         studentQuestion.setState(StudentQuestion.State.APPROVED)
 
         when:
-        studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, studentQuestion)
+        studentQuestionService.evaluateStudentQuestion(StudentQuestion.State.REJECTED, studentQuestionDto)
 
         then: "an exception is thrown"
         thrown(TutorException)

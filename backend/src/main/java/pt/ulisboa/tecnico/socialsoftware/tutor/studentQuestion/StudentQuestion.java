@@ -62,9 +62,6 @@ public class StudentQuestion {
 
     private String justification;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "studentQuestion")
-    private Question correspondingQuestion;
-
     public StudentQuestion() {}
 
     public StudentQuestion(Course course, User user, StudentQuestionDto stQuestionDto) {
@@ -195,15 +192,6 @@ public class StudentQuestion {
         this.justification = justification;
     }
 
-    public Question getCorrespondingQuestion() {
-        return correspondingQuestion;
-    }
-
-    public void setCorrespondingQuestion(Question correspondingQuestion) {
-        this.correspondingQuestion = correspondingQuestion;
-        correspondingQuestion.setStudentQuestion(this);
-    }
-
     public void evaluateStudentQuestion(State result, String justification) {
         if (this.state != State.AWAITING_APPROVAL)
             throw new TutorException(QUESTION_ALREADY_EVALUATED);
@@ -220,8 +208,7 @@ public class StudentQuestion {
         setState(result);
         if (result == State.APPROVED) {
             QuestionDto questionDto = new QuestionDto(this);
-            Question q = new Question(this.course, questionDto);
-            setCorrespondingQuestion(q);
+            new Question(this.course, questionDto);
         }
     }
 }
