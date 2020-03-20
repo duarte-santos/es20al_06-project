@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import java.io.Serializable;
 import java.util.*;
 
@@ -19,7 +18,6 @@ public class StudentQuestionDto implements Serializable {
     private Set<String> topics = new HashSet<>();
     private StudentQuestion.State state = AWAITING_APPROVAL;
     private String justification;
-    private QuestionDto correspondingQuestion;
 
     public StudentQuestionDto() {
     }
@@ -36,8 +34,6 @@ public class StudentQuestionDto implements Serializable {
         this.topics.addAll(stQuestion.getTopics());
         this.state = stQuestion.getState();
         this.justification = stQuestion.getJustification();
-        if (stQuestion.getCorrespondingQuestion() != null)
-            this.correspondingQuestion = new QuestionDto(stQuestion.getCorrespondingQuestion());
     }
 
     public StudentQuestionDto(Integer key, String title, String content, Integer correct, List<String> options) {
@@ -135,13 +131,5 @@ public class StudentQuestionDto implements Serializable {
 
     public void setJustification(String justification) {
         this.justification = justification;
-    }
-
-    public QuestionDto getCorrespondingQuestion() {
-        return correspondingQuestion;
-    }
-
-    public void setCorrespondingQuestion(QuestionDto correspondingQuestion) {
-        this.correspondingQuestion = correspondingQuestion;
     }
 }

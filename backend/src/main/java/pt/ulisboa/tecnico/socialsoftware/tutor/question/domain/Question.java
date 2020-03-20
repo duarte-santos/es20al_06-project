@@ -6,7 +6,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -69,10 +68,6 @@ public class Question {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
-
-    @OneToOne
-    @JoinColumn(name="studentQuestion_id")
-    private StudentQuestion studentQuestion;
 
     public Question() {
     }
@@ -145,14 +140,6 @@ public class Question {
     public void setImage(Image image) {
         this.image = image;
         image.setQuestion(this);
-    }
-
-    public StudentQuestion getStudentQuestion() {
-        return studentQuestion;
-    }
-
-    public void setStudentQuestion(StudentQuestion stQuestion) {
-        this.studentQuestion = stQuestion;
     }
 
     public String getTitle() {

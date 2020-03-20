@@ -4,6 +4,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -62,26 +63,10 @@ public class StudentQuestion {
 
     private String justification;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "studentQuestion")
-    private Question correspondingQuestion;
-
     public StudentQuestion() {}
 
     public StudentQuestion(Course course, User user, StudentQuestionDto stQuestionDto) {
-        if (stQuestionDto.getTitle() == null ||
-                stQuestionDto.getTitle().trim().length() == 0 ||
-                stQuestionDto.getContent() == null ||
-                stQuestionDto.getContent().trim().length() == 0 ||
-                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0) ||
-                stQuestionDto.getOptions().size() != 4 ||
-                stQuestionDto.getCorrect() > 4 ||
-                stQuestionDto.getCorrect() < 1) {
-            throw new TutorException(QUESTION_MISSING_DATA);
-        }
-
-        if (stQuestionDto.getCorrect() == null) {
-            throw new TutorException(QUESTION_MULTIPLE_CORRECT_OPTIONS);
-        }
+        checkConsistentStudentQuestion(stQuestionDto);
 
         this.key = stQuestionDto.getKey();
         this.course = course;
@@ -91,12 +76,40 @@ public class StudentQuestion {
         this.correct = stQuestionDto.getCorrect();
 
         if (stQuestionDto.getImage() != null) {
-            Image img = new Image(stQuestionDto.getImage());
-            setImage(img);
-            img.setStudentQuestion(this);
+            createImage(stQuestionDto.getImage());
         }
 
         this.options.addAll(stQuestionDto.getOptions());
+        this.topics.addAll(stQuestionDto.getTopics());
+
+        this.justification = stQuestionDto.getJustification();
+    }
+
+    private void createImage(ImageDto imageDto) {
+        Image img = new Image(imageDto);
+        setImage(img);
+        img.setStudentQuestion(this);
+    }
+
+    private void checkConsistentStudentQuestion(StudentQuestionDto stQuestionDto) {
+        if (stQuestionDto.getTitle() == null ||
+                stQuestionDto.getTitle().trim().length() == 0 ||
+                stQuestionDto.getContent() == null ||
+                stQuestionDto.getContent().trim().length() == 0 ||
+                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr == null) ||
+                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0) ||
+                stQuestionDto.getOptions().size() != 4) {
+            throw new TutorException(QUESTION_MISSING_DATA);
+        }
+
+        if (stQuestionDto.getCorrect() == null) {
+            throw new TutorException(QUESTION_MULTIPLE_CORRECT_OPTIONS);
+        }
+
+        if (stQuestionDto.getCorrect() > 4 ||
+                stQuestionDto.getCorrect() < 1) {
+            throw new TutorException(QUESTION_MISSING_DATA);
+        }
     }
 
 
@@ -193,33 +206,29 @@ public class StudentQuestion {
         this.justification = justification;
     }
 
-    public Question getCorrespondingQuestion() {
-        return correspondingQuestion;
-    }
-
-    public void setCorrespondingQuestion(Question correspondingQuestion) {
-        this.correspondingQuestion = correspondingQuestion;
-        correspondingQuestion.setStudentQuestion(this);
-    }
-
     public void evaluateStudentQuestion(State result, String justification) {
+        checkValidEvaluation(result, justification);
+
+        if (justification != null)
+            setJustification(justification);
+        setState(result);
+
+        if (result == State.APPROVED) {
+            createCorrespondingQuestion();
+        }
+    }
+
+    private void createCorrespondingQuestion() {
+        QuestionDto questionDto = new QuestionDto(this);
+        new Question(this.course, questionDto);
+    }
+
+    private void checkValidEvaluation(State result, String justification) {
         if (this.state != State.AWAITING_APPROVAL)
             throw new TutorException(QUESTION_ALREADY_EVALUATED);
 
-        else if (justification != null && justification.trim().length() == 0)
+        if (justification == null && result == State.REJECTED ||
+                justification != null && justification.trim().length() == 0)
             throw new TutorException(JUSTIFICATION_MISSING_DATA);
-
-        else if (justification != null)
-            setJustification(justification);
-
-        else if (result == State.REJECTED)
-            throw new TutorException(JUSTIFICATION_MISSING_DATA);
-
-        setState(result);
-        if (result == State.APPROVED) {
-            QuestionDto questionDto = new QuestionDto(this);
-            Question q = new Question(this.course, questionDto);
-            setCorrespondingQuestion(q);
-        }
     }
 }
