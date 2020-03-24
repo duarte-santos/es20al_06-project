@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
@@ -42,6 +43,10 @@ public class Tournament{
 
     @Enumerated(EnumType.STRING)
     private Tournament.Status status;
+
+    @ManyToOne
+    @JoinColumn(name = "course_execution_id")
+    private CourseExecution courseExecution;
 
     public Tournament(){
         this.status = Tournament.Status.CLOSED;
@@ -90,6 +95,14 @@ public class Tournament{
         this.conclusionDate = conclusionDate;
         this.status = status;
         this.studentList = students;
+    }
+
+    public CourseExecution getCourseExecution() {
+        return courseExecution;
+    }
+
+    public void setCourseExecution(CourseExecution courseExecution) {
+        this.courseExecution = courseExecution;
     }
 
     public void addStudent(User student){
