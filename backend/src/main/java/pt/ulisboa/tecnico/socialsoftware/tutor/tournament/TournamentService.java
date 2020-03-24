@@ -6,6 +6,9 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
@@ -35,13 +38,19 @@ public class TournamentService{
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    CourseExecutionRepository courseExecutionRepository;
+
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public TournamentDto createTournament(TournamentDto tournamentDto){
+    public TournamentDto createTournament(int executionId, TournamentDto tournamentDto){
+
+        CourseExecution courseExecution = courseExecutionRepository.findById(executionId).orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, executionId));
 
         Tournament tournament = new Tournament(tournamentDto);
+        tournament.setCourseExecution(courseExecution);
 
         checkTopics(tournament);
         checkCreatingUser(tournament);
