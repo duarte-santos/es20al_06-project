@@ -23,4 +23,10 @@ public class TournamentController {
     public TournamentDto createTournament(@PathVariable int executionId, @RequestBody TournamentDto tournamentDto) {
         return tournamentService.createTournament(executionId, tournamentDto);
     }
+
+    @GetMapping("/tournament/show-open")
+    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_TEACHER')")
+    public List<TournamentDto> ShowAllOpenTournaments() {
+        return tournamentService.ShowAllOpenTournaments();
+    }
 }
