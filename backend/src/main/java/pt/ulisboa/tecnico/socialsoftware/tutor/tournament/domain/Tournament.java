@@ -56,22 +56,16 @@ public class Tournament{
     public Tournament(TournamentDto tournamentDto){
 
         String title = tournamentDto.getTitle();
-        User creatingUser = tournamentDto.getCreatingUser();
         List<Topic> topicList = tournamentDto.getTopicList();
         Integer numberOfQuestions = tournamentDto.getNumberOfQuestions();
         LocalDateTime startingDate = tournamentDto.getStartingDateDate();
         LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
-        LocalDateTime now = LocalDateTime.now();
         Tournament.Status status = tournamentDto.getStatus();
         List<User> students = tournamentDto.getStudentList();
 
 
         if (title == null || title.trim().isEmpty()) {
             throw new TutorException(TOURNAMENT_TITLE_IS_EMPTY);
-        }
-
-        if (creatingUser == null){
-            throw new TutorException(TOURNAMENT_CREATOR_DOESNT_EXIST);
         }
 
         if (topicList == null || topicList.isEmpty()){
@@ -88,7 +82,6 @@ public class Tournament{
         }
 
         this.title = title;
-        this.creatingUser = creatingUser;
         this.topicList = topicList;
         this.numberOfQuestions = numberOfQuestions;
         this.startingDate = startingDate;
