@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
@@ -67,12 +67,12 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         options.add(OPTION_INCORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
-        studentQuestionDto = new StudentQuestionDto(1, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
-        def image = new ImageDto()
+        def image = new Image()
         image.setUrl(URL)
         image.setWidth(20)
-        studentQuestionDto.setImage(image)
-        studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
+
+        studentQuestion = new StudentQuestion(course, user, 1, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
+        studentQuestion.setImage(image)
         studentQuestionRepository.save(studentQuestion)
         studentQuestionDto = new StudentQuestionDto(studentQuestion)
     }
@@ -90,6 +90,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         result.getContent() == QUESTION_CONTENT
         result.getOptions().size() == 4
         result.getCorrectOption() == OPTION_CORRECT_CONTENT
+        result.getStudentId() == user.getId()
         result.getState() == evaluation
         and: "the new question is or is not created"
         questionWasCreated(questionCreated)

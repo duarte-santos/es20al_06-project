@@ -75,11 +75,12 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.addOption(OPTION_INCORRECT_CONTENT)
         studentQuestionDto.addOption(OPTION_INCORRECT_CONTENT)
         studentQuestionDto.setCorrect(1)
+        studentQuestionDto.setStudentId(user.getId())
         and: "an image"
         createImage(hasImage, studentQuestionDto);
 
         when:
-        def result = studentQuestionService.createStudentQuestion(course.getId(), user.getId(), studentQuestionDto)
+        def result = studentQuestionService.createStudentQuestion(course.getId(), studentQuestionDto)
 
         then: "the returned data is correct"
         result.getId() != null
@@ -89,6 +90,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         result.getOptions().size() == 4
         result.getCorrectOption() == OPTION_CORRECT_CONTENT
         checkImage(hasImage, result)
+        result.getStudentId() == user.getId()
         and: "the student question is created"
         studentQuestionService.findStudentQuestions(course.getId()).size() == 1
         def studentQuestion = new ArrayList<>(studentQuestionService.findStudentQuestions(course.getId())).get(0)
@@ -101,6 +103,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         studentQuestion.getOptions().size() == 4
         studentQuestion.getCorrectOption() == OPTION_CORRECT_CONTENT
         checkImage(hasImage, studentQuestion)
+        result.getStudentId() == user.getId()
 
         where:
         hasImage << [false, true]
@@ -136,9 +139,10 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.addOption(OPTION_CORRECT_CONTENT)
         createIncorrectOptions(numOptions, studentQuestionDto)
         studentQuestionDto.setCorrect(1)
+        studentQuestionDto.setStudentId(user.getId())
 
         when:
-        studentQuestionService.createStudentQuestion(course.getId(), user.getId(), studentQuestionDto)
+        studentQuestionService.createStudentQuestion(course.getId(), studentQuestionDto)
 
         then:
         def error = thrown(TutorException)
@@ -167,9 +171,11 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
        studentQuestionDto.addOption(incorrectContent)
        studentQuestionDto.addOption(incorrectContent)
        studentQuestionDto.setCorrect(correctSequence)
+       studentQuestionDto.setStudentId(user.getId())
+
 
        when:
-       studentQuestionService.createStudentQuestion(course.getId(), user.getId(), studentQuestionDto)
+       studentQuestionService.createStudentQuestion(course.getId(), studentQuestionDto)
 
        then: "an exception is thrown"
        def error = thrown(TutorException)

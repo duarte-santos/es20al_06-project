@@ -18,6 +18,7 @@ public class StudentQuestionDto implements Serializable {
     private Set<String> topics = new HashSet<>();
     private StudentQuestion.State state = AWAITING_APPROVAL;
     private String justification;
+    private Integer studentId;
 
     public StudentQuestionDto() {
     }
@@ -34,23 +35,7 @@ public class StudentQuestionDto implements Serializable {
         this.topics.addAll(stQuestion.getTopics());
         this.state = stQuestion.getState();
         this.justification = stQuestion.getJustification();
-    }
-
-    public StudentQuestionDto(Integer key, String title, String content, Integer correct, List<String> options) {
-        this.key = key;
-        this.title = title;
-        this.content = content;
-        this.correct = correct;
-        this.options.addAll(options);
-    }
-
-    public StudentQuestionDto(Integer key, String title, String content, Integer correct, List<String> options, ImageDto img) {
-        this.key = key;
-        this.title = title;
-        this.content = content;
-        this.correct = correct;
-        this.options.addAll(options);
-        this.image = img;
+        this.studentId = stQuestion.getStudent().getId();
     }
 
     public Integer getId() {
@@ -131,5 +116,13 @@ public class StudentQuestionDto implements Serializable {
 
     public void setJustification(String justification) {
         this.justification = justification;
+    }
+
+    public Integer getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
 }

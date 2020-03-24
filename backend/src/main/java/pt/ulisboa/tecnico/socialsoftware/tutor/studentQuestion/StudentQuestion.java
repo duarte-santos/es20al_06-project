@@ -85,6 +85,16 @@ public class StudentQuestion {
         this.justification = stQuestionDto.getJustification();
     }
 
+    public StudentQuestion(Course course, User user, Integer key, String title, String content, List<String> options, Integer correct) {
+        this.course = course;
+        this.student = user;
+        this.key = key;
+        this.title = title;
+        this.content = content;
+        this.options.addAll(options);
+        this.correct = correct;
+    }
+
     private void createImage(ImageDto imageDto) {
         Image img = new Image(imageDto);
         setImage(img);

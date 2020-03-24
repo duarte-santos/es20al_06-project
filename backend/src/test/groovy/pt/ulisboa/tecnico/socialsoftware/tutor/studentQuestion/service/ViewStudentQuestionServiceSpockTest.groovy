@@ -8,9 +8,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
@@ -75,7 +74,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
 
     def "student views two studentQuestion in which one has an image and a justification"() {
         given: "an image"
-        def image = new ImageDto()
+        def image = new Image()
         image.setUrl(URL)
         image.setWidth(20)
 
@@ -86,21 +85,17 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         options.add(OPTION_INCORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
 
-        studentQuestionDto = new StudentQuestionDto(1, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
-        studentQuestionDto.setImage(image)
-        studentQuestionDto.setJustification(JUSTIFICATION)
-        studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
+        studentQuestion = new StudentQuestion(course, user, 1, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
+        studentQuestion.setImage(image)
         studentQuestion.setState(StudentQuestion.State.REJECTED)
+        studentQuestion.setJustification(JUSTIFICATION)
         studentQuestionRepository.save(studentQuestion)
 
-        studentQuestionDto = new StudentQuestionDto(2, QUESTION_TITLE, QUESTION_CONTENT, 1, options)
-        studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
+        studentQuestion = new StudentQuestion(course, user, 2, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
         studentQuestionRepository.save(studentQuestion)
-
 
         when: // result contains a list of existing studentQuestions of a particular student
         def result = studentQuestionService.findStudentQuestionsFromStudent(user.getId())
-
 
         then: "the returned data is correct"
         result.size() == 2
@@ -115,6 +110,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res0.getImage().getWidth() == 20
         res0.getJustification() == JUSTIFICATION
         res0.getState() == StudentQuestion.State.REJECTED
+        res0.getStudentId() == user.getId()
 
         def res1 = result.get(1)
         res1.getId() != null
@@ -125,6 +121,8 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res1.getImage() == null
         res1.getJustification() == null
         res1.getState() == StudentQuestion.State.AWAITING_APPROVAL
+        res1.getStudentId() == user.getId()
+
     }
 
 
