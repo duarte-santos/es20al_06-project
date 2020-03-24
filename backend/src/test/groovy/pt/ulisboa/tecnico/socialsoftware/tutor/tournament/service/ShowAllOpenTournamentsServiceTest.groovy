@@ -60,8 +60,8 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     def tournament3
     def tournament4
 
-    private Tournament createTournament(String title, User user, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
-        def tournamentDto = new TournamentDto(title, user, topicList, numOfQuestions, startingDate, conclusionDate)
+    private static Tournament createTournament(String title, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
+        def tournamentDto = new TournamentDto(title, topicList, numOfQuestions, startingDate, conclusionDate)
         return new Tournament(tournamentDto)
     }
 
@@ -71,9 +71,6 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
-
-        student = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
-        userRepository.save(student)
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
@@ -86,10 +83,10 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         startingDate = LocalDateTime.now().format(formatter)
         conclusionDate = LocalDateTime.now().plusDays(1).format(formatter)
 
-        tournament1 = createTournament("T1", student, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournament2 = createTournament("T2", student, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournament3 = createTournament("T3", student, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournament4 = createTournament("T4", student, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament1 = createTournament("T1", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament2 = createTournament("T2", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament3 = createTournament("T3", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament4 = createTournament("T4", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
 
 
     }
