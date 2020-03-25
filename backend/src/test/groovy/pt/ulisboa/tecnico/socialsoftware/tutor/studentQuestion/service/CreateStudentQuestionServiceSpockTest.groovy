@@ -88,7 +88,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         result.getTitle() == QUESTION_TITLE
         result.getContent() == QUESTION_CONTENT
         result.getOptions().size() == 4
-        result.getCorrectOption() == OPTION_CORRECT_CONTENT
+        result.correctOption() == OPTION_CORRECT_CONTENT
         checkImage(hasImage, result)
         result.getStudentId() == user.getId()
         and: "the student question is created"
@@ -101,7 +101,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         studentQuestion.getTitle() == QUESTION_TITLE
         studentQuestion.getContent() == QUESTION_CONTENT
         studentQuestion.getOptions().size() == 4
-        studentQuestion.getCorrectOption() == OPTION_CORRECT_CONTENT
+        studentQuestion.correctOption() == OPTION_CORRECT_CONTENT
         checkImage(hasImage, studentQuestion)
         result.getStudentId() == user.getId()
 

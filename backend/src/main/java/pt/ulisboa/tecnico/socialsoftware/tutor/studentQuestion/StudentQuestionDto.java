@@ -12,8 +12,8 @@ public class StudentQuestionDto implements Serializable {
     private Integer key;
     private String title;
     private String content;
-    private Integer correct = 0;
     private List<String> options = new ArrayList<>();
+    private Integer correct = 0;
     private ImageDto image;
     private Set<String> topics = new HashSet<>();
     private StudentQuestion.State state = AWAITING_APPROVAL;
@@ -70,7 +70,7 @@ public class StudentQuestionDto implements Serializable {
         return correct;
     }
 
-    public String getCorrectOption() {
+    public String correctOption() {
         return options.get(correct - 1);
     }
 

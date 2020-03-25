@@ -89,7 +89,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         result.getTitle() == QUESTION_TITLE
         result.getContent() == QUESTION_CONTENT
         result.getOptions().size() == 4
-        result.getCorrectOption() == OPTION_CORRECT_CONTENT
+        result.correctOption() == OPTION_CORRECT_CONTENT
         result.getStudentId() == user.getId()
         result.getState() == evaluation
         and: "the new question is or is not created"

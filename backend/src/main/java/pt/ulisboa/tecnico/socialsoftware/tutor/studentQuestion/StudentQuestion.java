@@ -166,11 +166,11 @@ public class StudentQuestion {
     public Integer getCorrect() {
         return correct;
     }
-
+    /*
     public String getCorrectOption() {
         return options.get(correct - 1);
     }
-
+    */
     public void setCorrect(Integer correct) {
         this.correct = correct;
     }
