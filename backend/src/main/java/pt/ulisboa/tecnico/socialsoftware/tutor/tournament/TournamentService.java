@@ -23,6 +23,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -64,6 +65,11 @@ public class TournamentService{
     }
 
     private void checkTopics(Tournament tournament) {
+
+        if (tournament.getTopicList() == null || tournament.getTopicList().isEmpty()){
+            throw new TutorException(TOURNAMENT_TOPIC_LIST_IS_EMPTY);
+        }
+
         for (Topic topic : tournament.getTopicList()) {
             Topic topic2 = topicRepository.findTopicByName(topic.getCourse().getId(), topic.getName());
             if (topic2 == null) throw new TutorException(TOURNAMENT_TOPIC_DOESNT_EXIST, topic.getId());
@@ -94,10 +100,7 @@ public class TournamentService{
         if (tournamentId==null)
             throw new TutorException(TOURNAMENT_NOT_FOUND);
 
-        Tournament tournament = new Tournament( // creates a new tournament from the tournamentDto
-                tournamentRepository.findById(tournamentId) // finds the tournament in the db
-                        .map(TournamentDto::new) // creates a tournament dto with the data from the db
-                                    .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId)));
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() ->new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
         if(tournament.getStudentList().contains(user))
             throw new TutorException(STUDENT_ALREADY_ENROLLED);
@@ -106,7 +109,6 @@ public class TournamentService{
             throw new TutorException(TOURNAMENT_IS_CLOSED);
 
         tournament.addStudent(user);
-        tournamentRepository.save(tournament);
         return new TournamentDto(tournament);
 
     }

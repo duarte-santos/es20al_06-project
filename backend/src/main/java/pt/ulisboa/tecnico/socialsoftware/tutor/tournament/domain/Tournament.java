@@ -63,12 +63,9 @@ public class Tournament{
         Tournament.Status status = tournamentDto.getStatus();
 
 
+
         if (title == null || title.trim().isEmpty()) {
             throw new TutorException(TOURNAMENT_TITLE_IS_EMPTY);
-        }
-
-        if (topicList == null || topicList.isEmpty()){
-            throw new TutorException(TOURNAMENT_TOPIC_LIST_IS_EMPTY);
         }
 
         if (numberOfQuestions <= 0){
@@ -77,6 +74,10 @@ public class Tournament{
 
         if (startingDate == null || conclusionDate == null ||
                 conclusionDate.isBefore(startingDate)){
+            throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
+        }
+
+        if (LocalDateTime.now().isBefore(startingDate)){
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 

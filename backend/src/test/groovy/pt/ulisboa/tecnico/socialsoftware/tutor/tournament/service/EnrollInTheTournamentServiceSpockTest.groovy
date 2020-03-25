@@ -94,7 +94,8 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         tournamentId = tournament.getId()
 
         when:
-        def result = tournamentService.enrollInTournament(studentId, tournamentId)
+        tournamentService.enrollInTournament(studentId, tournamentId)
+        def result = tournamentRepository.findAll().get(0)
 
         then: "Student is enrolled in the tournament"
         result.getStudentList().size() == 1
@@ -107,8 +108,8 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
         def studentList = new ArrayList()
         studentList.add(enrollingStudent)
-        tournamentDto.setStudentList(studentList)
         Tournament tournament = new Tournament(tournamentDto)
+        tournament.setStudentList(studentList)
         tournamentRepository.save(tournament)
         tournamentId = tournament.getId()
 
