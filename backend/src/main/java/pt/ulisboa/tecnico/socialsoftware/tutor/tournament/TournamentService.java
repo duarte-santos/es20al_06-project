@@ -57,16 +57,10 @@ public class TournamentService{
         tournament.setCreatingUser(user);
 
         checkTopics(tournament);
-        checkCreatingUser(tournament);
 
         tournamentRepository.save(tournament);
         tournamentDto = new TournamentDto(tournament);
         return tournamentDto;
-    }
-
-    private void checkCreatingUser(Tournament tournament) {
-        User user = userRepository.findByUsername(tournament.getCreatingUser().getUsername());
-        if(user == null) throw new TutorException(TOURNAMENT_CREATOR_DOESNT_EXIST);
     }
 
     private void checkTopics(Tournament tournament) {
@@ -80,9 +74,9 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<TournamentDto> ShowAllOpenTournaments(){
+    public List<TournamentDto> ShowAllOpenTournaments(int executionId){
 
-            List<TournamentDto> TournamentsList = tournamentRepository.findOpen().stream().map(TournamentDto::new).collect(Collectors.toList());
+            List<TournamentDto> TournamentsList = tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
             if (TournamentsList.isEmpty())
                 throw new TutorException(NO_OPEN_TOURNAMENTS);
             else
@@ -96,7 +90,6 @@ public class TournamentService{
     public TournamentDto enrollInTournament(int studentId, Integer tournamentId){
 
         User user = userRepository.findById(studentId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, studentId));
-        // Testar se user pertence course blan vlaj erf
 
         if (tournamentId==null)
             throw new TutorException(TOURNAMENT_NOT_FOUND);

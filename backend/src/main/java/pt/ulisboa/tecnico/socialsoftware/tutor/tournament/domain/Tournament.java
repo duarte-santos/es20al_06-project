@@ -29,7 +29,7 @@ public class Tournament{
     @ManyToOne
     private User creatingUser;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "tournaments")
     private List<Topic> topicList = new ArrayList<>();
 
     @ManyToMany
@@ -61,7 +61,6 @@ public class Tournament{
         LocalDateTime startingDate = tournamentDto.getStartingDateDate();
         LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
         Tournament.Status status = tournamentDto.getStatus();
-        List<User> students = tournamentDto.getStudentList();
 
 
         if (title == null || title.trim().isEmpty()) {
@@ -87,7 +86,6 @@ public class Tournament{
         this.startingDate = startingDate;
         this.conclusionDate = conclusionDate;
         this.status = status;
-        this.studentList = students;
     }
 
     public CourseExecution getCourseExecution() {
