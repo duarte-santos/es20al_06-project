@@ -111,7 +111,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
         result.getTitle() == TOURNAMENT_TITLE
-        result.getTopicList() == topicList
+        result.getTopicList().get(0).getName() == TOPIC_NAME
         result.getNumberOfQuestions() == NUMBER_OF_QUESTIONS
         result.getStartingDate().format(formatter) == startingDate
         result.getConclusionDate().format(formatter) == conclusionDate
