@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.question.dto;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
@@ -7,6 +8,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -58,13 +60,13 @@ public class QuestionDto implements Serializable {
     }
 
     public QuestionDto(StudentQuestion stQuestion) {
-        this.key = stQuestion.getKey();
         this.title = stQuestion.getTitle();
         this.content = stQuestion.getContent();
         this.status = Question.Status.AVAILABLE.name();
         addStudentOptions(stQuestion);
         if (stQuestion.getImage() != null)
             this.image = new ImageDto(stQuestion.getImage());
+        this.setCreationDate(LocalDateTime.now().format(Course.formatter));
 
     }
 

@@ -38,19 +38,14 @@ public class StudentQuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StudentQuestionDto createStudentQuestion(int courseId, int studentId, StudentQuestionDto studentQuestionDto) {
+    public StudentQuestionDto createStudentQuestion(int courseId, StudentQuestionDto studentQuestionDto) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(COURSE_NOT_FOUND, courseId));
+
+        Integer studentId = studentQuestionDto.getStudentId();
         User student = userRepository.findById(studentId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, studentId));
 
-        if (studentQuestionDto.getKey() == null) {
-            int maxStQuestionNumber = studentQuestionRepository.getMaxStudentQuestionNumber() != null ?
-                    studentQuestionRepository.getMaxStudentQuestionNumber() : 0;
-            int maxQuestionNumber = questionRepository.getMaxQuestionNumber() != null ?
-                    questionRepository.getMaxQuestionNumber() : 0;
-            studentQuestionDto.setKey(Math.max(maxStQuestionNumber, maxQuestionNumber) + 1);
-        }
-
         StudentQuestion stQuestion = new StudentQuestion(course, student, studentQuestionDto);
+
         studentQuestionRepository.save(stQuestion);
         return new StudentQuestionDto(stQuestion);
     }

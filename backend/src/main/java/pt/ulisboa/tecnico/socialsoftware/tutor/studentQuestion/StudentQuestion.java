@@ -9,10 +9,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -31,7 +29,6 @@ public class StudentQuestion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique=true, nullable = false)
     private Integer key;
 
     @ManyToOne
@@ -44,6 +41,7 @@ public class StudentQuestion {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column(columnDefinition = "integer default 0")
@@ -63,17 +61,21 @@ public class StudentQuestion {
 
     private String justification;
 
+    private Integer correspondingQuestionKey;
+
     public StudentQuestion() {}
 
     public StudentQuestion(Course course, User user, StudentQuestionDto stQuestionDto) {
         checkConsistentStudentQuestion(stQuestionDto);
 
         this.key = stQuestionDto.getKey();
-        this.course = course;
         this.student = user;
         this.title = stQuestionDto.getTitle();
         this.content = stQuestionDto.getContent();
         this.correct = stQuestionDto.getCorrect();
+
+        this.course = course;
+        course.addStudentQuestion(this);
 
         if (stQuestionDto.getImage() != null) {
             createImage(stQuestionDto.getImage());
@@ -83,6 +85,16 @@ public class StudentQuestion {
         this.topics.addAll(stQuestionDto.getTopics());
 
         this.justification = stQuestionDto.getJustification();
+    }
+
+    public StudentQuestion(Course course, User user, Integer key, String title, String content, List<String> options, Integer correct) {
+        this.course = course;
+        this.student = user;
+        this.key = key;
+        this.title = title;
+        this.content = content;
+        this.options.addAll(options);
+        this.correct = correct;
     }
 
     private void createImage(ImageDto imageDto) {
@@ -118,7 +130,26 @@ public class StudentQuestion {
     }
 
     public Integer getKey() {
+        if (this.key == null)
+            generateKeys();
+
         return key;
+    }
+
+    private void generateKeys() {
+        Integer max = this.course.getStudentQuestions().stream()
+                .filter(stQuestion -> stQuestion.key != null)
+                .map(StudentQuestion::getKey)
+                .max(Comparator.comparing(Integer::valueOf))
+                .orElse(0);
+
+        List<StudentQuestion> nullKeyStQuestions = this.course.getStudentQuestions().stream()
+                .filter(stQuestion -> stQuestion.key == null).collect(Collectors.toList());
+
+        for (StudentQuestion stQuestion: nullKeyStQuestions) {
+            max = max + 1;
+            stQuestion.key = max;
+        }
     }
 
     public void setKey(Integer key) {
@@ -157,7 +188,7 @@ public class StudentQuestion {
         return correct;
     }
 
-    public String getCorrectOption() {
+    public String correctOption() {
         return options.get(correct - 1);
     }
 
@@ -206,6 +237,14 @@ public class StudentQuestion {
         this.justification = justification;
     }
 
+    public Integer getCorrespondingQuestionKey() {
+        return correspondingQuestionKey;
+    }
+
+    public void setCorrespondingQuestionKey(Integer correspondingQuestionKey) {
+        this.correspondingQuestionKey = correspondingQuestionKey;
+    }
+
     public void evaluateStudentQuestion(State result, String justification) {
         checkValidEvaluation(result, justification);
 
@@ -220,7 +259,8 @@ public class StudentQuestion {
 
     private void createCorrespondingQuestion() {
         QuestionDto questionDto = new QuestionDto(this);
-        new Question(this.course, questionDto);
+        Question question = new Question(this.course, questionDto);
+        this.setCorrespondingQuestionKey(question.getKey());
     }
 
     private void checkValidEvaluation(State result, String justification) {
