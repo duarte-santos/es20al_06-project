@@ -98,6 +98,7 @@ public class QuestionService {
         }
 
         Question question = new Question(course, questionDto);
+      
         questionRepository.save(question);
         return new QuestionDto(question);
     }

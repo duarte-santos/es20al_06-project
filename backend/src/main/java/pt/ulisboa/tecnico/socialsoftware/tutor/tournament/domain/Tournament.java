@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
@@ -43,6 +44,10 @@ public class Tournament{
     @Enumerated(EnumType.STRING)
     private Tournament.Status status;
 
+    @ManyToOne
+    @JoinColumn(name = "course_execution_id")
+    private CourseExecution courseExecution;
+
     public Tournament(){
         this.status = Tournament.Status.CLOSED;
     }
@@ -51,22 +56,16 @@ public class Tournament{
     public Tournament(TournamentDto tournamentDto){
 
         String title = tournamentDto.getTitle();
-        User creatingUser = tournamentDto.getCreatingUser();
         List<Topic> topicList = tournamentDto.getTopicList();
         Integer numberOfQuestions = tournamentDto.getNumberOfQuestions();
         LocalDateTime startingDate = tournamentDto.getStartingDateDate();
         LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
-        LocalDateTime now = LocalDateTime.now();
         Tournament.Status status = tournamentDto.getStatus();
         List<User> students = tournamentDto.getStudentList();
 
 
         if (title == null || title.trim().isEmpty()) {
             throw new TutorException(TOURNAMENT_TITLE_IS_EMPTY);
-        }
-
-        if (creatingUser == null){
-            throw new TutorException(TOURNAMENT_CREATOR_DOESNT_EXIST);
         }
 
         if (topicList == null || topicList.isEmpty()){
@@ -83,13 +82,20 @@ public class Tournament{
         }
 
         this.title = title;
-        this.creatingUser = creatingUser;
         this.topicList = topicList;
         this.numberOfQuestions = numberOfQuestions;
         this.startingDate = startingDate;
         this.conclusionDate = conclusionDate;
         this.status = status;
         this.studentList = students;
+    }
+
+    public CourseExecution getCourseExecution() {
+        return courseExecution;
+    }
+
+    public void setCourseExecution(CourseExecution courseExecution) {
+        this.courseExecution = courseExecution;
     }
 
     public void addStudent(User student){
