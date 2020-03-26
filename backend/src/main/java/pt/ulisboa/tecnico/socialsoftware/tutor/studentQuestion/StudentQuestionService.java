@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository;
@@ -64,18 +66,21 @@ public class StudentQuestionService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public StudentQuestionDto findStudentQuestionByKey(Integer key) {
         return studentQuestionRepository.findByKey(key).map(StudentQuestionDto::new)
-                .orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, key));
+                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, key));
     }
-
 
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StudentQuestionDto evaluateStudentQuestion(StudentQuestion.State state, String justification, StudentQuestionDto studentQuestionDto) {
-        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionDto.getId()).orElseThrow(() -> new TutorException(QUESTION_NOT_FOUND, studentQuestionDto.getId()));
-        studentQuestion.evaluateStudentQuestion(state, justification);
+    public StudentQuestionDto evaluateStudentQuestion(Integer studentQuestionId, StudentQuestionDto studentQuestionDto) {
+
+        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionId)
+                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
+
+        studentQuestion.evaluateStudentQuestion(studentQuestionDto);
         studentQuestionRepository.save(studentQuestion);
+
         return new StudentQuestionDto(studentQuestion);
     }
 
@@ -88,24 +93,12 @@ public class StudentQuestionService {
         return studentQuestionRepository.findStudentQuestionsFromStudent(studentId).stream().map(StudentQuestionDto::new).collect(Collectors.toList());
     }
 
-    /*
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StudentQuestion.State findSpecificStudentQuestionState(int studentId, int id) {
-
-        return (studentQuestionRepository.findSpecificStudentQuestion(studentId, id)).getState();
+    public CourseDto findStudentQuestionCourse(Integer studentQuestionId) {
+        return studentQuestionRepository.findById(studentQuestionId)
+                .map(StudentQuestion::getCourse)
+                .map(CourseDto::new)
+                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
     }
 
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public String findSpecificStudentQuestionJustification(int studentId, int id) {
-
-        return (studentQuestionRepository.findSpecificStudentQuestion(studentId, id)).getJustification();
-    }
-    */
 }

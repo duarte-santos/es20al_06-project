@@ -20,8 +20,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.JUSTIFICATION_MISSING_DATA
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.QUESTION_ALREADY_EVALUATED
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
 public class EvaluateStudentQuestionServiceSpockTest extends Specification {
@@ -89,8 +88,12 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated ")
     def "teacher evaluates question with or without justification"() {
         // question is created, studentQuestion marked as approved
+        given: "an evaluation"
+        studentQuestionDto.setState(evaluation)
+        studentQuestionDto.setJustification(justification)
+
         when:
-        studentQuestionService.evaluateStudentQuestion(evaluation, justification, studentQuestionDto)
+        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "the studentQuestion is changed"
         studentQuestionRepository.count() == 1L
@@ -144,11 +147,14 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     @Unroll("invalid arguments: #previousState | #newState | #justification || errorMessage ")
     def "invalid input values"() {
         // question is not created and exception is thrown
-        given: "a studentQuestion"
+        given: "a studentQuestion with a given state"
         studentQuestion.setState(previousState)
+        and: "an evaluation"
+        studentQuestionDto.setState(newState)
+        studentQuestionDto.setJustification(justification)
 
         when:
-        studentQuestionService.evaluateStudentQuestion(newState, justification, studentQuestionDto)
+        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
@@ -159,10 +165,10 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.APPROVED  | '  '               || JUSTIFICATION_MISSING_DATA
         StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | '  '               || JUSTIFICATION_MISSING_DATA
         StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | null               || JUSTIFICATION_MISSING_DATA
-        StudentQuestion.State.APPROVED          | StudentQuestion.State.APPROVED  | null               || QUESTION_ALREADY_EVALUATED
-        StudentQuestion.State.APPROVED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || QUESTION_ALREADY_EVALUATED
-        StudentQuestion.State.REJECTED          | StudentQuestion.State.APPROVED  | null               || QUESTION_ALREADY_EVALUATED
-        StudentQuestion.State.REJECTED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || QUESTION_ALREADY_EVALUATED
+        StudentQuestion.State.APPROVED          | StudentQuestion.State.APPROVED  | null               || STUDENT_QUESTION_ALREADY_EVALUATED
+        StudentQuestion.State.APPROVED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || STUDENT_QUESTION_ALREADY_EVALUATED
+        StudentQuestion.State.REJECTED          | StudentQuestion.State.APPROVED  | null               || STUDENT_QUESTION_ALREADY_EVALUATED
+        StudentQuestion.State.REJECTED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || STUDENT_QUESTION_ALREADY_EVALUATED
 
     }
 

@@ -59,6 +59,7 @@ public class StudentQuestion {
     @Enumerated(EnumType.STRING)
     private State state = State.AWAITING_APPROVAL;
 
+    @Column(columnDefinition = "TEXT")
     private String justification;
 
     private Integer correspondingQuestionKey;
@@ -83,6 +84,8 @@ public class StudentQuestion {
 
         this.options.addAll(stQuestionDto.getOptions());
         this.topics.addAll(stQuestionDto.getTopics());
+
+        this.state = stQuestionDto.getState();
 
         this.justification = stQuestionDto.getJustification();
     }
@@ -111,16 +114,16 @@ public class StudentQuestion {
                 stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr == null) ||
                 stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0) ||
                 stQuestionDto.getOptions().size() != 4) {
-            throw new TutorException(QUESTION_MISSING_DATA);
+            throw new TutorException(STUDENT_QUESTION_MISSING_DATA);
         }
 
         if (stQuestionDto.getCorrect() == null) {
-            throw new TutorException(QUESTION_MULTIPLE_CORRECT_OPTIONS);
+            throw new TutorException(STUDENT_QUESTION_MULTIPLE_CORRECT_OPTIONS);
         }
 
         if (stQuestionDto.getCorrect() > 4 ||
                 stQuestionDto.getCorrect() < 1) {
-            throw new TutorException(QUESTION_MISSING_DATA);
+            throw new TutorException(STUDENT_QUESTION_MISSING_DATA);
         }
     }
 
@@ -245,14 +248,16 @@ public class StudentQuestion {
         this.correspondingQuestionKey = correspondingQuestionKey;
     }
 
-    public void evaluateStudentQuestion(State result, String justification) {
-        checkValidEvaluation(result, justification);
+    public void evaluateStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        State state = studentQuestionDto.getState();
+        String justification = studentQuestionDto.getJustification();
+        checkValidEvaluation(state, justification);
 
         if (justification != null)
             setJustification(justification);
-        setState(result);
+        setState(state);
 
-        if (result == State.APPROVED) {
+        if (state == State.APPROVED) {
             createCorrespondingQuestion();
         }
     }
@@ -265,7 +270,7 @@ public class StudentQuestion {
 
     private void checkValidEvaluation(State result, String justification) {
         if (this.state != State.AWAITING_APPROVAL)
-            throw new TutorException(QUESTION_ALREADY_EVALUATED);
+            throw new TutorException(STUDENT_QUESTION_ALREADY_EVALUATED);
 
         if (justification == null && result == State.REJECTED ||
                 justification != null && justification.trim().length() == 0)
