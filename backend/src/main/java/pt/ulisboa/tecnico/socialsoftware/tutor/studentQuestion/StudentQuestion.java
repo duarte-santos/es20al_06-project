@@ -85,7 +85,7 @@ public class StudentQuestion {
         this.options.addAll(stQuestionDto.getOptions());
         this.topics.addAll(stQuestionDto.getTopics());
 
-        this.state = stQuestionDto.getState();
+        this.state = State.valueOf(stQuestionDto.getState());
 
         this.justification = stQuestionDto.getJustification();
     }
@@ -130,6 +130,10 @@ public class StudentQuestion {
 
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getKey() {
@@ -249,7 +253,7 @@ public class StudentQuestion {
     }
 
     public void evaluateStudentQuestion(StudentQuestionDto studentQuestionDto) {
-        State state = studentQuestionDto.getState();
+        State state = State.valueOf(studentQuestionDto.getState());
         String justification = studentQuestionDto.getJustification();
         checkValidEvaluation(state, justification);
 

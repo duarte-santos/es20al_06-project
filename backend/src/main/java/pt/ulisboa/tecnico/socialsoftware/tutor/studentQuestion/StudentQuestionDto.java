@@ -4,8 +4,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
 import java.io.Serializable;
 import java.util.*;
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion.State.*;
-
 public class StudentQuestionDto implements Serializable {
 
     private Integer id;
@@ -16,7 +14,7 @@ public class StudentQuestionDto implements Serializable {
     private Integer correct = 0;
     private ImageDto image;
     private Set<String> topics = new HashSet<>();
-    private StudentQuestion.State state = AWAITING_APPROVAL;
+    private String state = StudentQuestion.State.AWAITING_APPROVAL.name();
     private String justification;
     private Integer studentId;
 
@@ -33,7 +31,7 @@ public class StudentQuestionDto implements Serializable {
         if (stQuestion.getImage() != null)
             this.image = new ImageDto(stQuestion.getImage());
         this.topics.addAll(stQuestion.getTopics());
-        this.state = stQuestion.getState();
+        this.state = stQuestion.getState().name();
         this.justification = stQuestion.getJustification();
         this.studentId = stQuestion.getStudent().getId();
     }
@@ -102,11 +100,11 @@ public class StudentQuestionDto implements Serializable {
         this.topics.add(topic);
     }
 
-    public StudentQuestion.State getState() {
+    public String getState() {
         return state;
     }
 
-    public void setState(StudentQuestion.State state) {
+    public void setState(String state) {
         this.state = state;
     }
 

@@ -109,7 +109,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res0.getImage().getUrl() == URL
         res0.getImage().getWidth() == 20
         res0.getJustification() == JUSTIFICATION
-        res0.getState() == StudentQuestion.State.REJECTED
+        res0.getState() == StudentQuestion.State.REJECTED.name()
         res0.getStudentId() == user.getId()
 
         def res1 = result.get(1)
@@ -120,7 +120,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res1.getOptions() == options
         res1.getImage() == null
         res1.getJustification() == null
-        res1.getState() == StudentQuestion.State.AWAITING_APPROVAL
+        res1.getState() == StudentQuestion.State.AWAITING_APPROVAL.name()
         res1.getStudentId() == user.getId()
 
     }

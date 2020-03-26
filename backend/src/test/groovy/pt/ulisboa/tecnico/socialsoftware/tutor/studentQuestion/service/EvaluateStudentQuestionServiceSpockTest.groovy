@@ -89,7 +89,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     def "teacher evaluates question with or without justification"() {
         // question is created, studentQuestion marked as approved
         given: "an evaluation"
-        studentQuestionDto.setState(evaluation)
+        studentQuestionDto.setState(evaluation.name())
         studentQuestionDto.setJustification(justification)
 
         when:
@@ -114,10 +114,10 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         checkNewQuestion(questionCreated)
 
         where:
-        evaluation                           | justification      || questionCreated
-        StudentQuestion.State.APPROVED       | null               || true
-        StudentQuestion.State.APPROVED       | JUSTIFICATION      || true
-        StudentQuestion.State.REJECTED       | JUSTIFICATION      || false
+        evaluation                        | justification      || questionCreated
+        StudentQuestion.State.APPROVED    | null               || true
+        StudentQuestion.State.APPROVED    | JUSTIFICATION      || true
+        StudentQuestion.State.REJECTED    | JUSTIFICATION      || false
     }
 
     def questionWasCreated(boolean questionCreated) {
@@ -150,7 +150,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         given: "a studentQuestion with a given state"
         studentQuestion.setState(previousState)
         and: "an evaluation"
-        studentQuestionDto.setState(newState)
+        studentQuestionDto.setState(newState.name())
         studentQuestionDto.setJustification(justification)
 
         when:
