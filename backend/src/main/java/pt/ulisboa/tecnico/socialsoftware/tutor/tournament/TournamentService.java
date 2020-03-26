@@ -20,9 +20,11 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -91,10 +93,9 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public TournamentDto enrollInTournament(int studentId, Integer tournamentId){
+    public List<UserDto> enrollInTournament(int studentId, Integer tournamentId){
 
         User user = userRepository.findById(studentId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, studentId));
-
         if (tournamentId==null)
             throw new TutorException(TOURNAMENT_NOT_FOUND);
 
@@ -107,9 +108,15 @@ public class TournamentService{
             throw new TutorException(TOURNAMENT_IS_CLOSED);
 
         tournament.addStudent(user);
-        tournamentRepository.save(tournament);
 
-        return new TournamentDto(tournament);
+        List<UserDto> userDtoList = new ArrayList<UserDto>();
+
+        for(User user2 : tournament.getStudentList()){
+            UserDto userdto = new UserDto(user2);
+            userDtoList.add(userdto);
+        }
+
+        return userDtoList;
 
     }
 

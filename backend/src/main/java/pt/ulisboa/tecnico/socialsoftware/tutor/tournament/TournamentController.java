@@ -14,6 +14,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicReposito
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.security.Principal;
 import java.util.List;
@@ -46,7 +47,7 @@ public class TournamentController {
 
     @PutMapping("/tournaments/{tournamentId}/enroll/{studentId}")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
-    public TournamentDto enrollInTournament(@PathVariable int studentId, @PathVariable Integer tournamentId) {
+    public List<UserDto> enrollInTournament(@PathVariable int studentId, @PathVariable Integer tournamentId) {
         return tournamentService.enrollInTournament(studentId, tournamentId);
     }
 

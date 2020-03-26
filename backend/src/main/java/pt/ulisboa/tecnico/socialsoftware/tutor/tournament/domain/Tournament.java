@@ -33,7 +33,7 @@ public class Tournament{
     @ManyToMany(mappedBy = "tournaments")
     private List<Topic> topicList = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "tournamentsEnrolled")
     private List<User> studentList = new ArrayList<>();
 
 
