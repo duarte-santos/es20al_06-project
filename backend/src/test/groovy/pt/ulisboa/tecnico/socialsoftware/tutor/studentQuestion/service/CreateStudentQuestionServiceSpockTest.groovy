@@ -10,7 +10,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
@@ -37,6 +39,9 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
 
     @Autowired
     StudentQuestionService studentQuestionService
+
+    @Autowired
+    StudentQuestionRepository studentQuestionRepository
 
     @Autowired
     CourseRepository courseRepository
@@ -80,9 +85,11 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         createImage(hasImage, studentQuestionDto);
 
         when:
-        def result = studentQuestionService.createStudentQuestion(course.getId(), studentQuestionDto)
+        studentQuestionService.createStudentQuestion(course.getId(), studentQuestionDto)
 
-        then: "the returned data is correct"
+        then: "the correct studentQuestion is inside the repository"
+        studentQuestionRepository.count() == 1L
+        def result = studentQuestionRepository.findAll().get(0)
         result.getId() != null
         result.getKey() == 1
         result.getTitle() == QUESTION_TITLE
@@ -90,20 +97,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         result.getOptions().size() == 4
         result.correctOption() == OPTION_CORRECT_CONTENT
         checkImage(hasImage, result)
-        result.getStudentId() == user.getId()
-        and: "the student question is created"
-        studentQuestionService.findStudentQuestions(course.getId()).size() == 1
-        def studentQuestion = new ArrayList<>(studentQuestionService.findStudentQuestions(course.getId())).get(0)
-        studentQuestion != null
-        and: "has the correct value"
-        studentQuestion.getId() != null
-        studentQuestion.getKey() == 1
-        studentQuestion.getTitle() == QUESTION_TITLE
-        studentQuestion.getContent() == QUESTION_CONTENT
-        studentQuestion.getOptions().size() == 4
-        studentQuestion.correctOption() == OPTION_CORRECT_CONTENT
-        checkImage(hasImage, studentQuestion)
-        result.getStudentId() == user.getId()
+        result.getStudent().getId() == user.getId()
 
         where:
         hasImage << [false, true]
@@ -118,7 +112,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
         }
     }
 
-    def checkImage(boolean hasImage, StudentQuestionDto result) {
+    def checkImage(boolean hasImage, StudentQuestion result) {
         if (!hasImage)
             return result.getImage() == null
         if (hasImage) {

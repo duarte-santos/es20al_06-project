@@ -5,6 +5,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image
@@ -45,12 +47,16 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     CourseRepository courseRepository
 
     @Autowired
+    CourseExecutionRepository courseExecutionRepository
+
+    @Autowired
     UserRepository userRepository
 
     @Autowired
     StudentQuestionRepository studentQuestionRepository
 
     def course
+    def courseExecution
     def user
     def studentQuestionDto
     def studentQuestion
@@ -58,6 +64,9 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     def setup() {
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
+
+        courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
+        courseExecutionRepository.save(courseExecution)
 
         user = new User(FIRST_NAME, USERNAME, 1, User.Role.STUDENT)
         userRepository.save(user)
@@ -81,17 +90,21 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     def "teacher evaluates question with or without justification"() {
         // question is created, studentQuestion marked as approved
         when:
-        def result = studentQuestionService.evaluateStudentQuestion(evaluation, justification, studentQuestionDto)
+        studentQuestionService.evaluateStudentQuestion(evaluation, justification, studentQuestionDto)
 
-        then: "the returned data is correct"
+        then: "the studentQuestion is changed"
+        studentQuestionRepository.count() == 1L
+        def result = studentQuestionRepository.findAll().get(0)
+        result.getState() == evaluation
+        result.getJustification() == justification
+        and: "are not changed"
         result.getId() != null
         result.getKey() == 1
         result.getTitle() == QUESTION_TITLE
         result.getContent() == QUESTION_CONTENT
         result.getOptions().size() == 4
         result.correctOption() == OPTION_CORRECT_CONTENT
-        result.getStudentId() == user.getId()
-        result.getState() == evaluation
+        result.getStudent().getId() == user.getId()
         and: "the new question is or is not created"
         questionWasCreated(questionCreated)
         and: "if created, has the correct value"
@@ -115,7 +128,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         if (questionCreated) {
             def question = questionRepository.findAll().get(0)
             return (question.getId() != null
-                    && question.getKey() == 1
+                    && question.getKey() != null
                     && question.getTitle() == QUESTION_TITLE
                     && question.getContent() == QUESTION_CONTENT
                     && question.getOptions().size() == 4
