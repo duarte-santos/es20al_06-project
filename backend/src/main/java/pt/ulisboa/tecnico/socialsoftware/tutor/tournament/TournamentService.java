@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
@@ -51,27 +52,24 @@ public class TournamentService{
     public TournamentDto createTournament(int executionId, int userId, TournamentDto tournamentDto){
 
         CourseExecution courseExecution = courseExecutionRepository.findById(executionId).orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, executionId));
+        Course course = courseExecution.getCourse();
         User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
 
         Tournament tournament = new Tournament(tournamentDto);
         tournament.setCourseExecution(courseExecution);
         tournament.setCreatingUser(user);
+        tournament.setTopicDtoList(tournamentDto.getTopicList());
 
-        checkTopics(tournament);
-
+        checkTopics(tournament, course);
         tournamentRepository.save(tournament);
         tournamentDto = new TournamentDto(tournament);
         return tournamentDto;
     }
 
-    private void checkTopics(Tournament tournament) {
-
-        if (tournament.getTopicList() == null || tournament.getTopicList().isEmpty()){
-            throw new TutorException(TOURNAMENT_TOPIC_LIST_IS_EMPTY);
-        }
+    private void checkTopics(Tournament tournament, Course course) {
 
         for (Topic topic : tournament.getTopicList()) {
-            Topic topic2 = topicRepository.findTopicByName(topic.getCourse().getId(), topic.getName());
+            Topic topic2 = topicRepository.findTopicByName(course.getId(), topic.getName());
             if (topic2 == null) throw new TutorException(TOURNAMENT_TOPIC_DOESNT_EXIST, topic.getId());
         }
     }

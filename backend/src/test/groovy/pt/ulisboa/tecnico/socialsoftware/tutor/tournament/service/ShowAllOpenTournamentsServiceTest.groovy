@@ -53,7 +53,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
 
     def course
-    def execution
+    def static execution
     def topic
     def topicDto
     def static topicList
@@ -65,9 +65,12 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     def tournament3
     def tournament4
 
-    private static Tournament createTournament(String title, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
+    private static Tournament createTournament(String title, List<TopicDto> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
         def tournamentDto = new TournamentDto(title, topicList, numOfQuestions, startingDate, conclusionDate)
-        return new Tournament(tournamentDto)
+        def tournament = new Tournament(tournamentDto)
+        tournament.setCourseExecution(execution)
+        tournament.setTopicDtoList(topicList)
+        return tournament
     }
 
     def setup(){
@@ -81,14 +84,14 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
-
         topic = new Topic(course, topicDto)
         topicRepository.save(topic)
-        topicList = new ArrayList()
-        topicList.add(topic)
 
-        startingDate = LocalDateTime.now().format(formatter)
-        conclusionDate = LocalDateTime.now().plusDays(1).format(formatter)
+        topicList = new ArrayList()
+        topicList.add(topicDto)
+
+        startingDate = LocalDateTime.now().plusDays(1)format(formatter)
+        conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
 
         tournament1 = createTournament("T1", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
         tournament2 = createTournament("T2", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)

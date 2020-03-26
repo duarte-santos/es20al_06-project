@@ -75,14 +75,14 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
-
         topic = new Topic(course, topicDto)
         topicRepository.save(topic)
-        topicList = new ArrayList()
-        topicList.add(topic)
 
-        startingDate = LocalDateTime.now().format(formatter)
-        conclusionDate = LocalDateTime.now().plusDays(1).format(formatter)
+        topicList = new ArrayList()
+        topicList.add(topicDto)
+
+        startingDate = LocalDateTime.now().plusDays(1).format(formatter)
+        conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
 
     }
 
@@ -122,10 +122,12 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     def "a student tries to enroll in a tournament after the conclusion date"(){
         given: "A tournament wth conclusion date prior to current date"
-        def startingDate2 = LocalDateTime.now().minusDays(2).format(formatter)
-        def conclusionDate2 = LocalDateTime.now().minusDays(1).format(formatter)
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate2, conclusionDate2)
+        def startingDate2 = LocalDateTime.now().minusDays(2)
+        def conclusionDate2 = LocalDateTime.now().minusDays(1)
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
         Tournament tournament2 = new Tournament(tournamentDto)
+        tournament2.setStartingDate(startingDate2)
+        tournament2.setConclusionDate(conclusionDate2)
         tournamentRepository.save(tournament2)
         def tournamentId2 = tournament2.getId()
 

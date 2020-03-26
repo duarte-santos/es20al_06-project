@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -56,7 +57,6 @@ public class Tournament{
     public Tournament(TournamentDto tournamentDto){
 
         String title = tournamentDto.getTitle();
-        List<Topic> topicList = tournamentDto.getTopicList();
         Integer numberOfQuestions = tournamentDto.getNumberOfQuestions();
         LocalDateTime startingDate = tournamentDto.getStartingDateDate();
         LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
@@ -77,16 +77,26 @@ public class Tournament{
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 
-        if (LocalDateTime.now().isBefore(startingDate)){
+        if (LocalDateTime.now().isAfter(startingDate)){
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 
         this.title = title;
-        this.topicList = topicList;
         this.numberOfQuestions = numberOfQuestions;
         this.startingDate = startingDate;
         this.conclusionDate = conclusionDate;
         this.status = status;
+    }
+
+    public void setTopicDtoList(List<TopicDto> topicList){
+        if (topicList == null || topicList.isEmpty()){
+            throw new TutorException(TOURNAMENT_TOPIC_LIST_IS_EMPTY);
+        }
+
+        for (TopicDto topicdto : topicList){
+            Topic topic = new Topic(courseExecution.getCourse(), topicdto);
+            this.topicList.add(topic);
+        }
     }
 
     public CourseExecution getCourseExecution() {
