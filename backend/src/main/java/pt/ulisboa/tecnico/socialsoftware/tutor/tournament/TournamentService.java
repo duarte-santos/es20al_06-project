@@ -107,6 +107,8 @@ public class TournamentService{
             throw new TutorException(TOURNAMENT_IS_CLOSED);
 
         tournament.addStudent(user);
+        tournamentRepository.save(tournament);
+
         return new TournamentDto(tournament);
 
     }
