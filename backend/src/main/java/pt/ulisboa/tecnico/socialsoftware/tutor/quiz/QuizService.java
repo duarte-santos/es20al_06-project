@@ -14,6 +14,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.CSVQuizExportVisitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.LatexQuizExportVisitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.QuizzesXmlExport;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.QuizzesXmlImport;
@@ -274,6 +275,12 @@ public class QuizService {
             copyToZipStream(zos, in);
             zos.closeEntry();
 
+            CSVQuizExportVisitor csvExport = new CSVQuizExportVisitor();
+            zos.putNextEntry(new ZipEntry(name + ".csv"));
+            in = IOUtils.toInputStream( csvExport.export(quiz), StandardCharsets.UTF_8);
+            copyToZipStream(zos, in);
+            zos.closeEntry();
+
             zos.close();
 
             baos.flush();
@@ -282,7 +289,6 @@ public class QuizService {
         } catch (IOException ex) {
             throw new TutorException(ErrorMessage.CANNOT_OPEN_FILE);
         }
-
     }
 
     private void copyToZipStream(ZipOutputStream zos, InputStream in) throws IOException {
