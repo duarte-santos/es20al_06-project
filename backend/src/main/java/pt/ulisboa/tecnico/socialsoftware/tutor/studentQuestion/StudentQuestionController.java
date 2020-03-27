@@ -32,5 +32,10 @@ public class StudentQuestionController {
         return this.studentQuestionService.evaluateStudentQuestion(studentQuestionId, studentQuestionDto);
     }
 
+    @GetMapping("/studentQuestions/{studentId}")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public List<StudentQuestionDto> viewOwnStudentQuestions(@PathVariable Integer studentId) {
+        return this.studentQuestionService.viewOwnStudentQuestions(studentId);
+    }
 
 }
