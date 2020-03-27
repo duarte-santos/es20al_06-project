@@ -42,7 +42,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
     @Autowired
     TopicRepository topicRepository
 
-    def "performance testing to create 1000 tournaments"() {
+    def "performance testing to create 3000 tournaments"() {
         given: "a user"
         def user = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
         userRepository.save(user)
@@ -68,7 +68,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         def tournamentDto = new TournamentDto("Torneio", topicList, 3, "2999-01-22 04:20", "2999-04-27 00:42")
 
         when:
-        1.upto(1000, { tournamentService.createTournament(courseExecution.getId(),user.getId(),tournamentDto)})
+        1.upto(3000, { tournamentService.createTournament(courseExecution.getId(),user.getId(),tournamentDto)})
 
         then:
         true
