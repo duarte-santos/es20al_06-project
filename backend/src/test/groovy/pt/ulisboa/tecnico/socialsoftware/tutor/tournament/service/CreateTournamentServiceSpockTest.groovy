@@ -87,11 +87,12 @@ class CreateTournamentServiceSpockTest extends Specification{
 
         topic = new Topic(course, topicDto)
         topicRepository.save(topic)
-        topicList = new ArrayList()
-        topicList.add(topic)
 
-        startingDate = LocalDateTime.now().format(formatter)
-        conclusionDate = LocalDateTime.now().plusDays(1).format(formatter)
+        topicList = new ArrayList()
+        topicList.add(topicDto)
+
+        startingDate = LocalDateTime.now().plusDays(1).format(formatter)
+        conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
 
     }
 
@@ -111,7 +112,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
         result.getTitle() == TOURNAMENT_TITLE
-        result.getTopicList() == topicList
+        result.getTopicList().get(0).getName() == TOPIC_NAME
         result.getNumberOfQuestions() == NUMBER_OF_QUESTIONS
         result.getStartingDate().format(formatter) == startingDate
         result.getConclusionDate().format(formatter) == conclusionDate
@@ -169,7 +170,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME2)
         def topicList2 = new ArrayList()
-        topicList2.add(topic)
+        topicList2.add(topicDto)
         and: "a tournamentDto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(TOURNAMENT_TITLE)
