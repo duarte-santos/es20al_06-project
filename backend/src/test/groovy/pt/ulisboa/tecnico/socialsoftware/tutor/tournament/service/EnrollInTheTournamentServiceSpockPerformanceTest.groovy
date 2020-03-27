@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -13,12 +12,15 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.*
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
 
 @DataJpaTest
-class CreateTournamentServiceSpockPerformanceTest extends Specification {
+class EnrollInTheTournamentServiceSpockPerformanceTest extends Specification {
 
     static final String STUDENT_NAME = "StudentName"
     static final String USERNAME = "StudentUsername"
@@ -29,6 +31,9 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
 
     @Autowired
     TournamentService tournamentService
+
+    @Autowired
+    TournamentRepository tournamentRepository
 
     @Autowired
     CourseRepository courseRepository
@@ -42,33 +47,38 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
     @Autowired
     TopicRepository topicRepository
 
-    def "performance testing to create 1000 tournaments"() {
-        given: "a user"
-        def user = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
-        userRepository.save(user)
+    def "performance testing to enroll 1000 students"() {
+
+        given: "1000 students"
+        def studentList = new ArrayList<User>();
+        for (int i = 0; i<1001; i++){
+            def user = new User(STUDENT_NAME + i, USERNAME + i, i, User.Role.STUDENT)
+            userRepository.save(user)
+            studentList.add(user)
+        }
 
         and: "a course"
         def course = new Course(COURSE, Course.Type.TECNICO)
         courseRepository.save(course)
 
-        and: "a course execution"
-        def courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
-        courseExecutionRepository.save(courseExecution)
-
-        and: "a topicList"
+        and: "a topic list"
         def topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
-
         def topic = new Topic(course, topicDto)
         topicRepository.save(topic)
-
         def topicList = new ArrayList()
         topicList.add(topicDto)
+
         and: "a tournamentDto"
         def tournamentDto = new TournamentDto("Torneio", topicList, 3, "2999-01-22 04:20", "2999-04-27 00:42")
 
+        and: "a tournament"
+        def tournament = new Tournament(tournamentDto)
+        tournamentRepository.save(tournament)
+        def tournamentId = tournament.getId()
+
         when:
-        1.upto(1000, { tournamentService.createTournament(courseExecution.getId(),user.getId(),tournamentDto)})
+        1.upto(1000, { tournamentService.enrollInTournament(studentList[it].getId(),tournamentId)})
 
         then:
         true
