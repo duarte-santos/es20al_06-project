@@ -5,6 +5,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
@@ -25,9 +27,9 @@ import java.time.format.DateTimeFormatter
 @DataJpaTest
 class ShowAllOpenTournamentsServiceTest extends Specification{
 
-    static final String STUDENT_NAME = "StudentName"
-    static final String USERNAME = "StudentUsername"
     static final String COURSE_NAME = "Software Architecture"
+    static final String ACRONYM = "AS1"
+    static final String ACADEMIC_TERM = "1 SEM"
     static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
 
@@ -46,9 +48,12 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     @Autowired
     CourseRepository courseRepository
 
+    @Autowired
+    CourseExecutionRepository courseExecutionRepository
 
-    def student
+
     def course
+    def static execution
     def topic
     def topicDto
     def static topicList
@@ -60,9 +65,12 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     def tournament3
     def tournament4
 
-    private static Tournament createTournament(String title, List<Topic> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
+    private static Tournament createTournament(String title, List<TopicDto> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
         def tournamentDto = new TournamentDto(title, topicList, numOfQuestions, startingDate, conclusionDate)
-        return new Tournament(tournamentDto)
+        def tournament = new Tournament(tournamentDto)
+        tournament.setCourseExecution(execution)
+        tournament.setTopicDtoList(topicList)
+        return tournament
     }
 
     def setup(){
@@ -70,24 +78,30 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
+        execution =  new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseRepository.save(course)
+        courseExecutionRepository.save(execution)
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
-
         topic = new Topic(course, topicDto)
         topicRepository.save(topic)
-        topicList = new ArrayList()
-        topicList.add(topic)
 
-        startingDate = LocalDateTime.now().format(formatter)
-        conclusionDate = LocalDateTime.now().plusDays(1).format(formatter)
+        topicList = new ArrayList()
+        topicList.add(topicDto)
+
+        startingDate = LocalDateTime.now().plusDays(1)format(formatter)
+        conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
 
         tournament1 = createTournament("T1", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
         tournament2 = createTournament("T2", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
         tournament3 = createTournament("T3", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
         tournament4 = createTournament("T4", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
 
+        tournament1.setCourseExecution(execution)
+        tournament2.setCourseExecution(execution)
+        tournament3.setCourseExecution(execution)
+        tournament4.setCourseExecution(execution)
 
     }
 
@@ -105,7 +119,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament4)
 
         when:
-        def result = tournamentService.ShowAllOpenTournaments()
+        def result = tournamentService.ShowAllOpenTournaments(execution.getId())
 
         then: "The returned data is correct"
         result.size() == 2
@@ -127,7 +141,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament4);
 
         when:
-        def result = tournamentService.ShowAllOpenTournaments()
+        tournamentService.ShowAllOpenTournaments(execution.getId())
         then: "An exception is thrown"
         thrown(TutorException)
     }
@@ -136,7 +150,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         given: "No tournaments"
 
         when:
-        def result = tournamentService.ShowAllOpenTournaments()
+        tournamentService.ShowAllOpenTournaments(execution.getId())
 
         then: "An exception is thrown"
         thrown(TutorException)
