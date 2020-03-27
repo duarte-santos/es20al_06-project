@@ -21,7 +21,7 @@ public interface StudentQuestionRepository extends JpaRepository<StudentQuestion
     Integer getMaxStudentQuestionNumber();
 
     @Query(value = "SELECT * FROM student_questions sq WHERE sq.user_id = :userId", nativeQuery = true)
-    List<StudentQuestion> findStudentQuestionsFromStudent(int userId);
+    List<StudentQuestion> viewStudentQuestions(int userId);
 
     /* // USEFUL(?)
     @Query(value = "SELECT * FROM student_questions sq WHERE sq.id = :id: AND sq.user_id = :userId:", nativeQuery = true)

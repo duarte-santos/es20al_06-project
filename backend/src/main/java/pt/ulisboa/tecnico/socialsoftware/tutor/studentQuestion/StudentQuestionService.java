@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository;
@@ -88,9 +87,9 @@ public class StudentQuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<StudentQuestionDto> findStudentQuestionsFromStudent(int studentId) {
+    public List<StudentQuestionDto> viewOwnStudentQuestions(int studentId) {
 
-        return studentQuestionRepository.findStudentQuestionsFromStudent(studentId).stream().map(StudentQuestionDto::new).collect(Collectors.toList());
+        return studentQuestionRepository.viewStudentQuestions(studentId).stream().map(StudentQuestionDto::new).collect(Collectors.toList());
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)

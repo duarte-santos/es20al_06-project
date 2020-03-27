@@ -95,7 +95,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         studentQuestionRepository.save(studentQuestion)
 
         when: // result contains a list of existing studentQuestions of a particular student
-        def result = studentQuestionService.findStudentQuestionsFromStudent(user.getId())
+        def result = studentQuestionService.viewOwnStudentQuestions(user.getId())
 
         then: "the returned data is correct"
         result.size() == 2
