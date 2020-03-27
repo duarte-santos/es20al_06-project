@@ -6,7 +6,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
@@ -14,7 +13,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
@@ -26,7 +24,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -80,13 +77,13 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<TournamentDto> ShowAllOpenTournaments(int executionId){
+    public List<TournamentDto> showAllOpenTournaments(int executionId){
 
-            List<TournamentDto> TournamentsList = tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
-            if (TournamentsList.isEmpty())
+            List<TournamentDto> tournamentsList = tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
+            if (tournamentsList.isEmpty())
                 throw new TutorException(NO_OPEN_TOURNAMENTS);
             else
-                return TournamentsList;
+                return tournamentsList;
     }
 
     @Retryable(
@@ -109,7 +106,7 @@ public class TournamentService{
 
         tournament.addStudent(user);
 
-        List<UserDto> userDtoList = new ArrayList<UserDto>();
+        List<UserDto> userDtoList = new ArrayList<>();
 
         for(User user2 : tournament.getStudentList()){
             UserDto userdto = new UserDto(user2);
