@@ -8,6 +8,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.Visitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -94,6 +95,38 @@ public class Question implements DomainEntity {
             this.options.add(option);
             option.setQuestion(this);
         }
+    }
+
+    public Question(StudentQuestion stQuestion) {
+        this.title = stQuestion.getTitle();
+        this.content = stQuestion.getContent();
+        this.status = Status.AVAILABLE;
+        this.setCreationDate(LocalDateTime.now());
+
+        this.course = stQuestion.getCourse();
+        course.addQuestion(this);
+
+        if (stQuestion.getImage() != null) {
+            Image img = stQuestion.getImage();
+            setImage(img);
+            img.setQuestion(this);
+        }
+
+        addStudentOptions(stQuestion);
+
+    }
+
+    private void addStudentOptions(StudentQuestion stQuestion) {
+        int index = 0;
+        for (String stOption : stQuestion.getOptions()) {
+            Option option = new Option();
+            option.setSequence(index++);
+            option.setContent(stOption);
+            option.setCorrect(false);
+            this.options.add(option);
+            option.setQuestion(this);
+        }
+        this.options.get(stQuestion.getCorrect() - 1).setCorrect(true);
     }
 
     @Override

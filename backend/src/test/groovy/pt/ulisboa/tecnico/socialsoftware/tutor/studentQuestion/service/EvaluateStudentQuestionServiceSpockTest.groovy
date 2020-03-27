@@ -79,10 +79,10 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         image.setUrl(URL)
         image.setWidth(20)
 
-        studentQuestion = new StudentQuestion(course, user, 1, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
+        studentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
         studentQuestion.setImage(image)
         studentQuestionRepository.save(studentQuestion)
-        studentQuestionDto = new StudentQuestionDto(studentQuestion)
+        studentQuestionDto = new StudentQuestionDto()
     }
 
     @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated ")
@@ -102,7 +102,6 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         result.getJustification() == justification
         and: "are not changed"
         result.getId() != null
-        result.getKey() == 1
         result.getTitle() == QUESTION_TITLE
         result.getContent() == QUESTION_CONTENT
         result.getOptions().size() == 4
@@ -131,7 +130,6 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         if (questionCreated) {
             def question = questionRepository.findAll().get(0)
             return (question.getId() != null
-                    && question.getKey() != null
                     && question.getTitle() == QUESTION_TITLE
                     && question.getContent() == QUESTION_CONTENT
                     && question.getOptions().size() == 4

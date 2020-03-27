@@ -1,8 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,10 +19,11 @@ public class StudentQuestionController {
 
     @PostMapping("/courses/{courseId}/studentQuestions")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#courseId, 'COURSE.ACCESS')")
-    public StudentQuestionDto createStudentQuestion(@PathVariable int courseId,
+    public StudentQuestionDto createStudentQuestion(@PathVariable int courseId, Authentication authentication,
                                                     @Valid @RequestBody StudentQuestionDto studentQuestionDto) {
 
-        return this.studentQuestionService.createStudentQuestion(courseId, studentQuestionDto);
+        Integer studentId = ((User) authentication.getPrincipal()).getId();
+        return this.studentQuestionService.createStudentQuestion(courseId, studentId, studentQuestionDto);
     }
 
     @PutMapping("/studentQuestions/{studentQuestionId}")
@@ -32,5 +34,11 @@ public class StudentQuestionController {
         return this.studentQuestionService.evaluateStudentQuestion(studentQuestionId, studentQuestionDto);
     }
 
+    @GetMapping("/studentQuestions/ownQuestions")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public List<StudentQuestionDto> viewOwnStudentQuestions(Authentication authentication) {
+        Integer studentId = ((User) authentication.getPrincipal()).getId();
+        return this.studentQuestionService.viewOwnStudentQuestions(studentId);
+    }
 
 }
