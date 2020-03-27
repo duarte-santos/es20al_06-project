@@ -23,7 +23,7 @@ public interface StudentQuestionRepository extends JpaRepository<StudentQuestion
     @Query(value = "SELECT * FROM student_questions sq WHERE sq.user_id = :userId", nativeQuery = true)
     List<StudentQuestion> findStudentQuestionsFromStudent(int userId);
 
-    /*
+    /* // USEFUL(?)
     @Query(value = "SELECT * FROM student_questions sq WHERE sq.id = :id: AND sq.user_id = :userId:", nativeQuery = true)
     StudentQuestion findSpecificStudentQuestion(int userId, int id);
     */

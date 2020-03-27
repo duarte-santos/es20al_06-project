@@ -50,12 +50,14 @@ public enum ErrorMessage {
     TOURNAMENT_TOPIC_DOESNT_EXIST("The tournament topicList has a topic that doesnt exist"),
     TOURNAMENT_NOT_FOUND("The tournament doesn't exist"),
     TOURNAMENT_IS_CLOSED("The tournament is closed"),
-
-
     NO_OPEN_TOURNAMENTS("There are no open tournaments"),
-
     STUDENT_ALREADY_ENROLLED("The student has signed up for this tournament before"),
 
+    STUDENT_QUESTION_NOT_FOUND("Student's question not found with id %d"),
+    STUDENT_QUESTION_ALREADY_EVALUATED("Student's question has already been evaluated"),
+    JUSTIFICATION_MISSING_DATA("Justifications cannot be blank"),
+    STUDENT_QUESTION_MISSING_DATA("Missing information for question"),
+    STUDENT_QUESTION_MULTIPLE_CORRECT_OPTIONS("Questions can only have 1 correct option"),
 
     NO_CORRECT_OPTION("Question does not have a correct option"),
     NOT_ENOUGH_QUESTIONS("Not enough questions to create a quiz"),
@@ -69,10 +71,6 @@ public enum ErrorMessage {
     FENIX_ERROR("Fenix Error"),
     AUTHENTICATION_ERROR("Authentication Error"),
     FENIX_CONFIGURATION_ERROR("Incorrect server configuration files for fenix"),
-
-    QUESTION_ALREADY_EVALUATED("Question has already been evaluated"),
-    JUSTIFICATION_MISSING_DATA("Justifications cannot be blank"),
-
 
     ACCESS_DENIED("You do not have permission to view this resource"),
     CANNOT_OPEN_FILE("Cannot open file");
