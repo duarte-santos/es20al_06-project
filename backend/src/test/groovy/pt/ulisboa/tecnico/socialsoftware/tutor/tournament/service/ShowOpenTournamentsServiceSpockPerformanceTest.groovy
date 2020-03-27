@@ -80,7 +80,7 @@ class ShowOpenTournamentsServiceSpockPerformanceTest extends Specification {
         tournamentRepository.save(tournament)
 
         when:
-        1.upto(100000, { tournamentService.ShowAllOpenTournaments(courseExecution.getId())})
+        1.upto(100000, { tournamentService.showAllOpenTournaments(courseExecution.getId())})
 
         then:
         true

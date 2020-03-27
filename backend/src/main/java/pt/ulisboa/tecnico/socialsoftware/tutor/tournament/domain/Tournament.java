@@ -56,36 +56,36 @@ public class Tournament{
 
     public Tournament(TournamentDto tournamentDto){
 
-        String title = tournamentDto.getTitle();
-        Integer numberOfQuestions = tournamentDto.getNumberOfQuestions();
-        LocalDateTime startingDate = tournamentDto.getStartingDateDate();
-        LocalDateTime conclusionDate = tournamentDto.getConclusionDateDate();
-        Tournament.Status status = tournamentDto.getStatus();
+        String titleAux = tournamentDto.getTitle();
+        Integer numberOfQuestionsAux = tournamentDto.getNumberOfQuestions();
+        LocalDateTime startingDateAux = tournamentDto.getStartingDateDate();
+        LocalDateTime conclusionDateAux = tournamentDto.getConclusionDateDate();
+        Tournament.Status statusAux = tournamentDto.getStatus();
 
 
 
-        if (title == null || title.trim().isEmpty()) {
+        if (titleAux == null || titleAux.trim().isEmpty()) {
             throw new TutorException(TOURNAMENT_TITLE_IS_EMPTY);
         }
 
-        if (numberOfQuestions <= 0){
+        if (numberOfQuestionsAux <= 0){
             throw new TutorException(TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1);
         }
 
-        if (startingDate == null || conclusionDate == null ||
-                conclusionDate.isBefore(startingDate)){
+        if (startingDateAux == null || conclusionDateAux == null ||
+                conclusionDateAux.isBefore(startingDateAux)){
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 
-        if (LocalDateTime.now().isAfter(startingDate)){
+        if (LocalDateTime.now().isAfter(startingDateAux)){
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 
-        this.title = title;
-        this.numberOfQuestions = numberOfQuestions;
-        this.startingDate = startingDate;
-        this.conclusionDate = conclusionDate;
-        this.status = status;
+        this.title = titleAux;
+        this.numberOfQuestions = numberOfQuestionsAux;
+        this.startingDate = startingDateAux;
+        this.conclusionDate = conclusionDateAux;
+        this.status = statusAux;
     }
 
     public void setTopicDtoList(List<TopicDto> topicList){

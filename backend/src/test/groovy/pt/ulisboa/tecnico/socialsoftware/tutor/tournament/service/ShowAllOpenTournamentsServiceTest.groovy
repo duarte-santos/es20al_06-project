@@ -119,7 +119,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament4)
 
         when:
-        def result = tournamentService.ShowAllOpenTournaments(execution.getId())
+        def result = tournamentService.showAllOpenTournaments(execution.getId())
 
         then: "The returned data is correct"
         result.size() == 2
@@ -141,7 +141,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament4);
 
         when:
-        tournamentService.ShowAllOpenTournaments(execution.getId())
+        tournamentService.showAllOpenTournaments(execution.getId())
         then: "An exception is thrown"
         thrown(TutorException)
     }
@@ -150,7 +150,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         given: "No tournaments"
 
         when:
-        tournamentService.ShowAllOpenTournaments(execution.getId())
+        tournamentService.showAllOpenTournaments(execution.getId())
 
         then: "An exception is thrown"
         thrown(TutorException)

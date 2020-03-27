@@ -4,7 +4,6 @@ import org.springframework.data.annotation.Transient;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,7 +15,7 @@ public class TournamentDto implements Serializable{
 
     private Integer id;
     private String title;
-    private List<TopicDto> topicList = new ArrayList<TopicDto>();
+    private List<TopicDto> topicList = new ArrayList<>();
     private Integer numberOfQuestions;
     private String startingDate;
     private String conclusionDate;
@@ -37,9 +36,9 @@ public class TournamentDto implements Serializable{
         this.conclusionDate = tournament.getConclusionDate().format(formatter);
         this.status = tournament.getStatus();
 
-        List<Topic> topicList = tournament.getTopicList();
+        List<Topic> topicListAux = tournament.getTopicList();
 
-        for (Topic topic : topicList) {
+        for (Topic topic : topicListAux) {
             TopicDto topicdto = new TopicDto(topic);
             this.topicList.add(topicdto);
         }
