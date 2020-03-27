@@ -37,7 +37,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="50 Users Thread Group" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="100 Users Thread Group" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -92,23 +92,11 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller (10)" enabled="true">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop 10 times" enabled="true">
             <boolProp name="LoopController.continue_forever">true</boolProp>
             <stringProp name="LoopController.loops">10</stringProp>
           </LoopController>
           <hashTree>
-            <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Data to create StudentQuestion" enabled="true">
-              <stringProp name="delimiter">,</stringProp>
-              <stringProp name="fileEncoding"></stringProp>
-              <stringProp name="filename">StudentQuestionData.csv</stringProp>
-              <boolProp name="ignoreFirstLine">false</boolProp>
-              <boolProp name="quotedData">false</boolProp>
-              <boolProp name="recycle">true</boolProp>
-              <stringProp name="shareMode">shareMode.all</stringProp>
-              <boolProp name="stopThread">false</boolProp>
-              <stringProp name="variableNames">key</stringProp>
-            </CSVDataSet>
-            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to Create a StudentQuestion" enabled="true">
               <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
@@ -116,12 +104,10 @@
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
                     <stringProp name="Argument.value">{&#xd;
-	&quot;key&quot;: &quot;${key}&quot;,&#xd;
-	&quot;title&quot;: &quot;TITLE&quot;,&#xd;
-	&quot;content&quot;: &quot;CONTENT&quot;,&#xd;
-	&quot;options&quot;: [ &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;],&#xd;
-	&quot;correct&quot;: &quot;1&quot;,&#xd;
-	&quot;studentId&quot;: &quot;676&quot;&#xd;
+	&quot;title&quot;: &quot;Student_Question_Title_FOR_TEST&quot;,&#xd;
+	&quot;content&quot;: &quot;Student_Question_Content_FOR_TEST&quot;,&#xd;
+	&quot;options&quot;: [ &quot;Option_A_FOR_TEST&quot;, &quot;Option_B_FOR_TEST&quot;, &quot;Option_C_FOR_TEST&quot;, &quot;Option_D_FOR_TEST&quot;],&#xd;
+	&quot;correct&quot;: &quot;1&quot;&#xd;
 }</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
@@ -245,18 +231,18 @@
           <boolProp name="keepAlive">true</boolProp>
           <stringProp name="connectionAge">5000</stringProp>
           <stringProp name="checkQuery"></stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5433/tutordb?autoReconnect=true</stringProp>
+          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb?autoReconnect=true</stringProp>
           <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="username">duarte</stringProp>
-          <stringProp name="password">bheu0325</stringProp>
+          <stringProp name="username">sofia</stringProp>
+          <stringProp name="password">bolonhesi</stringProp>
           <stringProp name="connectionProperties"></stringProp>
         </JDBCDataSource>
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
           <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;A&apos;,&apos;B&apos;,&apos;C&apos;,&apos;D&apos;);
-DELETE FROM student_questions WHERE key &lt;= 500;</stringProp>
+          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
+DELETE FROM student_questions WHERE title=&apos;Student_Question_Title_FOR_TEST&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>

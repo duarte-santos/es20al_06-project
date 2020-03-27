@@ -1,14 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.question.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -57,27 +54,6 @@ public class QuestionDto implements Serializable {
             this.image = new ImageDto(question.getImage());
         if (question.getCreationDate() != null)
             this.creationDate = question.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-    }
-
-    public QuestionDto(StudentQuestion stQuestion) {
-        this.title = stQuestion.getTitle();
-        this.content = stQuestion.getContent();
-        this.status = Question.Status.AVAILABLE.name();
-        addStudentOptions(stQuestion);
-        if (stQuestion.getImage() != null)
-            this.image = new ImageDto(stQuestion.getImage());
-        this.setCreationDate(LocalDateTime.now().format(Course.formatter));
-
-    }
-
-    private void addStudentOptions(StudentQuestion stQuestion) {
-        for (String stOption : stQuestion.getOptions()) {
-            OptionDto option = new OptionDto();
-            option.setContent(stOption);
-            option.setCorrect(false);
-            this.options.add(option);
-        }
-        this.options.get(stQuestion.getCorrect() - 1).setCorrect(true);
     }
 
     public Integer getId() {

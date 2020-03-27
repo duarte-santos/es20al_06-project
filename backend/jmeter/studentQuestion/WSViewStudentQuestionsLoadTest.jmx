@@ -34,11 +34,6 @@
             <stringProp name="Argument.value">2</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="demoStudentId" elementType="Argument">
-            <stringProp name="Argument.name">demoStudentId</stringProp>
-            <stringProp name="Argument.value">676</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -112,8 +107,7 @@
 	&quot;title&quot;: &quot;Student_Question_Title_FOR_TEST&quot;,&#xd;
 	&quot;content&quot;: &quot;Student_Question_Content_FOR_TEST&quot;,&#xd;
 	&quot;options&quot;: [ &quot;Option_A_FOR_TEST&quot;, &quot;Option_B_FOR_TEST&quot;, &quot;Option_C_FOR_TEST&quot;, &quot;Option_D_FOR_TEST&quot;],&#xd;
-	&quot;correct&quot;: &quot;1&quot;,&#xd;
-	&quot;studentId&quot;: &quot;${demoStudentId}&quot;&#xd;
+	&quot;correct&quot;: &quot;1&quot;&#xd;
 }</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
@@ -264,7 +258,7 @@
           <hashTree/>
           <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop 10 times" enabled="true">
             <boolProp name="LoopController.continue_forever">true</boolProp>
-            <stringProp name="LoopController.loops">5</stringProp>
+            <stringProp name="LoopController.loops">10</stringProp>
           </LoopController>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to View a Student&apos;s StudentQuestions" enabled="true">
@@ -275,7 +269,7 @@
               <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/studentQuestions/${demoStudentId}</stringProp>
+              <stringProp name="HTTPSampler.path">/studentQuestions/ownQuestions</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -389,10 +383,10 @@
           <boolProp name="keepAlive">true</boolProp>
           <stringProp name="connectionAge">5000</stringProp>
           <stringProp name="checkQuery"></stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5433/tutordb?autoReconnect=true</stringProp>
+          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb?autoReconnect=true</stringProp>
           <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="username">duarte</stringProp>
-          <stringProp name="password">bheu0325</stringProp>
+          <stringProp name="username">sofia</stringProp>
+          <stringProp name="password">bolonhesi</stringProp>
           <stringProp name="connectionProperties"></stringProp>
         </JDBCDataSource>
         <hashTree/>

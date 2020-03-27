@@ -39,10 +39,8 @@ public class StudentQuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StudentQuestionDto createStudentQuestion(int courseId, StudentQuestionDto studentQuestionDto) {
+    public StudentQuestionDto createStudentQuestion(int courseId, int studentId, StudentQuestionDto studentQuestionDto) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(COURSE_NOT_FOUND, courseId));
-
-        Integer studentId = studentQuestionDto.getStudentId();
         User student = userRepository.findById(studentId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, studentId));
 
         StudentQuestion stQuestion = new StudentQuestion(course, student, studentQuestionDto);
@@ -88,7 +86,6 @@ public class StudentQuestionService {
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<StudentQuestionDto> viewOwnStudentQuestions(int studentId) {
-
         return studentQuestionRepository.viewStudentQuestions(studentId).stream().map(StudentQuestionDto::new).collect(Collectors.toList());
     }
 

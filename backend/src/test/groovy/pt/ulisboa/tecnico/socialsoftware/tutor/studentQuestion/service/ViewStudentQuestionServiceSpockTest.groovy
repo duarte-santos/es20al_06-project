@@ -48,7 +48,6 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
     def course
     def courseExecution
     def user
-    def studentQuestionDto
     def studentQuestion
 
     def setup() {
@@ -85,13 +84,13 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         options.add(OPTION_INCORRECT_CONTENT)
         options.add(OPTION_INCORRECT_CONTENT)
 
-        studentQuestion = new StudentQuestion(course, user, 1, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
+        studentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
         studentQuestion.setImage(image)
         studentQuestion.setState(StudentQuestion.State.REJECTED)
         studentQuestion.setJustification(JUSTIFICATION)
         studentQuestionRepository.save(studentQuestion)
 
-        studentQuestion = new StudentQuestion(course, user, 2, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
+        studentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
         studentQuestionRepository.save(studentQuestion)
 
         when: // result contains a list of existing studentQuestions of a particular student
@@ -110,7 +109,6 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res0.getImage().getWidth() == 20
         res0.getJustification() == JUSTIFICATION
         res0.getState() == StudentQuestion.State.REJECTED.name()
-        res0.getStudentId() == user.getId()
 
         def res1 = result.get(1)
         res1.getId() != null
@@ -121,7 +119,6 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res1.getImage() == null
         res1.getJustification() == null
         res1.getState() == StudentQuestion.State.AWAITING_APPROVAL.name()
-        res1.getStudentId() == user.getId()
 
     }
 

@@ -5,7 +5,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
@@ -75,8 +74,7 @@ public class StudentQuestion {
         this.content = stQuestionDto.getContent();
         this.correct = stQuestionDto.getCorrect();
 
-        this.course = course;
-        course.addStudentQuestion(this);
+        setCourse(course);
 
         if (stQuestionDto.getImage() != null) {
             createImage(stQuestionDto.getImage());
@@ -90,10 +88,9 @@ public class StudentQuestion {
         this.justification = stQuestionDto.getJustification();
     }
 
-    public StudentQuestion(Course course, User user, Integer key, String title, String content, List<String> options, Integer correct) {
-        this.course = course;
+    public StudentQuestion(Course course, User user, String title, String content, List<String> options, Integer correct) {
+        setCourse(course);
         this.student = user;
-        this.key = key;
         this.title = title;
         this.content = content;
         this.options.addAll(options);
@@ -111,7 +108,7 @@ public class StudentQuestion {
                 stQuestionDto.getTitle().trim().length() == 0 ||
                 stQuestionDto.getContent() == null ||
                 stQuestionDto.getContent().trim().length() == 0 ||
-                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr == null) ||
+                stQuestionDto.getOptions().stream().anyMatch(Objects::isNull) ||
                 stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0) ||
                 stQuestionDto.getOptions().size() != 4) {
             throw new TutorException(STUDENT_QUESTION_MISSING_DATA);
@@ -169,6 +166,7 @@ public class StudentQuestion {
 
     public void setCourse(Course course) {
         this.course = course;
+        course.addStudentQuestion(this);
     }
 
     public User getStudent() {
@@ -253,31 +251,30 @@ public class StudentQuestion {
     }
 
     public void evaluateStudentQuestion(StudentQuestionDto studentQuestionDto) {
-        State state = State.valueOf(studentQuestionDto.getState());
-        String justification = studentQuestionDto.getJustification();
-        checkValidEvaluation(state, justification);
+        State newState = State.valueOf(studentQuestionDto.getState());
+        String newJustification = studentQuestionDto.getJustification();
+        checkValidEvaluation(newState, newJustification);
 
-        if (justification != null)
-            setJustification(justification);
-        setState(state);
+        if (newJustification != null)
+            setJustification(newJustification);
+        setState(newState);
 
-        if (state == State.APPROVED) {
+        if (newState == State.APPROVED) {
             createCorrespondingQuestion();
         }
     }
 
     private void createCorrespondingQuestion() {
-        QuestionDto questionDto = new QuestionDto(this);
-        Question question = new Question(this.course, questionDto);
+        Question question = new Question(this);
         this.setCorrespondingQuestionKey(question.getKey());
     }
 
-    private void checkValidEvaluation(State result, String justification) {
+    private void checkValidEvaluation(State newState, String newJustification) {
         if (this.state != State.AWAITING_APPROVAL)
             throw new TutorException(STUDENT_QUESTION_ALREADY_EVALUATED);
 
-        if (justification == null && result == State.REJECTED ||
-                justification != null && justification.trim().length() == 0)
+        if (newJustification == null && newState == State.REJECTED ||
+                newJustification != null && newJustification.trim().length() == 0)
             throw new TutorException(JUSTIFICATION_MISSING_DATA);
     }
 }

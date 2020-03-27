@@ -99,12 +99,10 @@
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
-	&quot;key&quot;: &quot;1&quot;,&#xd;
-	&quot;title&quot;: &quot;TITLE&quot;,&#xd;
-	&quot;content&quot;: &quot;CONTENT&quot;,&#xd;
-	&quot;options&quot;: [ &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;],&#xd;
-	&quot;correct&quot;: &quot;1&quot;,&#xd;
-	&quot;studentId&quot;: &quot;676&quot;&#xd;
+	&quot;title&quot;: &quot;Student_Question_Title_FOR_TEST&quot;,&#xd;
+	&quot;content&quot;: &quot;Student_Question_Content_FOR_TEST&quot;,&#xd;
+	&quot;options&quot;: [ &quot;Option_A_FOR_TEST&quot;, &quot;Option_B_FOR_TEST&quot;, &quot;Option_C_FOR_TEST&quot;, &quot;Option_D_FOR_TEST&quot;],&#xd;
+	&quot;correct&quot;: &quot;1&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -125,18 +123,9 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert key" enabled="true">
-              <stringProp name="JSON_PATH">$.key</stringProp>
-              <stringProp name="EXPECTED_VALUE">1</stringProp>
-              <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
-            </JSONPathAssertion>
-            <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert title" enabled="true">
               <stringProp name="JSON_PATH">$.title</stringProp>
-              <stringProp name="EXPECTED_VALUE">TITLE</stringProp>
+              <stringProp name="EXPECTED_VALUE">Student_Question_Title_FOR_TEST</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -145,7 +134,7 @@
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert content" enabled="true">
               <stringProp name="JSON_PATH">$.content</stringProp>
-              <stringProp name="EXPECTED_VALUE">CONTENT</stringProp>
+              <stringProp name="EXPECTED_VALUE">Student_Question_Content_FOR_TEST</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -154,7 +143,7 @@
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert options" enabled="true">
               <stringProp name="JSON_PATH">$.options</stringProp>
-              <stringProp name="EXPECTED_VALUE">[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;]</stringProp>
+              <stringProp name="EXPECTED_VALUE">[&quot;Option_A_FOR_TEST&quot;,&quot;Option_B_FOR_TEST&quot;,&quot;Option_C_FOR_TEST&quot;,&quot;Option_D_FOR_TEST&quot;]</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -170,91 +159,82 @@
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
             <hashTree/>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert studentId" enabled="true">
-              <stringProp name="JSON_PATH">$.studentId</stringProp>
-              <stringProp name="EXPECTED_VALUE">676</stringProp>
-              <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
-            </JSONPathAssertion>
-            <hashTree/>
           </hashTree>
-          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-            <boolProp name="ResultCollector.error_logging">false</boolProp>
-            <objProp>
-              <name>saveConfig</name>
-              <value class="SampleSaveConfiguration">
-                <time>true</time>
-                <latency>true</latency>
-                <timestamp>true</timestamp>
-                <success>true</success>
-                <label>true</label>
-                <code>true</code>
-                <message>true</message>
-                <threadName>true</threadName>
-                <dataType>true</dataType>
-                <encoding>false</encoding>
-                <assertions>true</assertions>
-                <subresults>true</subresults>
-                <responseData>false</responseData>
-                <samplerData>false</samplerData>
-                <xml>false</xml>
-                <fieldNames>true</fieldNames>
-                <responseHeaders>false</responseHeaders>
-                <requestHeaders>false</requestHeaders>
-                <responseDataOnError>false</responseDataOnError>
-                <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-                <assertionsResultsToSave>0</assertionsResultsToSave>
-                <bytes>true</bytes>
-                <sentBytes>true</sentBytes>
-                <url>true</url>
-                <threadCounts>true</threadCounts>
-                <idleTime>true</idleTime>
-                <connectTime>true</connectTime>
-              </value>
-            </objProp>
-            <stringProp name="filename"></stringProp>
-          </ResultCollector>
-          <hashTree/>
-          <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
-            <boolProp name="ResultCollector.error_logging">false</boolProp>
-            <objProp>
-              <name>saveConfig</name>
-              <value class="SampleSaveConfiguration">
-                <time>true</time>
-                <latency>true</latency>
-                <timestamp>true</timestamp>
-                <success>true</success>
-                <label>true</label>
-                <code>true</code>
-                <message>true</message>
-                <threadName>true</threadName>
-                <dataType>true</dataType>
-                <encoding>false</encoding>
-                <assertions>true</assertions>
-                <subresults>true</subresults>
-                <responseData>false</responseData>
-                <samplerData>false</samplerData>
-                <xml>false</xml>
-                <fieldNames>true</fieldNames>
-                <responseHeaders>false</responseHeaders>
-                <requestHeaders>false</requestHeaders>
-                <responseDataOnError>false</responseDataOnError>
-                <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-                <assertionsResultsToSave>0</assertionsResultsToSave>
-                <bytes>true</bytes>
-                <sentBytes>true</sentBytes>
-                <url>true</url>
-                <threadCounts>true</threadCounts>
-                <idleTime>true</idleTime>
-                <connectTime>true</connectTime>
-              </value>
-            </objProp>
-            <stringProp name="filename"></stringProp>
-          </ResultCollector>
-          <hashTree/>
         </hashTree>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
       </hashTree>
       <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -282,18 +262,18 @@
           <boolProp name="keepAlive">true</boolProp>
           <stringProp name="connectionAge">5000</stringProp>
           <stringProp name="checkQuery"></stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5433/tutordb?autoReconnect=true</stringProp>
+          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb?autoReconnect=true</stringProp>
           <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="username">duarte</stringProp>
-          <stringProp name="password">bheu0325</stringProp>
+          <stringProp name="username">sofia</stringProp>
+          <stringProp name="password">bolonhesi</stringProp>
           <stringProp name="connectionProperties"></stringProp>
         </JDBCDataSource>
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
           <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;A&apos;,&apos;B&apos;,&apos;C&apos;,&apos;D&apos;);
-DELETE FROM student_questions WHERE key=1;</stringProp>
+          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;, &apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
+DELETE FROM student_questions WHERE title=&apos;Student_Question_Title_FOR_TEST&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>
