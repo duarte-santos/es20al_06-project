@@ -166,7 +166,7 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
 
        then: "an exception is thrown"
        def error = thrown(TutorException)
-       error.errorMessage == errorMessage
+       error.errorMessage == errorMessage //you could have added more specific error messages0.4
 
        where:
        title             | content           | correctContent            | incorrectContent          | correctSequence   || errorMessage
