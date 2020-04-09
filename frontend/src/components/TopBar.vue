@@ -152,6 +152,25 @@
           <v-icon>fas fa-user</v-icon>
         </v-btn>
 
+        <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" text dark>
+              Tournament
+              <v-icon>fas fa-file-alt</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item to="/student/tournament/enroll">
+              <v-list-item-action>
+                <v-icon>add</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Enroll</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
         <v-btn
           v-if="isLoggedIn && moreThanOneCourse"
           to="/courses"
@@ -311,6 +330,12 @@
               <v-icon>fas fa-user</v-icon>
             </v-list-item-action>
             <v-list-item-content>Stats</v-list-item-content>
+          </v-list-item>
+          <v-list-item to="/student/tournament/enroll">
+            <v-list-item-action>
+              <v-icon>plus</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>Enroll in Tournament</v-list-item-content>
           </v-list-item>
         </v-list-group>
 

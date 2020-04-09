@@ -25,6 +25,8 @@ import ImpExpView from '@/views/teacher/impexp/ImpExpView.vue';
 import AssessmentsView from '@/views/teacher/assessments/AssessmentsView.vue';
 import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
 import CoursesView from '@/views/admin/Courses/CoursesView.vue';
+import TournamentView from '@/views/tournament/TournamentView.vue';
+import EnrollInTournamentView from '@/views/tournament/EnrollInTournamentView.vue';
 
 Vue.use(Router);
 
@@ -184,6 +186,22 @@ let router = new Router({
             title: process.env.VUE_APP_NAME + ' - Scan',
             requiredAuth: 'Student'
           }
+        },
+        {
+          path: 'tournament',
+          name: 'tournament',
+          component: TournamentView,
+          children: [
+            {
+              path: 'enroll',
+              name: 'enroll-in-tournaments',
+              component: EnrollInTournamentView,
+              meta: {
+                title: process.env.VUE_APP_NAME + ' - Enroll in Tournaments',
+                requiredAuth: 'Student'
+              }
+            }
+          ]
         }
       ]
     },
