@@ -14,6 +14,8 @@ import AuthDto from '@/models/user/AuthDto';
 import StatementAnswer from '@/models/statement/StatementAnswer';
 import { QuizAnswer } from '@/models/management/QuizAnswer';
 import { QuizAnswers } from '@/models/management/QuizAnswers';
+import Tournament from '@/models/management/Tournament';
+import TournamentUser from '@/models/user/TournamentUser';
 
 const httpClient = axios.create();
 httpClient.defaults.timeout = 10000;
@@ -590,5 +592,34 @@ export default class RemoteServices {
       console.log(error);
       return 'Unknown Error - Contact admin';
     }
+  }
+
+  static getAvailableTournaments(): Promise<Tournament[]> {
+    return httpClient
+      .get(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/show-open`
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+  static enrollInTournament(tournament: Tournament): Promise<TournamentUser[]> {
+    return httpClient
+      .put(
+        '/tournaments/' + tournament.id + '/enroll/' + tournament.demoStudentId
+      )
+      .then(response => {
+        return response.data.map((user: any) => {
+          return new TournamentUser(user);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
   }
 }
