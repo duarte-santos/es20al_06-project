@@ -331,6 +331,7 @@
             </v-list-item-action>
             <v-list-item-content>Stats</v-list-item-content>
           </v-list-item>
+
           <v-list-item to="/student/tournament/enroll">
             <v-list-item-action>
               <v-icon>plus</v-icon>

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h2>Available Tournaments</h2>
-    <ul>
+    <ul data-cy="tournamentsList">
       <li class="list-header">
         <div class="col">Title</div>
         <div class="col">Questions</div>
@@ -29,7 +29,7 @@
         </div>
         <div class="col last-col">
           <div v-if="tournament.enrolled">
-            <v-icon style="color: green">check</v-icon>
+            <v-icon style="color: green" data-cy="enrollmentTick">check</v-icon>
           </div>
         </div>
       </li>
@@ -58,20 +58,21 @@ export default class EnrollInTournamentView extends Vue {
   }
 
   async enroll(tournament: Tournament) {
-    if(tournament.enrolled) {
+    /*if(tournament.enrolled) {
       alert('you were already enrolled in the ' + tournament.title);
       return;
     }
-
+*/
     await this.$store.dispatch('loading');
     try {
       tournament.updateStudentsList(await RemoteServices.enrollInTournament(tournament));
+      this.$forceUpdate();
+      alert('you are now enrolled in the ' + tournament.title);
+
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
-    this.$forceUpdate();
-    alert('you are now enrolled in the ' + tournament.title);
   }
 }
 </script>
