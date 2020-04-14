@@ -105,22 +105,24 @@ public class StudentQuestion {
 
     private void checkConsistentStudentQuestion(StudentQuestionDto stQuestionDto) {
         if (stQuestionDto.getTitle() == null ||
-                stQuestionDto.getTitle().trim().length() == 0 ||
-                stQuestionDto.getContent() == null ||
-                stQuestionDto.getContent().trim().length() == 0 ||
-                stQuestionDto.getOptions().stream().anyMatch(Objects::isNull) ||
-                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0) ||
-                stQuestionDto.getOptions().size() != 4) {
-            throw new TutorException(STUDENT_QUESTION_MISSING_DATA);
+                stQuestionDto.getTitle().trim().length() == 0) {
+            throw new TutorException(SQ_TITLE_MISSING_DATA);
         }
-
-        if (stQuestionDto.getCorrect() == null) {
-            throw new TutorException(STUDENT_QUESTION_MULTIPLE_CORRECT_OPTIONS);
+        if (stQuestionDto.getContent() == null ||
+                stQuestionDto.getContent().trim().length() == 0) {
+            throw new TutorException(SQ_CONTENT_MISSING_DATA);
         }
-
-        if (stQuestionDto.getCorrect() > 4 ||
+        if (stQuestionDto.getOptions().stream().anyMatch(Objects::isNull) ||
+                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0)) {
+            throw new TutorException(SQ_OPTION_MISSING_DATA);
+        }
+        if (stQuestionDto.getOptions().size() != 4) {
+            throw new TutorException(STUDENT_QUESTION_INVALID_OPTIONS_AMOUNT);
+        }
+        if (stQuestionDto.getCorrect() == null ||
+                stQuestionDto.getCorrect() > 4 ||
                 stQuestionDto.getCorrect() < 1) {
-            throw new TutorException(STUDENT_QUESTION_MISSING_DATA);
+            throw new TutorException(SQ_INVALID_CORRECT_OPTION);
         }
     }
 
