@@ -26,6 +26,8 @@ import AssessmentsView from '@/views/teacher/assessments/AssessmentsView.vue';
 import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
 import CoursesView from '@/views/admin/Courses/CoursesView.vue';
 
+import StudentQuestionView from '@/views/student/question/StudentQuestionView.vue';
+
 Vue.use(Router);
 
 let router = new Router({
@@ -122,6 +124,15 @@ let router = new Router({
       name: 'student',
       component: StudentView,
       children: [
+        {
+          path: 'questions',
+          name: 'student-questions',
+          component: StudentQuestionView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Manage my Questions',
+            requiredAuth: 'Student'
+          }
+        },
         {
           path: 'available',
           name: 'available-quizzes',
