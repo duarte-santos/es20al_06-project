@@ -64,10 +64,10 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
 
     def "student views empty set of studentQuestion"() {
         when: // result contains a list of existing studentQuestions of a particular student
-        def result = studentQuestionService.findStudentQuestions(course.getId())
+        studentQuestionService.findStudentQuestions(course.getId())
 
         then: "the result is empty"
-        result.size() == 0
+        studentQuestionRepository.count() == 0
     }
 
 
@@ -94,10 +94,11 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         studentQuestionRepository.save(studentQuestion)
 
         when: // result contains a list of existing studentQuestions of a particular student
-        def result = studentQuestionService.viewOwnStudentQuestions(user.getId())
+        studentQuestionService.viewOwnStudentQuestions(user.getId())
 
         then: "the returned data is correct"
-        result.size() == 2
+        studentQuestionRepository.count() == 2L
+        def result = studentQuestionRepository.findAll()
 
         def res0 = result.get(0)
         res0.getId() != null
@@ -108,7 +109,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res0.getImage().getUrl() == URL
         res0.getImage().getWidth() == 20
         res0.getJustification() == JUSTIFICATION
-        res0.getState() == StudentQuestion.State.REJECTED.name()
+        res0.getState() == StudentQuestion.State.REJECTED
 
         def res1 = result.get(1)
         res1.getId() != null
@@ -118,7 +119,7 @@ class ViewStudentQuestionServiceSpockTest extends Specification {
         res1.getOptions() == options
         res1.getImage() == null
         res1.getJustification() == null
-        res1.getState() == StudentQuestion.State.AWAITING_APPROVAL.name()
+        res1.getState() == StudentQuestion.State.AWAITING_APPROVAL
 
     }
 
