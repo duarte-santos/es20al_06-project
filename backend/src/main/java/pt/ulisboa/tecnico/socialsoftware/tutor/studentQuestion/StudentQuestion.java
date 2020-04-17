@@ -143,7 +143,7 @@ public class StudentQuestion {
     }
 
     private void generateKeys() {
-        Integer max = this.course.getStudentQuestions().stream()
+        int max = this.course.getStudentQuestions().stream()
                 .filter(stQuestion -> stQuestion.key != null)
                 .map(StudentQuestion::getKey)
                 .max(Comparator.comparing(Integer::valueOf))
@@ -224,6 +224,10 @@ public class StudentQuestion {
         return topics;
     }
 
+    public void setTopics(Set<String> topics) {
+        this.topics = topics;
+    }
+
     public void addTopics(String topic) {
         this.topics.add(topic);
     }
@@ -260,15 +264,6 @@ public class StudentQuestion {
         if (newJustification != null)
             setJustification(newJustification);
         setState(newState);
-
-        if (newState == State.APPROVED) {
-            createCorrespondingQuestion();
-        }
-    }
-
-    private void createCorrespondingQuestion() {
-        Question question = new Question(this);
-        this.setCorrespondingQuestionKey(question.getKey());
     }
 
     private void checkValidEvaluation(State newState, String newJustification) {
@@ -279,4 +274,5 @@ public class StudentQuestion {
                 newJustification != null && newJustification.trim().length() == 0)
             throw new TutorException(JUSTIFICATION_MISSING_DATA);
     }
+
 }
