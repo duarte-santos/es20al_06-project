@@ -38,6 +38,7 @@ public class TournamentController {
         return tournamentService.showAllOpenTournaments(executionId);
     }
 
+    // this should be done with the principal. because i an enroll anotherstudent
     @PutMapping("/tournaments/{tournamentId}/enroll/{studentId}")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
     public List<UserDto> enrollInTournament(@PathVariable int studentId, @PathVariable Integer tournamentId) {
