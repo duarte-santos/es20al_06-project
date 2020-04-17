@@ -103,7 +103,7 @@ public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
 
     def "studentQuestion topics are defined for the first time"() {
         given: "an array of new topics"
-        TopicDto[] topics = [new TopicDto(topic1), new TopicDto(topic2)]
+        String[] topics = [topic1.getName(), topic2.getName()]
 
         when:
         studentQuestionService.updateStudentQuestionTopics(studentQuestion.getId(), topics)
@@ -127,11 +127,11 @@ public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
     def "studentQuestion topics are altered"() {
         given: "a studentQuestion with topics"
         Set<String> topics = new HashSet<String>()
-        topics.add(TOPIC_NAME)
+        topics.add(topic1.getName())
         studentQuestion.setTopics(topics)
 
         and: "an array of new topics"
-        TopicDto[] new_topics = createTopicsArray(topicsNum)
+        String[] new_topics = createTopicsArray(topicsNum)
 
         when:
         studentQuestionService.updateStudentQuestionTopics(studentQuestion.getId(), new_topics)
@@ -157,9 +157,9 @@ public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
         if (topicsNum == 0)
             return []
         if (topicsNum == 1)
-            return [new TopicDto(topic2)]
+            return [topic2.getName()]
         if (topicsNum > 1)
-            return [new TopicDto(topic1), new TopicDto(topic2)]
+            return [topic1.getName(), topic2.getName()]
     }
 
     def checkTopics(int topicsNum, StudentQuestion result) {

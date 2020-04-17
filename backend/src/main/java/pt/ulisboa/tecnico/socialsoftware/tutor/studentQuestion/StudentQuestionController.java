@@ -60,7 +60,7 @@ public class StudentQuestionController {
 
     @PutMapping("/studentQuestions/{studentQuestionId}/topics")
     @PreAuthorize("hasRole('ROLE_STUDENT')")
-    public ResponseEntity updateStudentQuestionTopics(@PathVariable Integer studentQuestionId, @RequestBody TopicDto[] topics) {
+    public ResponseEntity updateStudentQuestionTopics(@PathVariable Integer studentQuestionId, @RequestBody String[] topics) {
         studentQuestionService.updateStudentQuestionTopics(studentQuestionId, topics);
 
         return ResponseEntity.ok().build();
@@ -87,7 +87,7 @@ public class StudentQuestionController {
 
         return url;
     }
-
+    
     private Path getTargetLocation(String url) {
         String fileLocation = figuresDir + url;
         return Paths.get(fileLocation);

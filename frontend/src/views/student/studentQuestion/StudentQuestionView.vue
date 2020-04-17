@@ -18,6 +18,7 @@
             class="mx-2"
           />
           <v-spacer />
+          <v-btn color="primary" dark @click="newQuestion">New Question</v-btn>
         </v-card-title>
       </template>
 
@@ -26,6 +27,30 @@
           v-html="convertMarkDownNoFigure(item.content, null)"
           @click="showQuestionDialog(item)"
       /></template>
+
+      <template v-slot:item.topics="{ item }">
+        <edit-question-topics
+          :question="item"
+          :topics="topics"
+          v-on:stquestion-changed-topics="onQuestionChangedTopics"
+        />
+      </template>
+
+      <template v-slot:item.state="{ item }">
+        <v-chip :color="getStateColor(item.state)" dark
+          >{{ item.state }}
+        </v-chip>
+      </template>
+
+      <template v-slot:item.image="{ item }">
+        <v-file-input
+          show-size
+          dense
+          small-chips
+          @change="handleFileUpload($event, item)"
+          accept="image/*"
+        />
+      </template>
     </v-data-table>
 
     <show-question-dialog
@@ -34,24 +59,40 @@
       :student-question="currentQuestion"
       v-on:close-show-question-dialog="onCloseShowQuestionDialog"
     />
+
+    <edit-question-dialog
+      v-if="currentQuestion"
+      v-model="editQuestionDialog"
+      :question="currentQuestion"
+      v-on:save-studentquestion="onSaveStudentQuestion"
+    />
   </v-card>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
+import { convertMarkDownNoFigure } from '@/services/ConvertMarkdownService';
 import StudentQuestion from '@/models/management/StudentQuestion';
-import ShowQuestionDialog from '@/views/student/studentQuestion/ShowStudentQuestionDialog.vue';
+import ShowStudentQuestionDialog from '@/views/student/studentQuestion/ShowStudentQuestionDialog.vue';
+import EditStudentQuestionDialog from '@/views/student/studentQuestion/EditStudentQuestionDialog.vue';
+import Image from '@/models/management/Image';
+import EditStudentQuestionTopics from '@/views/student/studentQuestion/EditStudentQuestionTopics.vue';
+import Question from '@/models/management/Question';
 
 @Component({
   components: {
-    'show-question-dialog': ShowQuestionDialog
+    'show-question-dialog': ShowStudentQuestionDialog,
+    'edit-question-dialog': EditStudentQuestionDialog,
+    'edit-question-topics': EditStudentQuestionTopics
   }
 })
 export default class StudentQuestionView extends Vue {
   studentQuestions: StudentQuestion[] = [];
+  topics: string[] = [];
   currentQuestion: StudentQuestion | null = null;
   questionDialog: boolean = false;
+  editQuestionDialog: boolean = false;
   search: string = '';
   headers: object = [
     {
@@ -92,11 +133,22 @@ export default class StudentQuestionView extends Vue {
   async created() {
     await this.$store.dispatch('loading');
     try {
-      this.studentQuestions = await RemoteServices.getStudentQuestions();
+      let auxtopics;
+      [auxtopics, this.studentQuestions] = await Promise.all([
+        RemoteServices.getTopics(),
+        RemoteServices.getStudentQuestions()
+      ]);
+      for (let i = 0; i < auxtopics.length; i++) {
+        this.topics.push(auxtopics[i].name);
+      }
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
+  }
+
+  convertMarkDownNoFigure(text: string, image: Image | null = null): string {
+    return convertMarkDownNoFigure(text, image);
   }
 
   showQuestionDialog(question: StudentQuestion) {
@@ -106,6 +158,53 @@ export default class StudentQuestionView extends Vue {
 
   onCloseShowQuestionDialog() {
     this.questionDialog = false;
+  }
+
+  newQuestion() {
+    this.currentQuestion = new StudentQuestion();
+    this.editQuestionDialog = true;
+  }
+
+  async onSaveStudentQuestion(question: StudentQuestion) {
+    this.studentQuestions = this.studentQuestions.filter(q => q.id !== question.id);
+    this.studentQuestions.unshift(question);
+    this.editQuestionDialog = false;
+    this.currentQuestion = null;
+  }
+
+  onQuestionChangedTopics(questionId: Number, changedTopics: string[]) {
+    let question = this.studentQuestions.find(
+      (question: StudentQuestion) => question.id == questionId
+    );
+    if (question) {
+      question.topics = changedTopics;
+    }
+  }
+
+  getStateColor(state: string) {
+    if (state === 'REJECTED') return 'red';
+    else if (state === 'APPROVED') return 'green';
+    else return 'orange';
+  }
+
+  async handleFileUpload(event: File, question: Question) {
+    if (question.id) {
+      try {
+        const imageURL = await RemoteServices.updateStudentQuestionImage(event, question.id);
+        question.image = new Image();
+        question.image.url = imageURL;
+        confirm('Image ' + imageURL + ' was uploaded!');
+      } catch (error) {
+        await this.$store.dispatch('error', error);
+      }
+    }
+  }
+
+  @Watch('editQuestionDialog')
+  closeError() {
+    if (!this.editQuestionDialog) {
+      this.currentQuestion = null;
+    }
   }
 }
 </script>

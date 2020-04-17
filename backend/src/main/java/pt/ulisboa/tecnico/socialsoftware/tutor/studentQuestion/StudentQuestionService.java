@@ -129,10 +129,10 @@ public class StudentQuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void updateStudentQuestionTopics(Integer studentQuestionId, TopicDto[] topics) {
+    public void updateStudentQuestionTopics(Integer studentQuestionId, String[] topics) {
         StudentQuestion stQuestion = studentQuestionRepository.findById(studentQuestionId).orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
 
-        stQuestion.setTopics(Arrays.stream(topics).map(TopicDto::getName).collect(Collectors.toSet()));
+        stQuestion.setTopics(Arrays.stream(topics).collect(Collectors.toSet()));
     }
 
     @Retryable(

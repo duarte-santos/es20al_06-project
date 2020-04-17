@@ -567,6 +567,46 @@ export default class RemoteServices {
       });
   }
 
+  static async createStudentQuestion(
+    question: StudentQuestion
+  ): Promise<StudentQuestion> {
+    return httpClient
+      .post(
+        `/courses/${Store.getters.getCurrentCourse.courseId}/studentQuestions/`,
+        question
+      )
+      .then(response => {
+        return new StudentQuestion(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async updateStudentQuestionTopics(
+    questionId: number,
+    topics: string[]
+  ) {
+    return httpClient.put(`/studentQuestions/${questionId}/topics`, topics);
+  }
+
+  static async updateStudentQuestionImage(file: File, questionId: number): Promise<string> {
+    let formData = new FormData();
+    formData.append('file', file);
+    return httpClient
+      .put(`/studentQuestions/${questionId}/image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      .then(response => {
+        return response.data as string;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static async exportAll() {
     return httpClient
       .get('/admin/export', {
