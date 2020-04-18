@@ -156,16 +156,24 @@
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" text dark>
               Tournaments
-              <v-icon>fas fa-file-alt</v-icon>
+              <v-icon>fas fa-trophy</v-icon>
             </v-btn>
           </template>
           <v-list dense>
             <v-list-item to="/student/tournament/enroll">
               <v-list-item-action>
-                <v-icon>add</v-icon>
+                <v-icon>fas fa-user-plus</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Enroll</v-list-item-title>
+                <v-list-item-title>Join Tournament</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item to="/student/tournament/open">
+              <v-list-item-action>
+                <v-icon>description</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Open Tournaments</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -334,9 +342,16 @@
 
           <v-list-item to="/student/tournament/enroll">
             <v-list-item-action>
-              <v-icon>plus</v-icon>
+              <v-icon>add_box</v-icon>
             </v-list-item-action>
-            <v-list-item-content>Enroll in Tournament</v-list-item-content>
+            <v-list-item-content>Join Tournament</v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/student/tournament/open">
+            <v-list-item-action>
+              <v-icon>description</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>Open Tournaments</v-list-item-content>
           </v-list-item>
         </v-list-group>
 

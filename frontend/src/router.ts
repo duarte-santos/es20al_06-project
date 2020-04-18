@@ -27,6 +27,8 @@ import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
 import CoursesView from '@/views/admin/Courses/CoursesView.vue';
 import TournamentView from '@/views/tournament/TournamentView.vue';
 import EnrollInTournamentView from '@/views/tournament/EnrollInTournamentView.vue';
+import OpenTournamentsView from '@/views/tournament/OpenTournamentsView.vue';
+
 
 Vue.use(Router);
 
@@ -198,6 +200,15 @@ let router = new Router({
               component: EnrollInTournamentView,
               meta: {
                 title: process.env.VUE_APP_NAME + ' - Enroll in Tournaments',
+                requiredAuth: 'Student'
+              }
+            },
+            {
+              path: 'open',
+              name: 'show-open-tournaments',
+              component: OpenTournamentsView,
+              meta: {
+                title: process.env.VUE_APP_NAME + ' - Show Open Tournaments',
                 requiredAuth: 'Student'
               }
             }
