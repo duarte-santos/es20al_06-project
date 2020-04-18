@@ -47,7 +47,7 @@ public class StudentQuestionController {
         return this.studentQuestionService.createStudentQuestion(courseId, studentId, studentQuestionDto);
     }
 
-    @PutMapping("/studentQuestions/{studentQuestionId}")
+    @PutMapping("/studentQuestions/{studentQuestionId}/evaluate")
     @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS')")
     public StudentQuestionDto evaluateStudentQuestion(@PathVariable Integer studentQuestionId,
                                                       @Valid @RequestBody StudentQuestionDto studentQuestionDto) {

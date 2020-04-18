@@ -259,6 +259,10 @@ public class StudentQuestion {
     public void evaluateStudentQuestion(StudentQuestionDto studentQuestionDto) {
         State newState = State.valueOf(studentQuestionDto.getState());
         String newJustification = studentQuestionDto.getJustification();
+
+        if (newJustification != null && newJustification.trim().length() == 0)
+            newJustification = null; /*blank justifications are treated as null*/
+
         checkValidEvaluation(newState, newJustification);
 
         if (newJustification != null)
@@ -270,8 +274,7 @@ public class StudentQuestion {
         if (this.state != State.AWAITING_APPROVAL)
             throw new TutorException(STUDENT_QUESTION_ALREADY_EVALUATED);
 
-        if (newJustification == null && newState == State.REJECTED ||
-                newJustification != null && newJustification.trim().length() == 0)
+        if (newState == State.REJECTED && newJustification == null)
             throw new TutorException(JUSTIFICATION_MISSING_DATA);
     }
 

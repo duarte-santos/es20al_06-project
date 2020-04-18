@@ -1,4 +1,5 @@
 import Image from '@/models/management/Image';
+import { Student } from '@/models/management/Student';
 
 export default class StudentQuestion {
   id: number | null = null;
@@ -8,6 +9,7 @@ export default class StudentQuestion {
   image: Image | null = null;
   state: string = 'AWAITING_APPROVAL';
   justification: string = '';
+  student: Student | null = null;
 
   options: string[] = ['', '', '', ''];
   topics: string[] = [];
@@ -21,6 +23,7 @@ export default class StudentQuestion {
       this.image = jsonObj.image;
       this.state = jsonObj.state;
       this.justification = jsonObj.justification;
+      this.student = jsonObj.student;
       this.options = jsonObj.options;
       this.topics = jsonObj.topics;
     }

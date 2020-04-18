@@ -55,7 +55,7 @@ public enum ErrorMessage {
 
     STUDENT_QUESTION_NOT_FOUND("Student's question not found with id %d"),
     STUDENT_QUESTION_ALREADY_EVALUATED("Student's question has already been evaluated"),
-    JUSTIFICATION_MISSING_DATA("Justifications cannot be blank"),
+    JUSTIFICATION_MISSING_DATA("Rejected questions must have a justification"),
     STUDENT_QUESTION_INVALID_OPTIONS_AMOUNT("Questions must have 4 options"),
     SQ_TITLE_MISSING_DATA("Student's question titles cannot be blank"),
     SQ_CONTENT_MISSING_DATA("Student's question contents cannot be blank"),

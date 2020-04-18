@@ -590,7 +590,10 @@ export default class RemoteServices {
     return httpClient.put(`/studentQuestions/${questionId}/topics`, topics);
   }
 
-  static async updateStudentQuestionImage(file: File, questionId: number): Promise<string> {
+  static async updateStudentQuestionImage(
+    file: File,
+    questionId: number
+  ): Promise<string> {
     let formData = new FormData();
     formData.append('file', file);
     return httpClient
@@ -601,6 +604,34 @@ export default class RemoteServices {
       })
       .then(response => {
         return response.data as string;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getCourseStudentQuestions() {
+    return httpClient
+      .get(
+        `/courses/${Store.getters.getCurrentCourse.courseId}/studentQuestions/`
+      )
+      .then(response => {
+        return response.data.map((studentQuestion: any) => {
+          return new StudentQuestion(studentQuestion);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async evaluateStudentQuestion(
+    question: StudentQuestion
+  ): Promise<StudentQuestion> {
+    return httpClient
+      .put(`/studentQuestions/${question.id}/evaluate`, question)
+      .then(response => {
+        return new StudentQuestion(response.data);
       })
       .catch(async error => {
         throw Error(await this.errorMessage(error));

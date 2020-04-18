@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.StudentDto;
 
 import java.io.Serializable;
 import java.util.*;
@@ -18,7 +18,7 @@ public class StudentQuestionDto implements Serializable {
     private Set<String> topics = new HashSet<>();
     private String state = StudentQuestion.State.AWAITING_APPROVAL.name();
     private String justification;
-    private UserDto student;
+    private StudentDto student;
 
     public StudentQuestionDto() {
     }
@@ -36,7 +36,7 @@ public class StudentQuestionDto implements Serializable {
         this.state = stQuestion.getState().name();
         this.justification = stQuestion.getJustification();
         if (stQuestion.getStudent() != null)
-            this.student = new UserDto(stQuestion.getStudent());
+            this.student = new StudentDto(stQuestion.getStudent());
     }
 
     public Integer getId() {
@@ -115,9 +115,9 @@ public class StudentQuestionDto implements Serializable {
         this.justification = justification;
     }
 
-    public UserDto getStudent() { return student;}
+    public StudentDto getStudent() { return student;}
 
-    public void setStudent(UserDto student) {
+    public void setStudent(StudentDto student) {
         this.student = student;
     }
 
