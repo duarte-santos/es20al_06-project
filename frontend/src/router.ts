@@ -26,8 +26,10 @@ import AssessmentsView from '@/views/teacher/assessments/AssessmentsView.vue';
 import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
 import CoursesView from '@/views/admin/Courses/CoursesView.vue';
 import TournamentView from '@/views/tournament/TournamentView.vue';
-import EnrollInTournamentView from '@/views/tournament/EnrollInTournamentView.vue';
+import CreateTournamentView from '@/views/tournament/CreateTournamentView.vue';
 import OpenTournamentsView from '@/views/tournament/OpenTournamentsView.vue';
+import EnrollInTournamentView from '@/views/tournament/EnrollInTournamentView.vue';
+
 
 
 Vue.use(Router);
@@ -195,11 +197,11 @@ let router = new Router({
           component: TournamentView,
           children: [
             {
-              path: 'enroll',
-              name: 'enroll-in-tournaments',
-              component: EnrollInTournamentView,
+              path: 'create',
+              name: 'create-tournament',
+              component: CreateTournamentView,
               meta: {
-                title: process.env.VUE_APP_NAME + ' - Enroll in Tournaments',
+                title: process.env.VUE_APP_NAME + ' - Create Tournament',
                 requiredAuth: 'Student'
               }
             },
@@ -209,6 +211,15 @@ let router = new Router({
               component: OpenTournamentsView,
               meta: {
                 title: process.env.VUE_APP_NAME + ' - Show Open Tournaments',
+                requiredAuth: 'Student'
+              }
+            },
+            {
+              path: 'enroll',
+              name: 'enroll-in-tournaments',
+              component: EnrollInTournamentView,
+              meta: {
+                title: process.env.VUE_APP_NAME + ' - Enroll in Tournaments',
                 requiredAuth: 'Student'
               }
             }

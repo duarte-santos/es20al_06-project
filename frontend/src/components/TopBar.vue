@@ -160,12 +160,12 @@
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item to="/student/tournament/enroll">
+            <v-list-item to="/student/tournament/create">
               <v-list-item-action>
-                <v-icon>fas fa-user-plus</v-icon>
+                <v-icon>create</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Join Tournament</v-list-item-title>
+                <v-list-item-title>Create</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item to="/student/tournament/open">
@@ -173,7 +173,15 @@
                 <v-icon>description</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Open Tournaments</v-list-item-title>
+                <v-list-item-title>Show All</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item to="/student/tournament/enroll">
+              <v-list-item-action>
+                <v-icon>fas fa-user-plus</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Enroll</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -340,19 +348,28 @@
             <v-list-item-content>Stats</v-list-item-content>
           </v-list-item>
 
-          <v-list-item to="/student/tournament/enroll">
+          <v-list-item to="/student/tournament/create">
             <v-list-item-action>
-              <v-icon>add_box</v-icon>
+              <v-icon>pencil</v-icon>
             </v-list-item-action>
-            <v-list-item-content>Join Tournament</v-list-item-content>
+            <v-list-item-content>Create</v-list-item-content>
           </v-list-item>
 
           <v-list-item to="/student/tournament/open">
             <v-list-item-action>
               <v-icon>description</v-icon>
             </v-list-item-action>
-            <v-list-item-content>Open Tournaments</v-list-item-content>
+            <v-list-item-content>Show All</v-list-item-content>
           </v-list-item>
+
+          <v-list-item to="/student/tournament/enroll">
+            <v-list-item-action>
+              <v-icon>add_box</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>Enroll</v-list-item-content>
+          </v-list-item>
+
+
         </v-list-group>
 
         <v-list-item to="/courses" v-if="isLoggedIn && moreThanOneCourse">
