@@ -78,7 +78,7 @@ class EnrollInTheTournamentServiceSpockPerformanceTest extends Specification {
         def tournamentId = tournament.getId()
 
         when:
-        1.upto(10000, { tournamentService.enrollInTournament(studentList[it].getId(),tournamentId)})
+        1.upto(1/*0000*/, { tournamentService.enrollInTournament(studentList[it].getId(),tournamentId)})
 
         then:
         true
