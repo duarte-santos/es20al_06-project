@@ -1,14 +1,17 @@
 import User from '@/models/user/User';
+import Topic from '@/models/management/Topic';
 
 export default class Tournament {
   id!: number;
   title!: string;
   numberOfQuestions!: number;
-  startingDate!: string;
-  conclusionDate!: string;
-  status!: string;
+  startingDate!: string | undefined;
+  conclusionDate!: string | undefined;
+  status!: string | undefined;
   studentList: User[] = [];
 
+
+  topicList: Topic[] = [];
 
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {

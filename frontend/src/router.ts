@@ -192,38 +192,31 @@ let router = new Router({
           }
         },
         {
-          path: 'tournament',
-          name: 'tournament',
-          component: TournamentView,
-          children: [
-            {
-              path: 'create',
-              name: 'create-tournament',
-              component: CreateTournamentView,
-              meta: {
-                title: process.env.VUE_APP_NAME + ' - Create Tournament',
-                requiredAuth: 'Student'
-              }
-            },
-            {
-              path: 'open',
-              name: 'show-open-tournaments',
-              component: OpenTournamentsView,
-              meta: {
-                title: process.env.VUE_APP_NAME + ' - Show Open Tournaments',
-                requiredAuth: 'Student'
-              }
-            },
-            {
-              path: 'enroll',
-              name: 'enroll-in-tournaments',
-              component: EnrollInTournamentView,
-              meta: {
-                title: process.env.VUE_APP_NAME + ' - Enroll in Tournaments',
-                requiredAuth: 'Student'
-              }
-            }
-          ]
+          path: 'tournament-create',
+          name: 'create-tournament',
+          component: CreateTournamentView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Create Tournament',
+            requiredAuth: 'Student'
+          }
+        },
+        {
+          path: 'tournament-open',
+          name: 'show-open-tournaments',
+          component: OpenTournamentsView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Show Open Tournaments',
+            requiredAuth: 'Student'
+          }
+        },
+        {
+          path: 'tournament-enroll',
+          name: 'enroll-in-tournaments',
+          component: EnrollInTournamentView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Enroll in Tournaments',
+            requiredAuth: 'Student'
+          }
         }
       ]
     },

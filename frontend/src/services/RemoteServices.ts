@@ -594,6 +594,20 @@ export default class RemoteServices {
     }
   }
 
+
+  static createTournament(tournament: Tournament): Promise<Tournament> {
+    return httpClient
+      .post(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments`,
+        tournament
+      ).then(response => {
+          return new Tournament(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static getAvailableTournaments(): Promise<Tournament[]> {
     return httpClient
       .get(
