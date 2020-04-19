@@ -129,7 +129,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     }
 
     def "No tournaments are open"(){
-        given: "Only close tournaments"
+        given: "Only closed tournaments"
         tournament1.setStatus(Tournament.Status.CLOSED)
         tournament2.setStatus(Tournament.Status.CLOSED)
         tournament3.setStatus(Tournament.Status.CLOSED)
@@ -141,19 +141,20 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament4);
 
         when:
-        tournamentService.showAllOpenTournaments(execution.getId())
-        then: "An exception is thrown"
-        thrown(TutorException)
+        def result = tournamentService.showAllOpenTournaments(execution.getId())
+
+        then: "Empty list is returned"
+        result.size() == 0
     }
 
     def "No tournaments exist"(){
         given: "No tournaments"
 
         when:
-        tournamentService.showAllOpenTournaments(execution.getId())
+        def result = tournamentService.showAllOpenTournaments(execution.getId())
 
-        then: "An exception is thrown"
-        thrown(TutorException)
+        then: "Empty list is returned"
+        result.size() == 0
 
     }
 

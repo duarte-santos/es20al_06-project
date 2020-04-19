@@ -1,4 +1,3 @@
-import TournamentUser from '@/models/user/TournamentUser';
 import User from '@/models/user/User';
 
 export default class Tournament {
@@ -8,9 +7,8 @@ export default class Tournament {
   startingDate!: string;
   conclusionDate!: string;
   status!: string;
-  enrolled!: boolean;
-  studentList: TournamentUser[] = [];
-  demoStudentId: number = 676; //for now the only user meant to be used
+  studentList: User[] = [];
+
 
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {
@@ -26,10 +24,20 @@ export default class Tournament {
   }
 
   updateStudentsList(jsonList: any[]) {
-    this.studentList = jsonList.map(student => {
-      let user = new TournamentUser(student);
-      if (user.id === this.demoStudentId) this.enrolled = true;
-      return user;
-    });
+    if (jsonList) {
+      this.studentList = jsonList.map(
+          (user: User) => new User(user)
+      );
+    }
   }
+
+  checkStudent(user :User) {
+    for (let student of this.studentList) {
+      if (student.name == user.name){
+        return true;
+      }
+    }
+    return false;
+  }
+
 }

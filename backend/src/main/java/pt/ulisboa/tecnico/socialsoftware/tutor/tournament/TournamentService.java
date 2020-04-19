@@ -80,10 +80,7 @@ public class TournamentService{
     public List<TournamentDto> showAllOpenTournaments(int executionId){
 
             List<TournamentDto> tournamentsList = tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
-            if (tournamentsList.isEmpty())
-                throw new TutorException(NO_OPEN_TOURNAMENTS);
-            else
-                return tournamentsList;
+            return tournamentsList;
     }
 
     @Retryable(
@@ -115,6 +112,16 @@ public class TournamentService{
 
         return userDtoList;
 
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<TournamentDto> showAvailableTournaments(int executionId){
+
+        List<TournamentDto> tournamentsList = tournamentRepository.findAvailable(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
+        return tournamentsList;
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)

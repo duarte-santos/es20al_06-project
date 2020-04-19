@@ -4,24 +4,28 @@
     <ul>
       <li class="list-header">
         <div class="col">Title</div>
-        <div class="col">Tournament</div>
-        <div class="col">Tournaments</div>
+        <div class="col">End</div>
+        <div class="col">#Questions</div>
         <div class="col last-col"></div>
+      </li>
+      <li class="list-row" v-if="tournaments.length == 0" >
+        <v-icon size="37" class="img">far fa-sad-tear</v-icon>
+        <p class="noT">There are no available tournaments</p>
+        <v-icon size="37" class="img">far fa-sad-tear</v-icon>
       </li>
       <li
               class="list-row"
-              v-for="quiz in quizzes"
-              :key="quiz.quizAnswerId"
-              @click="solveQuiz(quiz)"
+              v-for="tournament in tournaments"
+              :key="tournament.id"
       >
         <div class="col">
-          {{ quiz.title }}
+          {{ tournament.title }}
         </div>
         <div class="col">
-          {{ quiz.availableDate }}
+          {{ tournament.startingDate }}
         </div>
         <div class="col">
-          {{ quiz.conclusionDate }}
+          {{ tournament.numberOfQuestions }}
         </div>
         <div class="col last-col">
           <i class="fas fa-chevron-circle-right"></i>
@@ -32,85 +36,77 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import Course from '@/models/user/Course';
-import RemoteServices from '@/services/RemoteServices';
+  import { Component, Vue } from 'vue-property-decorator';
+  import RemoteServices from '@/services/RemoteServices';
+  import StatementQuestion from '@/models/statement/StatementQuestion';
+  import StatementAnswer from '@/models/statement/StatementAnswer';
+  import Tournament from '@/models/management/Tournament';
 
-interface CourseMap {
-  [key: string]: Course[];
-}
+  @Component
+  export default class OpenTournamentsView extends Vue {
+    tournaments: Tournament[] = [];
 
-@Component
-export default class CourseSelectionView extends Vue {
-  courseExecutions: CourseMap | null = null;
-  confirmationDialog: Boolean = false;
-  selectedCourse: Course | null = null;
-
-  async created() {
-    this.courseExecutions = await this.$store.getters.getUser.courses;
-  }
-
-  async selectCourse(course: Course) {
-    if (course.status !== 'INACTIVE') {
-      await this.$store.dispatch('currentCourse', course);
-      await this.$router.push({ name: 'home' });
-    } else {
-      this.selectedCourse = course;
-      this.confirmationDialog = true;
-    }
-  }
-
-  async activateCourse() {
-    this.confirmationDialog = false;
-    try {
-      if (this.selectedCourse) {
-        this.selectedCourse = await RemoteServices.activateCourse(
-          this.selectedCourse
-        );
-        await this.$store.dispatch('currentCourse', this.selectedCourse);
-        await this.$router.push({ name: 'home' });
+    async created() {
+      await this.$store.dispatch('loading');
+      try {
+        this.tournaments = (await RemoteServices.getOpenTournaments()).reverse();
+      } catch (error) {
+        await this.$store.dispatch('error', error);
       }
-    } catch (error) {
-      await this.$store.dispatch('error', error);
+      await this.$store.dispatch('clearLoading');
     }
   }
-
-  unselectCourse() {
-    this.selectedCourse = null;
-    this.confirmationDialog = false;
-  }
-}
 </script>
 
-<style lang="scss">
-.title {
-  text-align: center;
-  font-family: 'Baloo Tamma', cursive;
-}
+<style lang="scss" scoped>
+  .container {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
 
-.bold {
-  font-weight: bolder;
-  text-decoration: underline;
-}
+    h2 {
+      font-size: 26px;
+      margin: 20px 0;
+      text-align: center;
+      small {
+        font-size: 0.5em;
+      }
+    }
 
-.active {
-  background-color: #42b983;
-  .v-icon {
-    padding: 0;
+    ul {
+      overflow: hidden;
+      padding: 0 5px;
+
+      li {
+        border-radius: 3px;
+        padding: 15px 10px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .list-header {
+        background-color: #1976d2;
+        color: white;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        text-align: center;
+      }
+
+      .col {
+        flex-basis: 25% !important;
+        margin: auto; /* Important */
+        text-align: center;
+      }
+
+      .list-row {
+        background-color: #ffffff;
+        box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.1);
+        display: flex;
+      }
+    }
   }
-}
-
-.inactive {
-  background-color: #7f7f7f;
-  .v-icon {
-    padding: 0;
-  }
-}
-
-.historic {
-  background-color: cornflowerblue;
-  .v-icon {
-    padding: 0;
-  }
-}
 </style>

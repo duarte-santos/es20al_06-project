@@ -15,7 +15,7 @@ import StatementAnswer from '@/models/statement/StatementAnswer';
 import { QuizAnswer } from '@/models/management/QuizAnswer';
 import { QuizAnswers } from '@/models/management/QuizAnswers';
 import Tournament from '@/models/management/Tournament';
-import TournamentUser from '@/models/user/TournamentUser';
+import User from '@/models/user/User';
 
 const httpClient = axios.create();
 httpClient.defaults.timeout = 10000;
@@ -597,7 +597,7 @@ export default class RemoteServices {
   static getAvailableTournaments(): Promise<Tournament[]> {
     return httpClient
       .get(
-        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/show-open`
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/available`
       )
       .then(response => {
         return response.data.map((tournament: any) => {
@@ -608,18 +608,31 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
-  static enrollInTournament(tournament: Tournament): Promise<TournamentUser[]> {
+  static enrollInTournament(tournament:Tournament): Promise<User[]> {
     return httpClient
-      .put(
-        '/tournaments/' + tournament.id + '/enroll/' + tournament.demoStudentId
-      )
-      .then(response => {
-        return response.data.map((user: any) => {
-          return new TournamentUser(user);
+        .put(
+            `/tournaments/${tournament.id}/enroll/${Store.getters.getUser}`
+        )
+        .then(response => {
+          return response.data.map(
+              (user: User) => new User(user))
+        })
+        .catch(async error => {
+          throw Error(await this.errorMessage(error));
         });
-      })
-      .catch(async error => {
-        throw Error(await this.errorMessage(error));
-      });
+  }
+  static getOpenTournaments(): Promise<Tournament[]> {
+    return httpClient
+        .get(
+            `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/show-open`
+        )
+        .then(response => {
+          return response.data.map((tournament: any) => {
+            return new Tournament(tournament);
+          });
+        })
+        .catch(async error => {
+          throw Error(await this.errorMessage(error));
+        });
   }
 }

@@ -7,13 +7,18 @@
         <div class="col">Questions</div>
         <div class="col">Beginning</div>
         <div class="col">End</div>
-        <div class="col last-col">Enrolled symbol</div>
+        <div class="col last-col"><v-icon>fas fa-check</v-icon></div>
+      </li>
+      <li class="list-row" v-if="tournaments.length == 0" >
+        <v-icon size="37" class="img">far fa-sad-tear</v-icon>
+        <p class="noT">There are no available tournaments</p>
+        <v-icon size="37" class="img">far fa-sad-tear</v-icon>
       </li>
       <li
-        class="list-row"
-        v-for="tournament in tournaments"
-        :key="tournament.id"
-        @click="enroll(tournament)"
+          class="list-row"
+          v-for="tournament in tournaments"
+          :key="tournament.id"
+          @click="enroll(tournament)"
       >
         <div class="col" style="font-weight: bold">
           {{ tournament.title }}
@@ -28,7 +33,7 @@
           {{ tournament.conclusionDate }}
         </div>
         <div class="col last-col">
-          <div v-if="tournament.enrolled">
+          <div v-if="enrolled(tournament,user)">
             <v-icon style="color: green" data-cy="enrollmentTick">check</v-icon>
           </div>
         </div>
@@ -41,15 +46,18 @@
 import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Tournament from '@/models/management/Tournament';
+import User from '@/models/user/User';
 
 
 @Component
 export default class EnrollInTournamentView extends Vue {
   tournaments: Tournament[] = [];
+  user: User = new User();
 
   async created() {
     await this.$store.dispatch('loading');
     try {
+      this.user = this.$store.getters.getUser;
       this.tournaments = await RemoteServices.getAvailableTournaments();
     } catch (error) {
       await this.$store.dispatch('error', error);
@@ -58,22 +66,31 @@ export default class EnrollInTournamentView extends Vue {
   }
 
   async enroll(tournament: Tournament) {
-    /*if(tournament.enrolled) {
-      alert('you were already enrolled in the ' + tournament.title);
-      return;
-    }
-*/
+
     await this.$store.dispatch('loading');
     try {
       tournament.updateStudentsList(await RemoteServices.enrollInTournament(tournament));
       this.$forceUpdate();
-      alert('you are now enrolled in the ' + tournament.title);
+      alert('you are now enrolled in: ' + tournament.title);
 
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
   }
+
+  async enrolled(tournament: Tournament, user: User) {
+    await this.$store.dispatch('loading');
+    var isEnrolled = false;
+    try {
+      isEnrolled = tournament.checkStudent(user);
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+    await this.$store.dispatch('clearLoading');
+    return isEnrolled;
+  }
+
 }
 </script>
 
@@ -120,6 +137,20 @@ export default class EnrollInTournamentView extends Vue {
       margin: auto; /* Important */
       text-align: center;
     }
+    .noT {
+      flex-basis: 50% !important;
+      margin: auto; /* Important */
+      text-align: center;
+      font-size: 25px;
+      font-weight: 500;
+      opacity: 60%;
+    }
+    .img {
+      flex-basis: 25% !important;
+      margin: auto; /* Important */
+      text-align: center;
+    }
+
 
     .list-row {
       background-color: #ffffff;

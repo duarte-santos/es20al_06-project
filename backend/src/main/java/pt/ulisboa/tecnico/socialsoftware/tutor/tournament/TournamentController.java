@@ -44,4 +44,10 @@ public class TournamentController {
         return tournamentService.enrollInTournament(studentId, tournamentId);
     }
 
+    @GetMapping("/executions/{executionId}/tournaments/available")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public List<TournamentDto> showAvailableTournaments(@PathVariable int executionId) {
+        return tournamentService.showAvailableTournaments(executionId);
+    }
+
 }
