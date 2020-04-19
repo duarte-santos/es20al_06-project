@@ -170,9 +170,9 @@
 
       try {
         let a = await RemoteServices.createTournament(this.tournament);
-        console.log(this.tournament);
       } catch (error) {
         await this.$store.dispatch('error', error);
+        return;
       }
 
       this.submitDialog = true;

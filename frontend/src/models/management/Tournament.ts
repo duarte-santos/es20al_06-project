@@ -22,21 +22,13 @@ export default class Tournament {
       this.startingDate = jsonObj.startingDate;
       this.conclusionDate = jsonObj.conclusionDate;
 
-      this.updateStudentsList(jsonObj.studentList);
-    }
-  }
-
-  updateStudentsList(jsonList: any[]) {
-    if (jsonList) {
-      this.studentList = jsonList.map(
-          (user: User) => new User(user)
-      );
+      this.studentList = jsonObj.studentList;
     }
   }
 
   checkStudent(user :User) {
     for (let student of this.studentList) {
-      if (student.name == user.name){
+      if (student.username == user.username){
         return true;
       }
     }

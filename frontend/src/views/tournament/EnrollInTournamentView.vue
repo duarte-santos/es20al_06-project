@@ -7,6 +7,8 @@
         <div class="col">Questions</div>
         <div class="col">Beginning</div>
         <div class="col">End</div>
+        <div class="col">Status</div>
+
         <div class="col last-col"><v-icon>fas fa-check</v-icon></div>
       </li>
       <li class="list-row" v-if="tournaments.length == 0" >
@@ -18,7 +20,6 @@
           class="list-row"
           v-for="tournament in tournaments"
           :key="tournament.id"
-          @click="enroll(tournament)"
       >
         <div class="col" style="font-weight: bold">
           {{ tournament.title }}
@@ -32,9 +33,14 @@
         <div class="col">
           {{ tournament.conclusionDate }}
         </div>
+        <div class="col">
+          {{ tournament.status }}
+        </div>
         <div class="col last-col">
-          <div v-if="enrolled(tournament,user)">
-            <v-icon style="color: green" data-cy="enrollmentTick">check</v-icon>
+          <div>
+            <v-icon style="color: green"
+                    @click="enroll(tournament)">
+              as fa-user-plus </v-icon>
           </div>
         </div>
       </li>
@@ -53,6 +59,7 @@ import User from '@/models/user/User';
 export default class EnrollInTournamentView extends Vue {
   tournaments: Tournament[] = [];
   user: User = new User();
+  submit: boolean = false;
 
   async created() {
     await this.$store.dispatch('loading');
@@ -69,7 +76,7 @@ export default class EnrollInTournamentView extends Vue {
 
     await this.$store.dispatch('loading');
     try {
-      tournament.updateStudentsList(await RemoteServices.enrollInTournament(tournament));
+      await RemoteServices.enrollInTournament(tournament);
       this.$forceUpdate();
       alert('you are now enrolled in: ' + tournament.title);
 
@@ -79,6 +86,8 @@ export default class EnrollInTournamentView extends Vue {
     await this.$store.dispatch('clearLoading');
   }
 
+
+  /*
   async enrolled(tournament: Tournament, user: User) {
     await this.$store.dispatch('loading');
     var isEnrolled = false;
@@ -90,6 +99,7 @@ export default class EnrollInTournamentView extends Vue {
     await this.$store.dispatch('clearLoading');
     return isEnrolled;
   }
+  */
 
 }
 </script>

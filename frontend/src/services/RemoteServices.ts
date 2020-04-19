@@ -622,19 +622,19 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
-  static enrollInTournament(tournament:Tournament): Promise<User[]> {
+
+  static enrollInTournament(tournament:Tournament): Promise<Tournament> {
     return httpClient
-        .put(
-            `/tournaments/${tournament.id}/enroll/${Store.getters.getUser}`
-        )
-        .then(response => {
-          return response.data.map(
-              (user: User) => new User(user))
-        })
-        .catch(async error => {
-          throw Error(await this.errorMessage(error));
-        });
+      .put(
+        `/tournaments/${tournament.id}/enroll`
+      ).then(response => {
+        return new Tournament(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
   }
+
   static getOpenTournaments(): Promise<Tournament[]> {
     return httpClient
         .get(

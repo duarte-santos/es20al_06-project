@@ -11,7 +11,10 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -27,13 +30,10 @@ public class Tournament{
 
     private String title;
 
-    @ManyToOne
-    private User creatingUser;
-
-    @ManyToMany(mappedBy = "tournaments")
+    @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "tournamentsEnrolled")
+    @ManyToMany
     private List<User> studentList = new ArrayList<>();
 
 
@@ -96,8 +96,19 @@ public class Tournament{
         for (TopicDto topicdto : topicList){
             Topic topic = new Topic(courseExecution.getCourse(), topicdto);
             this.topicList.add(topic);
+            topic.getTournaments().add(this);
         }
     }
+
+
+    public void updateTopics(Set<Topic> newTopics) {
+
+        newTopics.stream().filter(topic -> !this.topicList.contains(topic)).forEach(topic -> {
+            topic.getTournaments().add(this);
+            this.topicList.add(topic);
+        });
+    }
+
 
     public CourseExecution getCourseExecution() {
         return courseExecution;
@@ -129,14 +140,6 @@ public class Tournament{
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public User getCreatingUser() {
-        return creatingUser;
-    }
-
-    public void setCreatingUser(User creatingUser) {
-        this.creatingUser = creatingUser;
     }
 
     public List<Topic> getTopicList() {
