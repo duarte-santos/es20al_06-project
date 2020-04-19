@@ -8,8 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.api.QuestionController;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.validation.Valid;
@@ -23,7 +21,7 @@ import java.util.Objects;
 
 @RestController
 public class StudentQuestionController {
-    private static Logger logger = LoggerFactory.getLogger(QuestionController.class);
+    private static Logger logger = LoggerFactory.getLogger(StudentQuestionController.class);
 
     private StudentQuestionService studentQuestionService;
 
@@ -32,6 +30,12 @@ public class StudentQuestionController {
 
     StudentQuestionController(StudentQuestionService studentQuestionService) {
         this.studentQuestionService = studentQuestionService;
+    }
+
+    @GetMapping("/courses/{courseId}/studentQuestions")
+    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#courseId, 'COURSE.ACCESS')")
+    public List<StudentQuestionDto> getCourseStudentQuestions(@PathVariable int courseId){
+        return this.studentQuestionService.findStudentQuestions(courseId);
     }
 
     @PostMapping("/courses/{courseId}/studentQuestions")
@@ -43,7 +47,7 @@ public class StudentQuestionController {
         return this.studentQuestionService.createStudentQuestion(courseId, studentId, studentQuestionDto);
     }
 
-    @PutMapping("/studentQuestions/{studentQuestionId}")
+    @PutMapping("/studentQuestions/{studentQuestionId}/evaluate")
     @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS')")
     public StudentQuestionDto evaluateStudentQuestion(@PathVariable Integer studentQuestionId,
                                                       @Valid @RequestBody StudentQuestionDto studentQuestionDto) {

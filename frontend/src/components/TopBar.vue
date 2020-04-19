@@ -101,6 +101,14 @@
                 <v-list-item-title>ImpExp</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+            <v-list-item to="/management/evaluateqts">
+              <v-list-item-action>
+                <v-icon>thumbs_up_down</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Evaluate Questions</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-menu>
 
@@ -273,6 +281,14 @@
               <v-list-item-title>ImpExp</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+          <v-list-item to="/management/evaluateqts">
+            <v-list-item-action>
+              <v-icon>thumbs_up_down</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Evaluate Questions</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list-group>
 
         <!-- Student Group-->
@@ -321,6 +337,13 @@
               <v-icon>fas fa-user</v-icon>
             </v-list-item-action>
             <v-list-item-content>Stats</v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/student/questions">
+            <v-list-item-action>
+              <v-icon>question_answer</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>My Questions</v-list-item-content>
           </v-list-item>
         </v-list-group>
 

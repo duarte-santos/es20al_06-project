@@ -85,7 +85,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto = new StudentQuestionDto()
     }
 
-    @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated ")
+    @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated | addedJustification")
     def "teacher evaluates question with or without justification"() {
         // question is created, studentQuestion marked as approved
         given: "an evaluation"
@@ -99,7 +99,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         studentQuestionRepository.count() == 1L
         def result = studentQuestionRepository.findAll().get(0)
         result.getState() == evaluation
-        result.getJustification() == justification
+        result.getJustification() == addedJustification
         and: "are not changed"
         result.getId() != null
         result.getTitle() == QUESTION_TITLE
@@ -113,10 +113,11 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         checkNewQuestion(questionCreated)
 
         where:
-        evaluation                        | justification      || questionCreated
-        StudentQuestion.State.APPROVED    | null               || true
-        StudentQuestion.State.APPROVED    | JUSTIFICATION      || true
-        StudentQuestion.State.REJECTED    | JUSTIFICATION      || false
+        evaluation                        | justification      || questionCreated | addedJustification
+        StudentQuestion.State.APPROVED    | null               || true            | null
+        StudentQuestion.State.APPROVED    | '  '               || true            | null
+        StudentQuestion.State.APPROVED    | JUSTIFICATION      || true            | JUSTIFICATION
+        StudentQuestion.State.REJECTED    | JUSTIFICATION      || false           | JUSTIFICATION
     }
 
     def questionWasCreated(boolean questionCreated) {
@@ -160,7 +161,6 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
 
         where:
         previousState                           | newState                        | justification      || errorMessage
-        StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.APPROVED  | '  '               || JUSTIFICATION_MISSING_DATA
         StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | '  '               || JUSTIFICATION_MISSING_DATA
         StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | null               || JUSTIFICATION_MISSING_DATA
         StudentQuestion.State.APPROVED          | StudentQuestion.State.APPROVED  | null               || STUDENT_QUESTION_ALREADY_EVALUATED
