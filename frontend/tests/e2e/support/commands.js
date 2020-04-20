@@ -103,7 +103,6 @@ Cypress.Commands.add(
   (title, content, optionList, correct) => {
     cy.get('[data-cy="createButton"]').click();
     if (title) {
-      //cy.get('.v-dialog').scrollTo('top');
       cy.get('[data-cy="title"]').type(title);
     }
     if (content) {
@@ -121,22 +120,14 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('deleteStudentQuestion', (title, optionList) => {
-  const command =
-    `DELETE FROM student_question_options WHERE options in (\'${optionList[0]}\',\'${optionList[1]}\', \'${optionList[2]}\',\'${optionList[3]}\');` +
-    `DELETE FROM student_questions WHERE title=\'${title}\';`;
-
-  cy.exec(
-    `PGPASSWORD=${PASSWORD} psql -d tutordb -U ${USER} -c \"${command}\"`
-  );
-});
-
-Cypress.Commands.add('deleteStudentQuestionTopic', topic => {
-  const command = `DELETE FROM student_question_topics WHERE topics=\'${topic}\';`;
-
-  cy.exec(
-    `PGPASSWORD=${PASSWORD} psql -d tutordb -U ${USER} -c \"${command}\"`
-  );
+Cypress.Commands.add('deleteStudentQuestion', title => {
+  cy.contains(title)
+    .parent()
+    .should('have.length', 1)
+    .children()
+    .should('have.length', 7)
+    .find('[data-cy="delete"]')
+    .click();
 });
 
 Cypress.Commands.add('addStudentQuestionTopic', (title, topic) => {
@@ -144,7 +135,7 @@ Cypress.Commands.add('addStudentQuestionTopic', (title, topic) => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 6)
+    .should('have.length', 7)
     .find('[data-cy="topics"]')
     .type(topic)
     .type('{enter}');
@@ -157,7 +148,7 @@ Cypress.Commands.add(
       .parent()
       .should('have.length', 1)
       .children()
-      .should('have.length', 7)
+      .should('have.length', 8)
       .find('[data-cy="evaluate"]')
       .click();
 
@@ -172,16 +163,6 @@ Cypress.Commands.add(
     cy.get('[data-cy="saveButton"]').click();
   }
 );
-
-Cypress.Commands.add('deleteQuestion', (title, optionList) => {
-  const command =
-    `DELETE FROM options WHERE content in (\'${optionList[0]}\',\'${optionList[1]}\', \'${optionList[2]}\',\'${optionList[3]}\');\n` +
-    `DELETE FROM questions WHERE title=\'${title}\';`;
-
-  cy.exec(
-    `PGPASSWORD=${PASSWORD} psql -d tutordb -U ${USER} -c \"${command}\"`
-  );
-});
 
 Cypress.Commands.add('closeException', () => {
   cy.get('.v-alert__icon')

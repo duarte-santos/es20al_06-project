@@ -80,6 +80,7 @@
               v-on="on"
               @click="deleteQuestion(item)"
               color="red"
+              data-cy="delete"
               >delete</v-icon
             >
           </template>
