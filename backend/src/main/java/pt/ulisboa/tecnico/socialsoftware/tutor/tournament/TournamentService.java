@@ -19,12 +19,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,9 +81,7 @@ public class TournamentService{
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<TournamentDto> showAllOpenTournaments(int executionId){
-
-            List<TournamentDto> tournamentsList = tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
-            return tournamentsList;
+            return tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
     }
 
 
@@ -111,9 +106,7 @@ public class TournamentService{
         tournament.addStudent(user);
         user.getTournamentsEnrolled().add(tournament);
 
-        TournamentDto tournamentDto = new TournamentDto(tournament);
-        return tournamentDto;
-
+        return new TournamentDto(tournament);
     }
 
     @Retryable(
@@ -121,9 +114,7 @@ public class TournamentService{
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<TournamentDto> showAvailableTournaments(int executionId){
-
-        List<TournamentDto> tournamentsList = tournamentRepository.findAvailable(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
-        return tournamentsList;
+        return tournamentRepository.findAvailable(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)

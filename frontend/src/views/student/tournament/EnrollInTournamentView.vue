@@ -36,9 +36,10 @@
         <div class="col">
           {{ tournament.status }}
         </div>
-        <div class="col last-col">
+        <div :id = "tournament.id" class="col last-col">
           <div>
-            <v-icon style="color: green"
+            <v-icon
+                    style="color: green"
                     @click="enroll(tournament)">
               as fa-user-plus </v-icon>
           </div>
@@ -59,7 +60,7 @@ import User from '@/models/user/User';
 export default class EnrollInTournamentView extends Vue {
   tournaments: Tournament[] = [];
   user: User = new User();
-  submit: boolean = false;
+  tournament: Tournament = new Tournament();
 
   async created() {
     await this.$store.dispatch('loading');
@@ -74,32 +75,18 @@ export default class EnrollInTournamentView extends Vue {
 
   async enroll(tournament: Tournament) {
 
+
     await this.$store.dispatch('loading');
     try {
+      document.getElementById(tournament.id.toString())!.style.visibility = "hidden";
       await RemoteServices.enrollInTournament(tournament);
       this.$forceUpdate();
-      //alert('you are now enrolled in: ' + tournament.title);
 
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
   }
-
-
-  /*
-  async enrolled(tournament: Tournament, user: User) {
-    await this.$store.dispatch('loading');
-    var isEnrolled = false;
-    try {
-      isEnrolled = tournament.checkStudent(user);
-    } catch (error) {
-      await this.$store.dispatch('error', error);
-    }
-    await this.$store.dispatch('clearLoading');
-    return isEnrolled;
-  }
-  */
 
 }
 </script>
