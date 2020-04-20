@@ -78,7 +78,7 @@ export default class EnrollInTournamentView extends Vue {
     try {
       await RemoteServices.enrollInTournament(tournament);
       this.$forceUpdate();
-      alert('you are now enrolled in: ' + tournament.title);
+      //alert('you are now enrolled in: ' + tournament.title);
 
     } catch (error) {
       await this.$store.dispatch('error', error);

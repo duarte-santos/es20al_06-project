@@ -196,14 +196,14 @@ Cypress.Commands.add('assertTournamentError', (error) => {
 })
 
 
-/* Enroll 0bucketiano*/
+/* Enroll */
 
 Cypress.Commands.add('clickOnTournamentsMenu', () => {
     cy.contains('Tournaments').click()
 })
 
 Cypress.Commands.add('selectEnrollOnTournamentsMenu', () => {
-    cy.contains('Enroll').click()
+    cy.contains('Join').click()
 })
 
 Cypress.Commands.add('goToTournamentEnrollments', () => {
@@ -211,55 +211,42 @@ Cypress.Commands.add('goToTournamentEnrollments', () => {
     cy.selectEnrollOnTournamentsMenu()
 })
 
-Cypress.Commands.add('enrollInTheTournament', (name) => {
-    cy.contains(name).click()
+
+Cypress.Commands.add('tryToEnrollInTournament', (name) => {
+  cy.contains(name).parent().within(
+    () => {
+      cy.get('[class="col last-col"]').children().first().children().first().click()
+    })
 })
 
-Cypress.Commands.add('getTournamentsList', (name) => {
-    return cy.get('[data-cy="tournamentsList"]')
+
+
+Cypress.Commands.add('shouldCloseConfirmationAlert', () => {
+    cy.contains('OK').click()
 })
 
-Cypress.Commands.add('isEnrolledInTheTournament', (name) => {
-    cy.contains(name).parent().within(
-      () => {
-          cy.get('[class="col last-col"]').should(
-            (element) => {
-                expect(element).to.contain('check')
-            }
-          )
-      }
-    )
-})
 
-Cypress.Commands.add('isNotEnrolledInTheTournament', (name) => {
-    cy.contains(name).parent().within(
-      () => {
-          cy.get('[class="col last-col"]').should(
-            (element) => {
-                expect(element).to.not.contain('check')
-            }
-          )
-      }
-    )
-})
+
+/* Show Open */
 
 Cypress.Commands.add('checkForTournament', (title) => {
     cy.contains('Tournaments').click()
-    cy.contains('Join').click()
+    cy.contains('Open').click()
     cy.get('[data-cy="tournamentTitle"]').should(
       (element) => {
         expect(element).to.contain(title)
-      }
-      )
-
+        })
 })
 
 Cypress.Commands.add('checkForNoTournament', (title) => {
   cy.contains('Tournaments').click()
-  cy.contains('Join').click()
+  cy.contains('Open').click()
+  cy.wait(200)
   cy.get('[data-cy="tournamentTitle"]').should(
     (element) => {
       expect(element).to.not.contain(title)
-    }
-  )
+    })
 })
+
+
+
