@@ -1,11 +1,12 @@
 <template>
   <v-dialog
     :value="dialog"
-    @input="$emit('close-dialog')"
-    @keydown.esc="$emit('close-dialog')"
+    @input="$emit('dialog')"
+    @keydown.esc="$emit('dialog')"
     max-width="75%"
     max-height="70%"
   >
+    <!-- If Cypress is acting funny add height parameter to v-card: <v-card height="500"> -->
     <v-card>
       <v-card-title>
         <span class="headline">
@@ -17,7 +18,11 @@
         <v-container grid-list-md fluid>
           <v-layout column wrap>
             <v-flex xs24 sm12 md8>
-              <v-text-field v-model="editQuestion.title" label="Title" />
+              <v-text-field
+                v-model="editQuestion.title"
+                label="Title"
+                data-cy="title"
+              />
             </v-flex>
             <v-flex xs24 sm12 md12>
               <v-textarea
@@ -25,6 +30,7 @@
                 rows="10"
                 v-model="editQuestion.content"
                 label="Question"
+                data-cy="content"
               ></v-textarea>
             </v-flex>
             <v-radio-group v-model="editQuestion.correct">
@@ -38,7 +44,8 @@
                 <v-radio
                   class="ma-4"
                   :value="index"
-                  :label="`Correct`"
+                  label="Correct"
+                  :data-cy="`radio${index}`"
                 ></v-radio>
 
                 <v-textarea
@@ -46,6 +53,7 @@
                   rows="10"
                   v-model="editQuestion.options[index - 1]"
                   :label="`Option ${index}`"
+                  :data-cy="`option${index - 1}`"
                 ></v-textarea>
               </v-flex>
             </v-radio-group>
@@ -55,10 +63,15 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn color="blue darken-1" @click="$emit('dialog', false)"
+        <v-btn
+          color="blue darken-1"
+          @click="$emit('dialog', false)"
+          data-cy="cancelButton"
           >Cancel</v-btn
         >
-        <v-btn color="blue darken-1" @click="saveQuestion">Save</v-btn>
+        <v-btn color="blue darken-1" @click="saveQuestion" data-cy="saveButton"
+          >Save</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -71,7 +84,7 @@ import RemoteServices from '@/services/RemoteServices';
 
 @Component
 export default class EditStudentQuestionDialog extends Vue {
-  @Model('close-dialog', Boolean) dialog!: boolean;
+  @Model('dialog', Boolean) dialog!: boolean;
   @Prop({ type: StudentQuestion, required: true })
   readonly question!: StudentQuestion;
 
@@ -106,3 +119,9 @@ export default class EditStudentQuestionDialog extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.v-card {
+  padding-top: 5%;
+}
+</style>

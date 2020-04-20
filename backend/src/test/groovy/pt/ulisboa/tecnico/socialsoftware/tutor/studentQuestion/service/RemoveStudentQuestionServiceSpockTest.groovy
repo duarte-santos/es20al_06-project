@@ -8,9 +8,15 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.ImageRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository;
@@ -21,7 +27,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @DataJpaTest
-public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
+public class RemoveStudentQuestionServiceSpockTest extends Specification {
     public static final String COURSE_NAME = "CourseOne"
     public static final String ACRONYM = "C1"
     public static final String ACADEMIC_TERM = "1st Term"
@@ -32,11 +38,13 @@ public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
     public static final String OPTION_CORRECT_CONTENT = "Correct Content"
     public static final String OPTION_INCORRECT_CONTENT = "Incorrect Content"
     public static final String URL = 'URL'
-    public static final String TOPIC_NAME = 'TopicOne'
-    public static final String TOPIC_NAME2 = 'TopicTwo'
+    public static final String JUSTIFICATION = "justification"
 
     @Autowired
     StudentQuestionService studentQuestionService
+
+    @Autowired
+    QuestionRepository questionRepository
 
     @Autowired
     CourseRepository courseRepository
@@ -51,15 +59,19 @@ public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
     StudentQuestionRepository studentQuestionRepository
 
     @Autowired
-    TopicRepository topicRepository
+    ImageRepository imageRepository
+
+    @Autowired
+    QuizQuestionRepository quizQuestionRepository
+
+    @Autowired
+    QuizRepository quizRepository
 
     def course
     def courseExecution
     def user
     def studentQuestionDto
     def studentQuestion
-    def topic1
-    def topic2
 
     def setup() {
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
@@ -84,88 +96,54 @@ public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
         studentQuestion.setImage(image)
         studentQuestionRepository.save(studentQuestion)
         studentQuestionDto = new StudentQuestionDto()
-
-        topic1 = new Topic()
-        topic1.setCourse(course)
-        topic1.setName(TOPIC_NAME)
-        topicRepository.save(topic1)
-
-        topic2 = new Topic()
-        topic2.setCourse(course)
-        topic2.setName(TOPIC_NAME2)
-        topicRepository.save(topic2)
     }
 
-    def "studentQuestion topics are defined for the first time"() {
-        given: "an array of new topics"
-        String[] topics = [topic1.getName(), topic2.getName()]
+    @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated | addedJustification")
+    def "remove question with different states"() {
+        given: "an evaluation"
+        studentQuestionDto.setState(evaluation.name())
+        studentQuestionDto.setJustification(justification)
+        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        def newQuestionKey = studentQuestion.getCorrespondingQuestionKey()
 
         when:
-        studentQuestionService.updateStudentQuestionTopics(studentQuestion.getId(), topics)
+        studentQuestionService.removeStudentQuestion(studentQuestion.getId())
 
-        then: "the studentQuestion is changed"
-        studentQuestionRepository.count() == 1L
-        def result = studentQuestionRepository.findAll().get(0)
-        result.getTopics().size() == 2
-        result.getTopics().contains(TOPIC_NAME)
-        result.getTopics().contains(TOPIC_NAME2)
-        and: "are not changed"
-        result.getId() != null
-        result.getTitle() == QUESTION_TITLE
-        result.getContent() == QUESTION_CONTENT
-        result.getOptions().size() == 4
-        result.correctOption() == OPTION_CORRECT_CONTENT
-        result.getStudent().getId() == user.getId()
-    }
+        then: "the studentQuestion is removed"
+            studentQuestionRepository.count() == 0L
+            imageRepository.count() == 0L
 
-    @Unroll("studentQuestion number of topics: #topicsNum ")
-    def "studentQuestion topics are altered"() {
-        given: "a studentQuestion with topics"
-        Set<String> topics = new HashSet<String>()
-        topics.add(topic1.getName())
-        studentQuestion.setTopics(topics)
-
-        and: "an array of new topics"
-        String[] new_topics = createTopicsArray(topicsNum)
-
-        when:
-        studentQuestionService.updateStudentQuestionTopics(studentQuestion.getId(), new_topics)
-
-        then: "the studentQuestion is changed"
-        studentQuestionRepository.count() == 1L
-        def result = studentQuestionRepository.findAll().get(0)
-        result.getTopics().size() == topicsNum
-        checkTopics(topicsNum, result)
-        and: "are not changed"
-        result.getId() != null
-        result.getTitle() == QUESTION_TITLE
-        result.getContent() == QUESTION_CONTENT
-        result.getOptions().size() == 4
-        result.correctOption() == OPTION_CORRECT_CONTENT
-        result.getStudent().getId() == user.getId()
+        and: "if created, the new question has been removed"
+            questionRepository.count() == 0L
 
         where:
-        topicsNum << [0, 1, 2]
+        evaluation                                 | justification
+        StudentQuestion.State.AWAITING_APPROVAL    | null
+        StudentQuestion.State.REJECTED             | JUSTIFICATION
+        StudentQuestion.State.APPROVED             | JUSTIFICATION
     }
 
-    def createTopicsArray(int topicsNum) {
-        if (topicsNum == 0)
-            return []
-        if (topicsNum == 1)
-            return [topic2.getName()]
-        if (topicsNum > 1)
-            return [topic1.getName(), topic2.getName()]
-    }
+    def "invalid input values"() {
+        given: "an approved student question"
+        studentQuestionDto.setState("APPROVED")
+        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        and: "a corresponding question with answers"
+        def question = questionRepository.findAll().get(0)
+        def quiz = new Quiz()
+        quiz.setKey(1)
+        quizRepository.save(quiz)
+        def quizQuestion = new QuizQuestion()
+        quizQuestionRepository.save(quizQuestion)
+        question.addQuizQuestion(quizQuestion)
+        quizQuestion.setQuiz(quiz)
+        quiz.addQuizQuestion(quizQuestion)
 
-    def checkTopics(int topicsNum, StudentQuestion result) {
-        if (topicsNum == 0)
-            return true
-        if (topicsNum == 1)
-            return (result.getTopics().contains(TOPIC_NAME2))
-        if (topicsNum == 2) {
-            return (result.getTopics().contains(TOPIC_NAME) &&
-                    result.getTopics().contains(TOPIC_NAME2))
-        }
+        when:
+        studentQuestionService.removeStudentQuestion(studentQuestion.getId())
+
+        then: "an exception is thrown"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.QUESTION_IS_USED_IN_QUIZ
     }
 
     @TestConfiguration

@@ -31,8 +31,36 @@
           :color="getStateColor(item.state)"
           dark
           @click="evaluateQuestionDialog(item)"
+          data-cy="evaluate"
           >{{ item.state }}
         </v-chip>
+      </template>
+
+      <template v-slot:item.action="{ item }">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="showQuestionDialog(item)"
+              >visibility</v-icon
+            >
+          </template>
+          <span>Show Question</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="evaluateQuestionDialog(item)"
+              >thumbs_up_down</v-icon
+            >
+          </template>
+          <span>Evaluate Question</span>
+        </v-tooltip>
       </template>
     </v-data-table>
 
@@ -113,6 +141,12 @@ export default class EvaluateQuestionView extends Vue {
       value: 'justification',
       align: 'center',
       width: '25%'
+    },
+    {
+      text: 'Actions',
+      value: 'action',
+      align: 'center',
+      sortable: false
     }
   ];
 
@@ -140,14 +174,16 @@ export default class EvaluateQuestionView extends Vue {
   }
 
   evaluateQuestionDialog(question: StudentQuestion) {
-    this.currentQuestion = question;
-    this.evaluateDialog = true;
+    if (question.state === 'AWAITING_APPROVAL') {
+      this.currentQuestion = question;
+      this.evaluateDialog = true;
+    }
   }
 
-  async onSaveStudentQuestionEvaluation(
-    question: StudentQuestion
-  ) {
-    this.studentQuestions = this.studentQuestions.filter(q => q.id !== question.id);
+  async onSaveStudentQuestionEvaluation(question: StudentQuestion) {
+    this.studentQuestions = this.studentQuestions.filter(
+      q => q.id !== question.id
+    );
     this.studentQuestions.unshift(question);
     this.evaluateDialog = false;
     this.currentQuestion = null;
