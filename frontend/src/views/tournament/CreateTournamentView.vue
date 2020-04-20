@@ -9,10 +9,12 @@
         <v-text-field
                 v-model="tournament.title"
                 label="Title"
+                data-cy="title"
         />
 
         <v-row>
-          <v-col cols="12" sm="6">
+          <v-col  cols="12" sm="6"
+                  data-cy="startingDate">
             <v-datetime-picker
                     v-model="tournament.startingDate"
                     label="Starting Date"
@@ -22,7 +24,8 @@
             >
             </v-datetime-picker>
           </v-col>
-          <v-col cols="12" sm="6">
+          <v-col  cols="12" sm="6"
+                  data-cy="conclusionDate">
             <v-datetime-picker
                     v-model="tournament.conclusionDate"
                     label="Conclusion Date"
@@ -41,12 +44,12 @@
                   mandatory
                   class="button-group"
           >
-            <v-btn text value="5">5</v-btn>
-            <v-btn text value="10">10</v-btn>
-            <v-btn text value="15">15</v-btn>
-            <v-btn text value="20">20</v-btn>
-            <v-btn text value="25">25</v-btn>
-            <v-btn text value="30">30</v-btn>
+            <v-btn text value="5" data-cy="5questions">5</v-btn>
+            <v-btn text value="10" data-cy="10questions">10</v-btn>
+            <v-btn text value="15" data-cy="15questions">15</v-btn>
+            <v-btn text value="20" data-cy="20questions">20</v-btn>
+            <v-btn text value="25" data-cy="25questions">25</v-btn>
+            <v-btn text value="30" data-cy="30questions">30</v-btn>
           </v-btn-toggle>
 
         </v-container>
@@ -73,8 +76,9 @@
                     class="elevation-1"
                     item-key="name"
                     selected="selectedTopics"
+                    data-cy="topics"
               >
-                <template v-slot:item.opt="{ item }">
+                <template v-slot:item.opt="{ item }" data-cy="yo">
                   <v-checkbox class="checkboxin"
                           @change="store(item)"
                   ></v-checkbox>
@@ -87,7 +91,12 @@
         </v-container>
 
         <v-container>
-          <v-btn color=green width="10cm" @click="submit"> SUBMIT </v-btn>
+          <v-btn
+                  color=green
+                  width="10cm"
+                  @click="submit"
+                  data-cy="submit"
+          > SUBMIT </v-btn>
         </v-container>
 
 
@@ -180,19 +189,19 @@
 
     async assertInput(){
       if(!this.tournament.title){
-        await this.$store.dispatch('error', 'Tournament must have a title');
+        await this.$store.dispatch('error', 'Error: The tournament must have a title');
         return 1;
       }
       if(!this.tournament.startingDate){
-        await this.$store.dispatch('error', 'Tournament must have a starting date');
+        await this.$store.dispatch('error', 'Error: The tournament must have a starting date');
         return 1;
       }
       if(!this.tournament.conclusionDate){
-        await this.$store.dispatch('error', 'Tournament must have a conclusion date');
+        await this.$store.dispatch('error', 'Error: The tournament must have a conclusion date');
         return 1;
       }
       if(this.tournament.topicList.length == 0){
-        await this.$store.dispatch('error', 'You must select at least 1 topic');
+        await this.$store.dispatch('error', 'Error: You must select at least 1 topic');
         return 1;
       }
       return 0;

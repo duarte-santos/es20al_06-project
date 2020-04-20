@@ -69,10 +69,134 @@ Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) 
     cy.get('[data-cy="saveButton"]').click()
 })
 
+
+/* TOURNAMENTS */
+
 Cypress.Commands.add('demoStudentLogin', () => {
     cy.visit('/')
     cy.get('[data-cy="studentButton"]').click()
 })
+
+Cypress.Commands.add('gotoCreateTournamentPage', () => {
+  cy.contains('Tournaments').click()
+  cy.contains('Create').click()
+})
+
+/* Create Open Tournament */
+Cypress.Commands.add('createOpenTournament', (name, numberOfQuestions) => {
+
+  /* Name */
+  cy.get('[data-cy="title"]').type(name)
+
+  /* Starting Date */
+  cy.get('[data-cy="startingDate"]').click()
+  cy.get('.v-date-picker-header > :nth-child(1) > .v-btn__content > .v-icon').click()
+  cy.get('.v-date-picker-header > :nth-child(1) > .v-btn__content > .v-icon').click()
+  cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+  cy.get('.green--text > .v-btn__content').click()
+
+  /* Conclusion Date */
+  cy.get('[data-cy="conclusionDate"]').click()
+  cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
+  cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+  cy.get('.green--text > .v-btn__content:visible').click()
+
+  /* Number of Questions */
+  cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
+
+  /*Topics*/
+  cy.get('.v-input--selection-controls__input')
+    .first()
+    .click()
+
+  cy.contains('SUBMIT').click()
+
+})
+
+/* Create Closed Tournament */
+Cypress.Commands.add('createClosedTournament', (name, numberOfQuestions, startingDate, conclusionDate, selectTopic) => {
+
+  /* Name */
+  if (name.length !== 0) {
+    cy.get('[data-cy="title"]').type(name)
+  }
+
+  /* Starting Date */
+  if (startingDate) {
+    cy.get('[data-cy="startingDate"]').click()
+    cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon').click()
+    cy.get(':nth-child(5) > :nth-child(6) > .v-btn').click()
+    cy.get('.green--text > .v-btn__content').click()
+  }
+
+  /* Conclusion Date */
+  if (conclusionDate) {
+    cy.get('[data-cy="conclusionDate"]').click()
+    cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
+    cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+    cy.get('.green--text > .v-btn__content:visible').click()
+  }
+
+  /* Number of Questions */
+  cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
+
+  /*Topics*/
+  if (selectTopic) {
+    cy.get('.v-input--selection-controls__input')
+      .first()
+      .click()
+  }
+
+  cy.contains('SUBMIT').click()
+
+})
+
+/* Create tournament with conclusion date before starting date */
+Cypress.Commands.add('createTournamentWrongDates', (name, numberOfQuestions) => {
+
+  /* Name */
+  cy.get('[data-cy="title"]').type(name)
+
+  /* Starting Date */
+  cy.get('[data-cy="startingDate"]').click()
+  cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon').click()
+  cy.get(':nth-child(5) > :nth-child(7) > .v-btn').click()
+  cy.get('.green--text > .v-btn__content').click()
+
+  /* Conclusion Date */
+  cy.get('[data-cy="conclusionDate"]').click()
+  cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
+  cy.get(':nth-child(5) > :nth-child(6) > .v-btn:visible').click()
+  cy.get('.green--text > .v-btn__content:visible').click()
+
+  /* Number of Questions */
+  cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
+
+  /*Topics*/
+  cy.get('.v-input--selection-controls__input')
+    .first()
+    .click()
+
+  cy.contains('SUBMIT').click()
+
+})
+
+/* Assert success or error */
+
+Cypress.Commands.add('assertTournamentCreated', () => {
+  cy.get('#success').should('be.visible')
+})
+
+Cypress.Commands.add('assertTournamentError', (error) => {
+  cy.contains(error)
+    .should('be.visible')
+    .parent()
+    .find('button')
+    .click()
+})
+
+
+/* Enroll 0bucketiano*/
 
 Cypress.Commands.add('clickOnTournamentsMenu', () => {
     cy.contains('Tournaments').click()
