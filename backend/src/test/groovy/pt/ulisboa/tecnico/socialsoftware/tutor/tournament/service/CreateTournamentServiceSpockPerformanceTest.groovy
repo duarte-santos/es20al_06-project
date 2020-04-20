@@ -43,11 +43,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
     TopicRepository topicRepository
 
     def "performance testing to create 3000 tournaments"() {
-        given: "a user"
-        def user = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
-        userRepository.save(user)
-
-        and: "a course"
+        given: "a course"
         def course = new Course(COURSE, Course.Type.TECNICO)
         courseRepository.save(course)
 
@@ -68,7 +64,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         def tournamentDto = new TournamentDto("Torneio", topicList, 3, "2999-01-22 04:20", "2999-04-27 00:42")
 
         when:
-        1.upto(3/*000*/, { tournamentService.createTournament(courseExecution.getId(),user.getId(),tournamentDto)})
+        1.upto(3/*000*/, { tournamentService.createTournament(courseExecution.getId(),tournamentDto)})
 
         then:
         true

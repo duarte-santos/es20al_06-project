@@ -60,10 +60,7 @@ public class User implements UserDetails, DomainEntity {
     @ManyToMany
     private Set<CourseExecution> courseExecutions = new HashSet<>();
 
-    @OneToMany
-    private Set<Tournament> tournamentsCreated = new HashSet<>();
-
-    @ManyToMany
+    @ManyToMany(mappedBy = "topicList")
     private Set<Tournament> tournamentsEnrolled = new HashSet<>();
 
     public User() {
@@ -89,14 +86,6 @@ public class User implements UserDetails, DomainEntity {
     @Override
     public void accept(Visitor visitor) {
         visitor.visitUser(this);
-    }
-
-    public Set<Tournament> getTournamentsCreated() {
-        return tournamentsCreated;
-    }
-
-    public void setTournamentsCreated(Set<Tournament> tournamentsCreated) {
-        this.tournamentsCreated = tournamentsCreated;
     }
 
     public Set<Tournament> getTournamentsEnrolled() {

@@ -13,7 +13,9 @@ import Assessment from '@/models/management/Assessment';
 import AuthDto from '@/models/user/AuthDto';
 import StatementAnswer from '@/models/statement/StatementAnswer';
 import { QuizAnswers } from '@/models/management/QuizAnswers';
+import Tournament from '@/models/management/Tournament';
 import StudentQuestion from '@/models/management/StudentQuestion';
+
 
 const httpClient = axios.create();
 httpClient.defaults.timeout = 10000;
@@ -674,5 +676,61 @@ export default class RemoteServices {
       console.log(error);
       return 'Unknown Error - Contact admin';
     }
+  }
+
+
+  static createTournament(tournament: Tournament): Promise<Tournament> {
+    return httpClient
+      .post(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments`,
+        tournament
+      ).then(response => {
+          return new Tournament(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static getAvailableTournaments(): Promise<Tournament[]> {
+    return httpClient
+      .get(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/available`
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static enrollInTournament(tournament:Tournament): Promise<Tournament> {
+    return httpClient
+      .put(
+        `/tournaments/${tournament.id}/enroll`
+      ).then(response => {
+        return new Tournament(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static getOpenTournaments(): Promise<Tournament[]> {
+    return httpClient
+        .get(
+            `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/show-open`
+        )
+        .then(response => {
+          return response.data.map((tournament: any) => {
+            return new Tournament(tournament);
+          });
+        })
+        .catch(async error => {
+          throw Error(await this.errorMessage(error));
+        });
   }
 }
