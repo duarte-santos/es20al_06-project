@@ -139,8 +139,8 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
 
         where:
         numOptions  || errorMessage
-        1           || STUDENT_QUESTION_MISSING_DATA
-        4           || STUDENT_QUESTION_MISSING_DATA
+        1           || STUDENT_QUESTION_INVALID_OPTIONS_AMOUNT
+        4           || STUDENT_QUESTION_INVALID_OPTIONS_AMOUNT
     }
 
     def createIncorrectOptions(int numOptions, StudentQuestionDto studentQuestionDto) {
@@ -170,16 +170,16 @@ class CreateStudentQuestionServiceSpockTest extends Specification {
 
        where:
        title             | content           | correctContent            | incorrectContent          | correctSequence   || errorMessage
-       null              | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || STUDENT_QUESTION_MISSING_DATA
-       "    "            | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | null              | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | "    "            | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | QUESTION_CONTENT  | null                      | OPTION_INCORRECT_CONTENT  | 1                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | QUESTION_CONTENT  | "    "                    | OPTION_INCORRECT_CONTENT  | 1                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | null                      | 1                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | "    "                    | 1                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 0                 || STUDENT_QUESTION_MISSING_DATA
-       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | null              || STUDENT_QUESTION_MULTIPLE_CORRECT_OPTIONS
+       null              | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || SQ_TITLE_MISSING_DATA
+       "    "            | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || SQ_TITLE_MISSING_DATA
+       QUESTION_TITLE    | null              | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || SQ_CONTENT_MISSING_DATA
+       QUESTION_TITLE    | "    "            | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 1                 || SQ_CONTENT_MISSING_DATA
+       QUESTION_TITLE    | QUESTION_CONTENT  | null                      | OPTION_INCORRECT_CONTENT  | 1                 || SQ_OPTION_MISSING_DATA
+       QUESTION_TITLE    | QUESTION_CONTENT  | "    "                    | OPTION_INCORRECT_CONTENT  | 1                 || SQ_OPTION_MISSING_DATA
+       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | null                      | 1                 || SQ_OPTION_MISSING_DATA
+       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | "    "                    | 1                 || SQ_OPTION_MISSING_DATA
+       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | 0                 || SQ_INVALID_CORRECT_OPTION
+       QUESTION_TITLE    | QUESTION_CONTENT  | OPTION_CORRECT_CONTENT    | OPTION_INCORRECT_CONTENT  | null              || SQ_INVALID_CORRECT_OPTION
    }
 
     @TestConfiguration

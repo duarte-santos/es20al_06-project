@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 
 import javax.persistence.*;
 import java.util.*;
@@ -30,8 +31,8 @@ public class Topic {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @ManyToMany
-    private List<Topic> tournaments = new ArrayList<>();
+    @ManyToMany(mappedBy = "topicList")
+    private Set<Tournament> tournaments = new HashSet<>();
 
     public Topic() {
     }
@@ -42,11 +43,11 @@ public class Topic {
         course.addTopic(this);
     }
 
-    public List<Topic> getTournaments() {
+    public Set<Tournament> getTournaments() {
         return tournaments;
     }
 
-    public void setTournaments(List<Topic> tournaments) {
+    public void setTournaments(Set<Tournament> tournaments) {
         this.tournaments = tournaments;
     }
 

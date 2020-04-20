@@ -61,7 +61,6 @@ class CreateTournamentServiceSpockTest extends Specification{
     UserRepository userRepository
 
 
-    def static student
     def course
     def static execution
     def topic
@@ -78,9 +77,6 @@ class CreateTournamentServiceSpockTest extends Specification{
         execution =  new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseRepository.save(course)
         courseExecutionRepository.save(execution)
-
-        student = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
-        userRepository.save(student) //required to generate an id
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
@@ -106,7 +102,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        tournamentService.createTournament(execution.getId(), student.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), tournamentDto)
 
         then: "The returned data is correct"
         tournamentRepository.count() == 1L
@@ -129,7 +125,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusiondate)
 
         when:
-        tournamentService.createTournament(execution.getId(), student.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -138,7 +134,6 @@ class CreateTournamentServiceSpockTest extends Specification{
         where:
         title              | topiclist | nOfQuestions | startingdate | conclusiondate || errorMessage
         null               | topicList | 1            | startingDate | conclusionDate || TOURNAMENT_TITLE_IS_EMPTY
-        "       "          | topicList | 1            | startingDate | conclusionDate || TOURNAMENT_TITLE_IS_EMPTY
         TOURNAMENT_TITLE   | null      | 1            | startingDate | conclusionDate || TOURNAMENT_TOPIC_LIST_IS_EMPTY
         TOURNAMENT_TITLE   | topicList | 0            | startingDate | conclusionDate || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
         TOURNAMENT_TITLE   | topicList | -1           | startingDate | conclusionDate || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
@@ -158,7 +153,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(startingDate)
 
         when:
-        tournamentService.createTournament(execution.getId(), student.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), tournamentDto)
 
         then:
         thrown(TutorException)
@@ -180,7 +175,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusionDate)
 
         when:
-        tournamentService.createTournament(execution.getId(), student.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)

@@ -17,5 +17,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
 
     @Query(value = "select * from tournaments t where t.status = 'OPEN' and t.course_execution_id = :executionId", nativeQuery = true)
     List<Tournament> findOpen(int executionId);
+
+    @Query(value = "select * from tournaments t where t.course_execution_id = :executionId", nativeQuery = true)
+    List<Tournament> findAvailable(int executionId);
 }
 

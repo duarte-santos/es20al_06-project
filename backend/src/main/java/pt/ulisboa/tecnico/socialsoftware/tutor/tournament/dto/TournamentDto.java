@@ -4,12 +4,14 @@ import org.springframework.data.annotation.Transient;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TournamentDto implements Serializable{
 
@@ -20,6 +22,7 @@ public class TournamentDto implements Serializable{
     private String startingDate;
     private String conclusionDate;
     private Tournament.Status status;
+    private List<UserDto> studentList = new ArrayList<>();
 
     @Transient
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -42,6 +45,8 @@ public class TournamentDto implements Serializable{
             TopicDto topicdto = new TopicDto(topic);
             this.topicList.add(topicdto);
         }
+
+        setStudentList(tournament.getStudentList().stream().map(UserDto::new).collect(Collectors.toList()));
     }
 
     public TournamentDto(String title, List<TopicDto> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
@@ -125,5 +130,13 @@ public class TournamentDto implements Serializable{
             return null;
         }
         return LocalDateTime.parse(getConclusionDate(), formatter);
+    }
+
+    public List<UserDto> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(List<UserDto> studentList) {
+        this.studentList = studentList;
     }
 }

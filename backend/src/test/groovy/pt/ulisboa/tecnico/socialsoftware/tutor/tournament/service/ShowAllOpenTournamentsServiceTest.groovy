@@ -69,7 +69,6 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         def tournamentDto = new TournamentDto(title, topicList, numOfQuestions, startingDate, conclusionDate)
         def tournament = new Tournament(tournamentDto)
         tournament.setCourseExecution(execution)
-        tournament.setTopicDtoList(topicList)
         return tournament
     }
 
@@ -82,13 +81,8 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         courseRepository.save(course)
         courseExecutionRepository.save(execution)
 
-        topicDto = new TopicDto()
-        topicDto.setName(TOPIC_NAME)
-        topic = new Topic(course, topicDto)
-        topicRepository.save(topic)
 
         topicList = new ArrayList()
-        topicList.add(topicDto)
 
         startingDate = LocalDateTime.now().plusDays(1)format(formatter)
         conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
@@ -129,7 +123,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     }
 
     def "No tournaments are open"(){
-        given: "Only close tournaments"
+        given: "Only closed tournaments"
         tournament1.setStatus(Tournament.Status.CLOSED)
         tournament2.setStatus(Tournament.Status.CLOSED)
         tournament3.setStatus(Tournament.Status.CLOSED)
@@ -141,19 +135,20 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament4);
 
         when:
-        tournamentService.showAllOpenTournaments(execution.getId())
-        then: "An exception is thrown"
-        thrown(TutorException)
+        def result = tournamentService.showAllOpenTournaments(execution.getId())
+
+        then: "Empty list is returned"
+        result.size() == 0
     }
 
     def "No tournaments exist"(){
         given: "No tournaments"
 
         when:
-        tournamentService.showAllOpenTournaments(execution.getId())
+        def result = tournamentService.showAllOpenTournaments(execution.getId())
 
-        then: "An exception is thrown"
-        thrown(TutorException)
+        then: "Empty list is returned"
+        result.size() == 0
 
     }
 

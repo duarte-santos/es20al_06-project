@@ -8,9 +8,15 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.ImageRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository;
@@ -20,10 +26,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
-
 @DataJpaTest
-public class EvaluateStudentQuestionServiceSpockTest extends Specification {
+public class RemoveStudentQuestionServiceSpockTest extends Specification {
     public static final String COURSE_NAME = "CourseOne"
     public static final String ACRONYM = "C1"
     public static final String ACADEMIC_TERM = "1st Term"
@@ -53,6 +57,15 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
 
     @Autowired
     StudentQuestionRepository studentQuestionRepository
+
+    @Autowired
+    ImageRepository imageRepository
+
+    @Autowired
+    QuizQuestionRepository quizQuestionRepository
+
+    @Autowired
+    QuizRepository quizRepository
 
     def course
     def courseExecution
@@ -86,88 +99,51 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
     }
 
     @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated | addedJustification")
-    def "teacher evaluates question with or without justification"() {
-        // question is created, studentQuestion marked as approved
+    def "remove question with different states"() {
         given: "an evaluation"
         studentQuestionDto.setState(evaluation.name())
         studentQuestionDto.setJustification(justification)
+        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        def newQuestionKey = studentQuestion.getCorrespondingQuestionKey()
 
         when:
-        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.removeStudentQuestion(studentQuestion.getId())
 
-        then: "the studentQuestion is changed"
-        studentQuestionRepository.count() == 1L
-        def result = studentQuestionRepository.findAll().get(0)
-        result.getState() == evaluation
-        result.getJustification() == addedJustification
-        and: "are not changed"
-        result.getId() != null
-        result.getTitle() == QUESTION_TITLE
-        result.getContent() == QUESTION_CONTENT
-        result.getOptions().size() == 4
-        result.correctOption() == OPTION_CORRECT_CONTENT
-        result.getStudent().getId() == user.getId()
-        and: "the new question is or is not created"
-        questionWasCreated(questionCreated)
-        and: "if created, has the correct value"
-        checkNewQuestion(questionCreated)
+        then: "the studentQuestion is removed"
+            studentQuestionRepository.count() == 0L
+            imageRepository.count() == 0L
+
+        and: "if created, the new question has been removed"
+            questionRepository.count() == 0L
 
         where:
-        evaluation                        | justification      || questionCreated | addedJustification
-        StudentQuestion.State.APPROVED    | null               || true            | null
-        StudentQuestion.State.APPROVED    | '  '               || true            | null
-        StudentQuestion.State.APPROVED    | JUSTIFICATION      || true            | JUSTIFICATION
-        StudentQuestion.State.REJECTED    | JUSTIFICATION      || false           | JUSTIFICATION
+        evaluation                                 | justification
+        StudentQuestion.State.AWAITING_APPROVAL    | null
+        StudentQuestion.State.REJECTED             | JUSTIFICATION
+        StudentQuestion.State.APPROVED             | JUSTIFICATION
     }
 
-    def questionWasCreated(boolean questionCreated) {
-        if (!questionCreated)
-            return questionRepository.count() == 0L
-        if (questionCreated)
-            return questionRepository.count() == 1L
-    }
-
-    def checkNewQuestion(boolean questionCreated) {
-        if (questionCreated) {
-            def question = questionRepository.findAll().get(0)
-            return (question.getId() != null
-                    && question.getTitle() == QUESTION_TITLE
-                    && question.getContent() == QUESTION_CONTENT
-                    && question.getOptions().size() == 4
-                    && question.getOptions().get(0).getCorrect()
-                    && !question.getOptions().get(1).getCorrect()
-                    && question.getImage().getId() != null
-                    && question.getImage().getUrl() == URL
-                    && question.getImage().getWidth() == 20)
-        }
-        return true;
-    }
-
-    @Unroll("invalid arguments: #previousState | #newState | #justification || errorMessage ")
     def "invalid input values"() {
-        // question is not created and exception is thrown
-        given: "a studentQuestion with a given state"
-        studentQuestion.setState(previousState)
-        and: "an evaluation"
-        studentQuestionDto.setState(newState.name())
-        studentQuestionDto.setJustification(justification)
+        given: "an approved student question"
+        studentQuestionDto.setState("APPROVED")
+        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        and: "a corresponding question with answers"
+        def question = questionRepository.findAll().get(0)
+        def quiz = new Quiz()
+        quiz.setKey(1)
+        quizRepository.save(quiz)
+        def quizQuestion = new QuizQuestion()
+        quizQuestionRepository.save(quizQuestion)
+        question.addQuizQuestion(quizQuestion)
+        quizQuestion.setQuiz(quiz)
+        quiz.addQuizQuestion(quizQuestion)
 
         when:
-        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.removeStudentQuestion(studentQuestion.getId())
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
-        error.errorMessage == errorMessage
-
-        where:
-        previousState                           | newState                        | justification      || errorMessage
-        StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | '  '               || JUSTIFICATION_MISSING_DATA
-        StudentQuestion.State.AWAITING_APPROVAL | StudentQuestion.State.REJECTED  | null               || JUSTIFICATION_MISSING_DATA
-        StudentQuestion.State.APPROVED          | StudentQuestion.State.APPROVED  | null               || STUDENT_QUESTION_ALREADY_EVALUATED
-        StudentQuestion.State.APPROVED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || STUDENT_QUESTION_ALREADY_EVALUATED
-        StudentQuestion.State.REJECTED          | StudentQuestion.State.APPROVED  | null               || STUDENT_QUESTION_ALREADY_EVALUATED
-        StudentQuestion.State.REJECTED          | StudentQuestion.State.REJECTED  | JUSTIFICATION      || STUDENT_QUESTION_ALREADY_EVALUATED
-
+        error.errorMessage == ErrorMessage.QUESTION_IS_USED_IN_QUIZ
     }
 
     @TestConfiguration
