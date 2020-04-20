@@ -71,9 +71,19 @@ Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) 
 });
 
 
+
+
+Cypress.Commands.add('demoStudentLogin', () => {
+  cy.visit('/');
+  cy.get('[data-cy="studentButton"]').click();
+});
+
+
 // ***********************************************
 // Tournaments
 // ***********************************************
+
+/* ********** Create ********** */
 
 Cypress.Commands.add('gotoCreateTournamentPage', () => {
   cy.contains('Tournaments').click()
@@ -107,7 +117,7 @@ Cypress.Commands.add('createOpenTournament', (name, numberOfQuestions) => {
     .first()
     .click()
 
-  cy.contains('SUBMIT').click()
+  cy.get('[data-cy="submit"]').click()
 
 });
 
@@ -145,7 +155,7 @@ Cypress.Commands.add('createClosedTournament', (name, numberOfQuestions, startin
       .click()
   }
 
-  cy.contains('SUBMIT').click()
+  cy.get('[data-cy="submit"]').click()
 
 });
 
@@ -175,7 +185,7 @@ Cypress.Commands.add('createTournamentWrongDates', (name, numberOfQuestions) => 
     .first()
     .click()
 
-  cy.contains('SUBMIT').click()
+  cy.get('[data-cy="submit"]').click()
 
 });
 
@@ -193,37 +203,40 @@ Cypress.Commands.add('assertTournamentError', (error) => {
     .click()
 });
 
-/* Enroll */
 
-Cypress.Commands.add('clickOnTournamentsMenu', () => {
-    cy.contains('Tournaments').click()
-});
-
-Cypress.Commands.add('selectEnrollOnTournamentsMenu', () => {
-    cy.contains('Join').click()
-});
+/* ********** Enroll ********** */
 
 Cypress.Commands.add('goToTournamentEnrollments', () => {
-    cy.clickOnTournamentsMenu()
-    cy.selectEnrollOnTournamentsMenu()
+  cy.contains('Tournaments').click()
+  cy.contains('Join').click()
 });
 
-Cypress.Commands.add('tryToEnrollInTournament', (name) => {
+
+Cypress.Commands.add('enrollInTournament', (name) => {
   cy.contains(name).parent().within(
     () => {
       cy.get('[class="col last-col"]').children().first().children().first().click()
     })
 });
 
+Cypress.Commands.add('assertEnrolled', (name) => {
+  cy.contains(name).parent().within(
+    () => {
+      cy.get('[class="col last-col"]').children().first().children().first().should('not.be.visible')
+    })
+});
+
+
 Cypress.Commands.add('shouldCloseConfirmationAlert', () => {
     cy.contains('OK').click()
 });
 
-/* Show Open */
+
+/* ********** Show Open ********** */
 
 Cypress.Commands.add('checkForTournament', (title) => {
     cy.contains('Tournaments').click()
-    cy.contains('Open').click()
+    cy.contains('Show Open').click()
     cy.get('[data-cy="tournamentTitle"]').should(
       (element) => {
         expect(element).to.contain(title)
@@ -232,7 +245,7 @@ Cypress.Commands.add('checkForTournament', (title) => {
 
 Cypress.Commands.add('checkForNoTournament', (title) => {
   cy.contains('Tournaments').click()
-  cy.contains('Open').click()
+  cy.contains('Show Open').click()
   cy.wait(200)
   cy.get('[data-cy="tournamentTitle"]').should(
     (element) => {
@@ -245,10 +258,6 @@ Cypress.Commands.add('checkForNoTournament', (title) => {
 // Student Question
 // ***********************************************
 
-Cypress.Commands.add('demoStudentLogin', () => {
-  cy.visit('/');
-  cy.get('[data-cy="studentButton"]').click();
-});
 
 Cypress.Commands.add('studentMyQuestions', () => {
   cy.contains('My Questions').click();

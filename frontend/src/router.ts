@@ -25,10 +25,9 @@ import ImpExpView from '@/views/teacher/impexp/ImpExpView.vue';
 import AssessmentsView from '@/views/teacher/assessments/AssessmentsView.vue';
 import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
 import CoursesView from '@/views/admin/Courses/CoursesView.vue';
-import TournamentView from '@/views/tournament/TournamentView.vue';
-import CreateTournamentView from '@/views/tournament/CreateTournamentView.vue';
-import OpenTournamentsView from '@/views/tournament/OpenTournamentsView.vue';
-import EnrollInTournamentView from '@/views/tournament/EnrollInTournamentView.vue';
+import CreateTournamentView from '@/views/student/tournament/CreateTournamentView.vue';
+import OpenTournamentsView from '@/views/student/tournament/OpenTournamentsView.vue';
+import EnrollInTournamentView from '@/views/student/tournament/EnrollInTournamentView.vue';
 
 
 

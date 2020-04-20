@@ -26,13 +26,8 @@ export default class Tournament {
     }
   }
 
-  checkStudent(user :User) {
-    for (let student of this.studentList) {
-      if (student.username == user.username){
-        return true;
-      }
-    }
-    return false;
+  getTitle(){
+    return this.title;
   }
 
 }

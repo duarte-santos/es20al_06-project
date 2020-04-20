@@ -79,7 +79,8 @@
                     data-cy="topics"
               >
                 <template v-slot:item.opt="{ item }" data-cy="yo">
-                  <v-checkbox class="checkboxin"
+                  <v-checkbox
+                          class="checkboxin"
                           @change="store(item)"
                   ></v-checkbox>
                 </template>
@@ -93,7 +94,7 @@
         <v-container>
           <v-btn
                   color=green
-                  width="10cm"
+                  width="7cm"
                   @click="submit"
                   data-cy="submit"
           > SUBMIT </v-btn>
@@ -245,6 +246,10 @@
     color: #299455;
     margin:auto;
     font-size:25px;
+  }
+
+  .checkboxin{
+    margin-left:20px;
   }
 
 

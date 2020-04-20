@@ -11,10 +11,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -77,11 +75,6 @@ public class Tournament{
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 
-        /*if (LocalDateTime.now().isAfter(startingDateAux)){
-            throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
-        }*/
-
-        //temporary, only while scheduling isn't implemented
         if (LocalDateTime.now().isAfter(conclusionDateAux)) {
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
