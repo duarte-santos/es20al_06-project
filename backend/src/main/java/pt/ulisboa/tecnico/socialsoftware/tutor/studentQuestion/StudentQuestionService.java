@@ -9,12 +9,18 @@ import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.ImageRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +40,12 @@ public class StudentQuestionService {
 
     @Autowired
     private QuestionRepository questionRepository;
+
+    @Autowired
+    private TopicRepository topicRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Retryable(
             value = { SQLException.class },
@@ -61,6 +73,15 @@ public class StudentQuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestionDto findStudentQuestionById(Integer stQuestionId) {
+        return studentQuestionRepository.findById(stQuestionId).map(StudentQuestionDto::new)
+                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, stQuestionId));
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public StudentQuestionDto findStudentQuestionByKey(Integer key) {
         return studentQuestionRepository.findByKey(key).map(StudentQuestionDto::new)
                 .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, key));
@@ -76,8 +97,15 @@ public class StudentQuestionService {
                 .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
 
         studentQuestion.evaluateStudentQuestion(studentQuestionDto);
-        studentQuestionRepository.save(studentQuestion);
 
+        if (studentQuestion.getState().name().equals("APPROVED") && studentQuestion.getCorrespondingQuestionKey() == null) {
+            Question question = new Question(studentQuestion);
+            question.updateTopics(studentQuestion.getTopics().stream().map(topic -> topicRepository.findTopicByName(question.getCourse().getId(), topic)).collect(Collectors.toSet()));
+            studentQuestion.setCorrespondingQuestionKey(question.getKey());
+            questionRepository.save(question);
+        }
+
+        studentQuestionRepository.save(studentQuestion);
         return new StudentQuestionDto(studentQuestion);
     }
 
@@ -95,6 +123,35 @@ public class StudentQuestionService {
                 .map(StudentQuestion::getCourse)
                 .map(CourseDto::new)
                 .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void updateStudentQuestionTopics(Integer studentQuestionId, String[] topics) {
+        StudentQuestion stQuestion = studentQuestionRepository.findById(studentQuestionId).orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
+
+        stQuestion.setTopics(Arrays.stream(topics).collect(Collectors.toSet()));
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void updateStudentQuestionImage(Integer studentQuestionId, String type) {
+        StudentQuestion stQuestion = studentQuestionRepository.findById(studentQuestionId).orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
+
+        Image image = stQuestion.getImage();
+        if (image == null) {
+            image = new Image();
+            stQuestion.setImage(image);
+            imageRepository.save(image);
+        }
+        stQuestion.getImage().setUrl(stQuestion.getCourse().getName().replaceAll("\\s", "") +
+                stQuestion.getCourse().getType() +
+                stQuestion.getKey() +
+                "." + type);
     }
 
 }

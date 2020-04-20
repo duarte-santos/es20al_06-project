@@ -51,7 +51,7 @@ class EnrollInTheTournamentServiceSpockPerformanceTest extends Specification {
 
         given: "10000 students"
         def studentList = new ArrayList<User>();
-        for (int i = 0; i<10001; i++){
+        for (int i = 0; i<10/*001*/; i++){
             def user = new User(STUDENT_NAME + i, USERNAME + i, i, User.Role.STUDENT)
             userRepository.save(user)
             studentList.add(user)
@@ -78,7 +78,7 @@ class EnrollInTheTournamentServiceSpockPerformanceTest extends Specification {
         def tournamentId = tournament.getId()
 
         when:
-        1.upto(10, { tournamentService.enrollInTournament(studentList[it].getId(),tournamentId)})
+        1.upto(1/*0000*/, { tournamentService.enrollInTournament(studentList[it].getId(),tournamentId)})
 
         then:
         true

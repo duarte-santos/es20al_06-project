@@ -7,11 +7,12 @@
   >
     <v-card>
       <v-card-title>
-        <span class="headline">{{ question.title }}</span>
+        <span class="headline">{{ studentQuestion.title }}</span>
       </v-card-title>
 
       <v-card-text class="text-left">
-        <show-question :question="question" />
+        <show-question :student-question="studentQuestion" />
+        <!--FIXME WTF-->
       </v-card-text>
 
       <v-card-actions>
@@ -24,16 +25,17 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Model } from 'vue-property-decorator';
-import Question from '@/models/management/Question';
-import ShowQuestion from '@/views/teacher/questions/ShowQuestion.vue';
+import ShowQuestion from '@/views/student/studentQuestion/ShowStudentQuestion.vue';
+import StudentQuestion from '@/models/management/StudentQuestion';
 
 @Component({
   components: {
     'show-question': ShowQuestion
   }
 })
-export default class ShowQuestionDialog extends Vue {
+export default class ShowStudentQuestionDialog extends Vue {
   @Model('dialog', Boolean) dialog!: boolean;
-  @Prop({ type: Question, required: true }) readonly question!: Question;
+  @Prop({ type: StudentQuestion, required: true })
+  readonly studentQuestion!: StudentQuestion;
 }
 </script>

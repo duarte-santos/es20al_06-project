@@ -1,26 +1,26 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Store from './store';
+import Store from '@/store';
 
-import HomeView from './views/HomeView.vue';
-import LoginView from './views/LoginView.vue';
-import CourseSelectionView from './views/CourseSelectionView.vue';
+import LoginView from '@/views/LoginView.vue';
+import CourseSelectionView from '@/views/CourseSelectionView.vue';
 
+import HomeView from '@/views/HomeView.vue';
 import ManagementView from '@/views/teacher/ManagementView.vue';
-import QuestionsView from './views/teacher/questions/QuestionsView.vue';
-import TopicsView from './views/teacher/TopicsView.vue';
-import QuizzesView from './views/teacher/quizzes/QuizzesView.vue';
-import StudentsView from './views/teacher/students/StudentsView.vue';
+import QuestionsView from '@/views/teacher/questions/QuestionsView.vue';
+import TopicsView from '@/views/teacher/TopicsView.vue';
+import QuizzesView from '@/views/teacher/quizzes/QuizzesView.vue';
+import StudentsView from '@/views/teacher/students/StudentsView.vue';
 import StudentView from '@/views/student/StudentView.vue';
-import AvailableQuizzesView from './views/student/AvailableQuizzesView.vue';
-import SolvedQuizzesView from './views/student/SolvedQuizzesView.vue';
-import QuizView from './views/student/quiz/QuizView.vue';
-import ResultsView from './views/student/quiz/ResultsView.vue';
-import StatsView from './views/student/StatsView.vue';
-import ScanView from './views/student/ScanView.vue';
+import AvailableQuizzesView from '@/views/student/AvailableQuizzesView.vue';
+import SolvedQuizzesView from '@/views/student/SolvedQuizzesView.vue';
+import QuizView from '@/views/student/quiz/QuizView.vue';
+import ResultsView from '@/views/student/quiz/ResultsView.vue';
+import StatsView from '@/views/student/StatsView.vue';
+import ScanView from '@/views/student/ScanView.vue';
 
-import AdminManagementView from './views/admin/AdminManagementView.vue';
-import NotFoundView from './views/NotFoundView.vue';
+import AdminManagementView from '@/views/admin/AdminManagementView.vue';
+import NotFoundView from '@/views/NotFoundView.vue';
 import ImpExpView from '@/views/teacher/impexp/ImpExpView.vue';
 import AssessmentsView from '@/views/teacher/assessments/AssessmentsView.vue';
 import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
@@ -31,6 +31,9 @@ import OpenTournamentsView from '@/views/tournament/OpenTournamentsView.vue';
 import EnrollInTournamentView from '@/views/tournament/EnrollInTournamentView.vue';
 
 
+
+import StudentQuestionView from '@/views/student/studentQuestion/StudentQuestionView.vue';
+import EvaluateQtsView from '@/views/teacher/studentQuestions/EvaluateQuestionsView.vue';
 
 Vue.use(Router);
 
@@ -120,6 +123,15 @@ let router = new Router({
             title: process.env.VUE_APP_NAME + ' - ImpExp',
             requiredAuth: 'Teacher'
           }
+        },
+        {
+          path: 'evaluateqts',
+          name: 'evaluateqts-management',
+          component: EvaluateQtsView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Evaluate Questions',
+            requiredAuth: 'Teacher'
+          }
         }
       ]
     },
@@ -128,6 +140,15 @@ let router = new Router({
       name: 'student',
       component: StudentView,
       children: [
+        {
+          path: 'questions',
+          name: 'student-questions',
+          component: StudentQuestionView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Manage my Questions',
+            requiredAuth: 'Student'
+          }
+        },
         {
           path: 'available',
           name: 'available-quizzes',

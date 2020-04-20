@@ -101,8 +101,26 @@
                 <v-list-item-title>ImpExp</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+            <v-list-item to="/management/evaluateqts">
+              <v-list-item-action>
+                <v-icon>thumbs_up_down</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Evaluate Questions</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-menu>
+
+        <v-btn
+          to="/student/questions"
+          v-if="isStudent && currentCourse"
+          text
+          dark
+        >
+          My Questions
+          <v-icon>question_answer</v-icon>
+        </v-btn>
 
         <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
@@ -298,6 +316,14 @@
               <v-list-item-title>ImpExp</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+          <v-list-item to="/management/evaluateqts">
+            <v-list-item-action>
+              <v-icon>thumbs_up_down</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Evaluate Questions</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list-group>
 
         <!-- Student Group-->
@@ -348,6 +374,13 @@
             <v-list-item-content>Stats</v-list-item-content>
           </v-list-item>
 
+          <v-list-item to="/student/questions">
+            <v-list-item-action>
+              <v-icon>question_answer</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>My Questions</v-list-item-content>
+          </v-list-item>
+
           <v-list-item to="/student/tournament-create">
             <v-list-item-action>
               <v-icon>create</v-icon>
@@ -368,7 +401,6 @@
             </v-list-item-action>
             <v-list-item-content>Join Tournament</v-list-item-content>
           </v-list-item>
-
 
         </v-list-group>
 

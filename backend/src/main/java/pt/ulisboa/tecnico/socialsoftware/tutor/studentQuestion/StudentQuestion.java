@@ -105,22 +105,24 @@ public class StudentQuestion {
 
     private void checkConsistentStudentQuestion(StudentQuestionDto stQuestionDto) {
         if (stQuestionDto.getTitle() == null ||
-                stQuestionDto.getTitle().trim().length() == 0 ||
-                stQuestionDto.getContent() == null ||
-                stQuestionDto.getContent().trim().length() == 0 ||
-                stQuestionDto.getOptions().stream().anyMatch(Objects::isNull) ||
-                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0) ||
-                stQuestionDto.getOptions().size() != 4) {
-            throw new TutorException(STUDENT_QUESTION_MISSING_DATA);
+                stQuestionDto.getTitle().trim().length() == 0) {
+            throw new TutorException(SQ_TITLE_MISSING_DATA);
         }
-
-        if (stQuestionDto.getCorrect() == null) {
-            throw new TutorException(STUDENT_QUESTION_MULTIPLE_CORRECT_OPTIONS);
+        if (stQuestionDto.getContent() == null ||
+                stQuestionDto.getContent().trim().length() == 0) {
+            throw new TutorException(SQ_CONTENT_MISSING_DATA);
         }
-
-        if (stQuestionDto.getCorrect() > 4 ||
+        if (stQuestionDto.getOptions().stream().anyMatch(Objects::isNull) ||
+                stQuestionDto.getOptions().stream().anyMatch(optionStr -> optionStr.trim().length() == 0)) {
+            throw new TutorException(SQ_OPTION_MISSING_DATA);
+        }
+        if (stQuestionDto.getOptions().size() != 4) {
+            throw new TutorException(STUDENT_QUESTION_INVALID_OPTIONS_AMOUNT);
+        }
+        if (stQuestionDto.getCorrect() == null ||
+                stQuestionDto.getCorrect() > 4 ||
                 stQuestionDto.getCorrect() < 1) {
-            throw new TutorException(STUDENT_QUESTION_MISSING_DATA);
+            throw new TutorException(SQ_INVALID_CORRECT_OPTION);
         }
     }
 
@@ -141,7 +143,7 @@ public class StudentQuestion {
     }
 
     private void generateKeys() {
-        Integer max = this.course.getStudentQuestions().stream()
+        int max = this.course.getStudentQuestions().stream()
                 .filter(stQuestion -> stQuestion.key != null)
                 .map(StudentQuestion::getKey)
                 .max(Comparator.comparing(Integer::valueOf))
@@ -222,6 +224,10 @@ public class StudentQuestion {
         return topics;
     }
 
+    public void setTopics(Set<String> topics) {
+        this.topics = topics;
+    }
+
     public void addTopics(String topic) {
         this.topics.add(topic);
     }
@@ -253,28 +259,23 @@ public class StudentQuestion {
     public void evaluateStudentQuestion(StudentQuestionDto studentQuestionDto) {
         State newState = State.valueOf(studentQuestionDto.getState());
         String newJustification = studentQuestionDto.getJustification();
+
+        if (newJustification != null && newJustification.trim().length() == 0)
+            newJustification = null; /*blank justifications are treated as null*/
+
         checkValidEvaluation(newState, newJustification);
 
         if (newJustification != null)
             setJustification(newJustification);
         setState(newState);
-
-        if (newState == State.APPROVED) {
-            createCorrespondingQuestion();
-        }
-    }
-
-    private void createCorrespondingQuestion() {
-        Question question = new Question(this);
-        this.setCorrespondingQuestionKey(question.getKey());
     }
 
     private void checkValidEvaluation(State newState, String newJustification) {
         if (this.state != State.AWAITING_APPROVAL)
             throw new TutorException(STUDENT_QUESTION_ALREADY_EVALUATED);
 
-        if (newJustification == null && newState == State.REJECTED ||
-                newJustification != null && newJustification.trim().length() == 0)
+        if (newState == State.REJECTED && newJustification == null)
             throw new TutorException(JUSTIFICATION_MISSING_DATA);
     }
+
 }
