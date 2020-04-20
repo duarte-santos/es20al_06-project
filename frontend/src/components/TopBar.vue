@@ -162,7 +162,7 @@
           <v-list dense>
             <v-list-item to="/student/tournament-create">
               <v-list-item-action>
-                <v-icon>create</v-icon>
+                <v-icon size="22">create</v-icon>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>Create</v-list-item-title>
@@ -170,18 +170,18 @@
             </v-list-item>
             <v-list-item to="/student/tournament-open">
               <v-list-item-action>
-                <v-icon>description</v-icon>
+                <v-icon size="22">description</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Show All</v-list-item-title>
+                <v-list-item-title>Open</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item to="/student/tournament-enroll">
               <v-list-item-action>
-                <v-icon>fas fa-user-plus</v-icon>
+                <v-icon size="22">fas fa-user-plus</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Enroll</v-list-item-title>
+                <v-list-item-title>Join</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>

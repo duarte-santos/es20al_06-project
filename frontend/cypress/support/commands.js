@@ -73,3 +73,69 @@ Cypress.Commands.add('demoStudentLogin', () => {
     cy.visit('/')
     cy.get('[data-cy="studentButton"]').click()
 })
+
+Cypress.Commands.add('clickOnTournamentsMenu', () => {
+    cy.contains('Tournaments').click()
+})
+
+Cypress.Commands.add('selectEnrollOnTournamentsMenu', () => {
+    cy.contains('Enroll').click()
+})
+
+Cypress.Commands.add('goToTournamentEnrollments', () => {
+    cy.clickOnTournamentsMenu()
+    cy.selectEnrollOnTournamentsMenu()
+})
+
+Cypress.Commands.add('enrollInTheTournament', (name) => {
+    cy.contains(name).click()
+})
+
+Cypress.Commands.add('getTournamentsList', (name) => {
+    return cy.get('[data-cy="tournamentsList"]')
+})
+
+Cypress.Commands.add('isEnrolledInTheTournament', (name) => {
+    cy.contains(name).parent().within(
+      () => {
+          cy.get('[class="col last-col"]').should(
+            (element) => {
+                expect(element).to.contain('check')
+            }
+          )
+      }
+    )
+})
+
+Cypress.Commands.add('isNotEnrolledInTheTournament', (name) => {
+    cy.contains(name).parent().within(
+      () => {
+          cy.get('[class="col last-col"]').should(
+            (element) => {
+                expect(element).to.not.contain('check')
+            }
+          )
+      }
+    )
+})
+
+Cypress.Commands.add('checkForTournament', (title) => {
+    cy.contains('Tournaments').click()
+    cy.contains('Join').click()
+    cy.get('[data-cy="tournamentTitle"]').should(
+      (element) => {
+        expect(element).to.contain(title)
+      }
+      )
+
+})
+
+Cypress.Commands.add('checkForNoTournament', (title) => {
+  cy.contains('Tournaments').click()
+  cy.contains('Join').click()
+  cy.get('[data-cy="tournamentTitle"]').should(
+    (element) => {
+      expect(element).to.not.contain(title)
+    }
+  )
+})

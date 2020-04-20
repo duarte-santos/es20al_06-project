@@ -6,11 +6,10 @@
         <div class="col">Title</div>
         <div class="col">End</div>
         <div class="col">#Questions</div>
-        <div class="col last-col"></div>
       </li>
       <li class="list-row" v-if="tournaments.length == 0" >
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
-        <p class="noT">There are no available tournaments</p>
+        <p class="noT">There are no open tournaments</p>
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
       </li>
       <li
@@ -18,17 +17,14 @@
               v-for="tournament in tournaments"
               :key="tournament.id"
       >
-        <div class="col">
+        <div data-cy="tournamentTitle" class="col">
           {{ tournament.title }}
         </div>
         <div class="col">
-          {{ tournament.startingDate }}
+          {{ tournament.conclusionDate }}
         </div>
         <div class="col">
           {{ tournament.numberOfQuestions }}
-        </div>
-        <div class="col last-col">
-          <i class="fas fa-chevron-circle-right"></i>
         </div>
       </li>
     </ul>
@@ -97,6 +93,20 @@
       }
 
       .col {
+        flex-basis: 33% !important;
+        margin: auto; /* Important */
+        text-align: center;
+      }
+
+      .noT {
+        flex-basis: 50% !important;
+        margin: auto; /* Important */
+        text-align: center;
+        font-size: 25px;
+        font-weight: 500;
+        opacity: 60%;
+      }
+      .img {
         flex-basis: 25% !important;
         margin: auto; /* Important */
         text-align: center;

@@ -60,6 +60,7 @@ public class TournamentService{
 
         /* Topics */
         checkTopics(tournamentDto, course);
+
         List<TopicDto> topics = tournamentDto.getTopicList();
         tournament.updateTopics(topics.stream().map(topicDto -> topicRepository.findTopicByName(course.getId(), topicDto.getName())).collect(Collectors.toSet()));
 
@@ -94,10 +95,12 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public TournamentDto enrollInTournament(int studentId, Integer tournamentId){
+    public TournamentDto enrollInTournament(int studentId, int tournamentId){
 
         User user = userRepository.findById(studentId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, studentId));
-        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() ->new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
 
         if(tournament.getStudentList().contains(user))
             throw new TutorException(STUDENT_ALREADY_ENROLLED);
@@ -118,6 +121,7 @@ public class TournamentService{
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<TournamentDto> showAvailableTournaments(int executionId){
+
         List<TournamentDto> tournamentsList = tournamentRepository.findAvailable(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
         return tournamentsList;
     }

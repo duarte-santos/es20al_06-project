@@ -69,7 +69,6 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         def tournamentDto = new TournamentDto(title, topicList, numOfQuestions, startingDate, conclusionDate)
         def tournament = new Tournament(tournamentDto)
         tournament.setCourseExecution(execution)
-        tournament.setTopicDtoList(topicList)
         return tournament
     }
 
@@ -82,13 +81,8 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
         courseRepository.save(course)
         courseExecutionRepository.save(execution)
 
-        topicDto = new TopicDto()
-        topicDto.setName(TOPIC_NAME)
-        topic = new Topic(course, topicDto)
-        topicRepository.save(topic)
 
         topicList = new ArrayList()
-        topicList.add(topicDto)
 
         startingDate = LocalDateTime.now().plusDays(1)format(formatter)
         conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)

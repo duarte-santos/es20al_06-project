@@ -142,10 +142,15 @@ export default class EnrollInTournamentView extends Vue {
       text-align: center;
     }
 
+    .col last-col {
+      width: 15%;
+    }
+
     .col {
-      flex-basis: 25% !important;
+      width: 17% !important;
       margin: auto; /* Important */
       text-align: center;
+      word-break: break-word;
     }
     .noT {
       flex-basis: 50% !important;

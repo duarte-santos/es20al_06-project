@@ -77,7 +77,12 @@ public class Tournament{
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 
-        if (LocalDateTime.now().isAfter(startingDateAux)){
+        /*if (LocalDateTime.now().isAfter(startingDateAux)){
+            throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
+        }*/
+
+        //temporary, only while scheduling isn't implemented
+        if (LocalDateTime.now().isAfter(conclusionDateAux)) {
             throw new TutorException(TOURNAMENT_DATES_WRONG_FORMAT);
         }
 
@@ -86,6 +91,11 @@ public class Tournament{
         this.startingDate = startingDateAux;
         this.conclusionDate = conclusionDateAux;
         this.status = statusAux;
+
+        //temporary, only while scheduling isn't implemented
+        if (LocalDateTime.now().isAfter(startingDateAux) && !(LocalDateTime.now().isAfter(conclusionDateAux))){
+            this.status = Status.OPEN;
+        }
     }
 
     public void setTopicDtoList(List<TopicDto> topicList){
