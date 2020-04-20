@@ -1,8 +1,8 @@
 <template>
   <v-dialog
     :value="dialog"
-    @input="$emit('close-dialog')"
-    @keydown.esc="$emit('close-dialog')"
+    @input="$emit('dialog')"
+    @keydown.esc="$emit('dialog')"
     max-width="75%"
     max-height="70%"
   >
@@ -43,12 +43,14 @@
                   :value="`APPROVED`"
                   :label="`Approved`"
                   color="success"
+                  data-cy="APPROVED"
                 ></v-radio>
                 <v-radio
                   class="ma-4"
                   :value="`REJECTED`"
                   :label="`Rejected`"
                   color="error"
+                  data-cy="REJECTED"
                 ></v-radio>
               </v-radio-group>
               <v-divider></v-divider>
@@ -57,6 +59,7 @@
                 rows="10"
                 v-model="evaluateQuestion.justification"
                 label="Justification"
+                data-cy="justification"
               ></v-textarea>
             </v-flex>
           </v-layout>
@@ -65,10 +68,15 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn color="blue darken-1" @click="$emit('dialog', false)"
+        <v-btn
+          color="blue darken-1"
+          @click="$emit('dialog', false)"
+          data-cy="cancelButton"
           >Cancel</v-btn
         >
-        <v-btn color="blue darken-1" @click="saveQuestion">Save</v-btn>
+        <v-btn color="blue darken-1" @click="saveQuestion" data-cy="saveButton"
+          >Save</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -83,7 +91,7 @@ import Image from '@/models/management/Image';
 
 @Component
 export default class EvaluateStudentQuestionDialog extends Vue {
-  @Model('close-dialog', Boolean) dialog!: boolean;
+  @Model('dialog', Boolean) dialog!: boolean;
   @Prop({ type: StudentQuestion, required: true })
   readonly question!: StudentQuestion;
 

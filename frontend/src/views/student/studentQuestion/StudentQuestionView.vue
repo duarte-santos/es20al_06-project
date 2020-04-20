@@ -18,7 +18,13 @@
             class="mx-2"
           />
           <v-spacer />
-          <v-btn color="primary" dark @click="newQuestion">New Question</v-btn>
+          <v-btn
+            color="primary"
+            dark
+            @click="newQuestion"
+            data-cy="createButton"
+            >New Question</v-btn
+          >
         </v-card-title>
       </template>
 
@@ -33,6 +39,7 @@
           :question="item"
           :topics="topics"
           v-on:stquestion-changed-topics="onQuestionChangedTopics"
+          data-cy="topics"
         />
       </template>
 
@@ -166,7 +173,9 @@ export default class StudentQuestionView extends Vue {
   }
 
   async onSaveStudentQuestion(question: StudentQuestion) {
-    this.studentQuestions = this.studentQuestions.filter(q => q.id !== question.id);
+    this.studentQuestions = this.studentQuestions.filter(
+      q => q.id !== question.id
+    );
     this.studentQuestions.unshift(question);
     this.editQuestionDialog = false;
     this.currentQuestion = null;
@@ -190,7 +199,10 @@ export default class StudentQuestionView extends Vue {
   async handleFileUpload(event: File, question: Question) {
     if (question.id) {
       try {
-        const imageURL = await RemoteServices.updateStudentQuestionImage(event, question.id);
+        const imageURL = await RemoteServices.updateStudentQuestionImage(
+          event,
+          question.id
+        );
         question.image = new Image();
         question.image.url = imageURL;
         confirm('Image ' + imageURL + ' was uploaded!');

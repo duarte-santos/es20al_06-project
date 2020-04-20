@@ -31,6 +31,7 @@
           :color="getStateColor(item.state)"
           dark
           @click="evaluateQuestionDialog(item)"
+          data-cy="evaluate"
           >{{ item.state }}
         </v-chip>
       </template>
@@ -140,14 +141,16 @@ export default class EvaluateQuestionView extends Vue {
   }
 
   evaluateQuestionDialog(question: StudentQuestion) {
-    this.currentQuestion = question;
-    this.evaluateDialog = true;
+    if (question.state === 'AWAITING_APPROVAL') {
+      this.currentQuestion = question;
+      this.evaluateDialog = true;
+    }
   }
 
-  async onSaveStudentQuestionEvaluation(
-    question: StudentQuestion
-  ) {
-    this.studentQuestions = this.studentQuestions.filter(q => q.id !== question.id);
+  async onSaveStudentQuestionEvaluation(question: StudentQuestion) {
+    this.studentQuestions = this.studentQuestions.filter(
+      q => q.id !== question.id
+    );
     this.studentQuestions.unshift(question);
     this.evaluateDialog = false;
     this.currentQuestion = null;
