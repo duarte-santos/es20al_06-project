@@ -58,6 +58,34 @@
           accept="image/*"
         />
       </template>
+
+      <template v-slot:item.action="{ item }">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="showQuestionDialog(item)"
+              >visibility</v-icon
+            >
+          </template>
+          <span>Show Question</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="deleteQuestion(item)"
+              color="red"
+              >delete</v-icon
+            >
+          </template>
+          <span>Delete Question</span>
+        </v-tooltip>
+      </template>
     </v-data-table>
 
     <show-question-dialog
@@ -134,6 +162,12 @@ export default class StudentQuestionView extends Vue {
       value: 'justification',
       align: 'center',
       width: '25%'
+    },
+    {
+      text: 'Actions',
+      value: 'action',
+      align: 'center',
+      sortable: false
     }
   ];
 
@@ -206,6 +240,22 @@ export default class StudentQuestionView extends Vue {
         question.image = new Image();
         question.image.url = imageURL;
         confirm('Image ' + imageURL + ' was uploaded!');
+      } catch (error) {
+        await this.$store.dispatch('error', error);
+      }
+    }
+  }
+
+  async deleteQuestion(question: StudentQuestion) {
+    if (
+      question.id &&
+      confirm('Are you sure you want to delete this question?')
+    ) {
+      try {
+        await RemoteServices.deleteStudentQuestion(question.id);
+        this.studentQuestions = this.studentQuestions.filter(
+          q => q.id != question.id
+        );
       } catch (error) {
         await this.$store.dispatch('error', error);
       }

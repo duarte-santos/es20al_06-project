@@ -35,6 +35,33 @@
           >{{ item.state }}
         </v-chip>
       </template>
+
+      <template v-slot:item.action="{ item }">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="showQuestionDialog(item)"
+              >visibility</v-icon
+            >
+          </template>
+          <span>Show Question</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="evaluateQuestionDialog(item)"
+              >thumbs_up_down</v-icon
+            >
+          </template>
+          <span>Evaluate Question</span>
+        </v-tooltip>
+      </template>
     </v-data-table>
 
     <show-question-dialog
@@ -114,6 +141,12 @@ export default class EvaluateQuestionView extends Vue {
       value: 'justification',
       align: 'center',
       width: '25%'
+    },
+    {
+      text: 'Actions',
+      value: 'action',
+      align: 'center',
+      sortable: false
     }
   ];
 

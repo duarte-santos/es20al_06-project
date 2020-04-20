@@ -278,4 +278,11 @@ public class StudentQuestion {
             throw new TutorException(JUSTIFICATION_MISSING_DATA);
     }
 
+    public void remove() {
+        getCourse().getStudentQuestions().remove(this);
+        course = null;
+        getOptions().clear();
+        getTopics().clear();
+    }
+
 }

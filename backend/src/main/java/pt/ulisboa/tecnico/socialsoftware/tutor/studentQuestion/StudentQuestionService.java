@@ -11,7 +11,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.ImageRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
@@ -152,6 +151,25 @@ public class StudentQuestionService {
                 stQuestion.getCourse().getType() +
                 stQuestion.getKey() +
                 "." + type);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void removeStudentQuestion(Integer stQuestionId) {
+        StudentQuestion stQuestion = studentQuestionRepository.findById(stQuestionId).orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, stQuestionId));
+
+        if (stQuestion.getState().name().equals("APPROVED")) {
+            Question question = questionRepository.findByKey(stQuestion.getCorrespondingQuestionKey()).orElse(null);
+            if (question != null) {
+                question.remove();
+                questionRepository.delete(question);
+            }
+        }
+
+        stQuestion.remove();
+        studentQuestionRepository.delete(stQuestion);
     }
 
 }
