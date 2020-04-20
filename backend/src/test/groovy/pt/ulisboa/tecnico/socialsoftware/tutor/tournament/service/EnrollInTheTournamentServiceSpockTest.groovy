@@ -140,7 +140,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     def "the tournament doesn't exist and a student tries to enroll in it"(){
         when:
-        tournamentService.enrollInTournament(studentId, null)
+        tournamentService.enrollInTournament(studentId, 1)
 
         then: "Throw an Exception"
         thrown(TutorException)
