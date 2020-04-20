@@ -18,7 +18,13 @@
             class="mx-2"
           />
           <v-spacer />
-          <v-btn color="primary" dark @click="newQuestion">New Question</v-btn>
+          <v-btn
+            color="primary"
+            dark
+            @click="newQuestion"
+            data-cy="createButton"
+            >New Question</v-btn
+          >
         </v-card-title>
       </template>
 
@@ -33,6 +39,7 @@
           :question="item"
           :topics="topics"
           v-on:stquestion-changed-topics="onQuestionChangedTopics"
+          data-cy="topics"
         />
       </template>
 
@@ -50,6 +57,35 @@
           @change="handleFileUpload($event, item)"
           accept="image/*"
         />
+      </template>
+
+      <template v-slot:item.action="{ item }">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="showQuestionDialog(item)"
+              >visibility</v-icon
+            >
+          </template>
+          <span>Show Question</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="deleteQuestion(item)"
+              color="red"
+              data-cy="delete"
+              >delete</v-icon
+            >
+          </template>
+          <span>Delete Question</span>
+        </v-tooltip>
       </template>
     </v-data-table>
 
@@ -127,6 +163,12 @@ export default class StudentQuestionView extends Vue {
       value: 'justification',
       align: 'center',
       width: '25%'
+    },
+    {
+      text: 'Actions',
+      value: 'action',
+      align: 'center',
+      sortable: false
     }
   ];
 
@@ -166,7 +208,9 @@ export default class StudentQuestionView extends Vue {
   }
 
   async onSaveStudentQuestion(question: StudentQuestion) {
-    this.studentQuestions = this.studentQuestions.filter(q => q.id !== question.id);
+    this.studentQuestions = this.studentQuestions.filter(
+      q => q.id !== question.id
+    );
     this.studentQuestions.unshift(question);
     this.editQuestionDialog = false;
     this.currentQuestion = null;
@@ -190,10 +234,29 @@ export default class StudentQuestionView extends Vue {
   async handleFileUpload(event: File, question: Question) {
     if (question.id) {
       try {
-        const imageURL = await RemoteServices.updateStudentQuestionImage(event, question.id);
+        const imageURL = await RemoteServices.updateStudentQuestionImage(
+          event,
+          question.id
+        );
         question.image = new Image();
         question.image.url = imageURL;
         confirm('Image ' + imageURL + ' was uploaded!');
+      } catch (error) {
+        await this.$store.dispatch('error', error);
+      }
+    }
+  }
+
+  async deleteQuestion(question: StudentQuestion) {
+    if (
+      question.id &&
+      confirm('Are you sure you want to delete this question?')
+    ) {
+      try {
+        await RemoteServices.deleteStudentQuestion(question.id);
+        this.studentQuestions = this.studentQuestions.filter(
+          q => q.id != question.id
+        );
       } catch (error) {
         await this.$store.dispatch('error', error);
       }

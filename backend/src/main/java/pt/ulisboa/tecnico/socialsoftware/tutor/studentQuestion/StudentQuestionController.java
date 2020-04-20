@@ -91,6 +91,22 @@ public class StudentQuestionController {
 
         return url;
     }
+
+    @DeleteMapping("/studentQuestions/{studentQuestionId}")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public ResponseEntity removeStudentQuestion(@PathVariable Integer studentQuestionId) throws IOException {
+        logger.debug("removeStudentQuestion studentQuestionId: {}: ", studentQuestionId);
+        StudentQuestionDto studentQuestionDto = studentQuestionService.findStudentQuestionById(studentQuestionId);
+        String url = studentQuestionDto.getImage() != null ? studentQuestionDto.getImage().getUrl() : null;
+
+        studentQuestionService.removeStudentQuestion(studentQuestionId);
+
+        if (url != null && Files.exists(getTargetLocation(url))) {
+            Files.delete(getTargetLocation(url));
+        }
+
+        return ResponseEntity.ok().build();
+    }
     
     private Path getTargetLocation(String url) {
         String fileLocation = figuresDir + url;
