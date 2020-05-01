@@ -1,0 +1,1 @@
+Coloquei um screenshot gerado pelo "npx cypress run" para mostrar que a parte do datepicker não estava a funcionar

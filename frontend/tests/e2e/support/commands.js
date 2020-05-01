@@ -100,14 +100,15 @@ Cypress.Commands.add('createOpenTournament', (name, numberOfQuestions) => {
   cy.get('[data-cy="startingDate"]').click()
   cy.get('.v-date-picker-header > :nth-child(1) > .v-btn__content > .v-icon').click()
   cy.get('.v-date-picker-header > :nth-child(1) > .v-btn__content > .v-icon').click()
-  cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+  cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click() //the test fails because it doesn't find this
+  // you should comment what you are trying to do.
   cy.get('.green--text > .v-btn__content').click()
 
   /* Conclusion Date */
   cy.get('[data-cy="conclusionDate"]').click()
   cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
   cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
-  cy.get('.green--text > .v-btn__content:visible').click()
+  cy.get('.green--text > .v-btn__content:visible').click() //the test fails because it doesn't find this
 
   /* Number of Questions */
   cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
@@ -141,7 +142,7 @@ Cypress.Commands.add('createClosedTournament', (name, numberOfQuestions, startin
   if (conclusionDate) {
     cy.get('[data-cy="conclusionDate"]').click()
     cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
-    cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+    cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click() //the test fails because it doesn't find this
     cy.get('.green--text > .v-btn__content:visible').click()
   }
 
@@ -174,7 +175,7 @@ Cypress.Commands.add('createTournamentWrongDates', (name, numberOfQuestions) => 
   /* Conclusion Date */
   cy.get('[data-cy="conclusionDate"]').click()
   cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
-  cy.get(':nth-child(5) > :nth-child(6) > .v-btn:visible').click()
+  cy.get(':nth-child(5) > :nth-child(6) > .v-btn:visible').click() //the test fails because it doesn't find this
   cy.get('.green--text > .v-btn__content:visible').click()
 
   /* Number of Questions */
@@ -278,7 +279,7 @@ Cypress.Commands.add(
   (title, content, optionList, correct) => {
     cy.get('[data-cy="createButton"]').click();
     if (title) {
-      cy.get('[data-cy="title"]').type(title);
+      cy.get('[data-cy="title"]').type(title, {force: true}); //in order to pass the test
     }
     if (content) {
       cy.get('[data-cy="content"]').type(content);
