@@ -124,7 +124,7 @@ let router = new Router({
           }
         },
         {
-          path: 'evaluateqts',
+          path: 'evaluateqts', //evaluate-question
           name: 'evaluateqts-management',
           component: EvaluateQtsView,
           meta: {
