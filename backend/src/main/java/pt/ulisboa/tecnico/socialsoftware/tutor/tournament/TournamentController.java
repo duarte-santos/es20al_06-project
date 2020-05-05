@@ -6,8 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import java.security.Principal;
 import java.util.List;
@@ -22,7 +20,6 @@ public class TournamentController {
     @PostMapping("/executions/{executionId}/tournaments")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public TournamentDto createTournament(@PathVariable int executionId, @RequestBody TournamentDto tournamentDto) {
-        formatDates(tournamentDto);
         return tournamentService.createTournament(executionId, tournamentDto);
     }
 
@@ -43,16 +40,6 @@ public class TournamentController {
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> showAvailableTournaments(@PathVariable int executionId) {
         return tournamentService.showAvailableTournaments(executionId);
-    }
-
-    private void formatDates(TournamentDto tournament) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        if (tournament.getStartingDate() != null && !tournament.getStartingDate().matches("(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2})")){
-            tournament.setStartingDate(LocalDateTime.parse(tournament.getStartingDate().replaceAll(".$", ""), DateTimeFormatter.ISO_DATE_TIME).format(formatter));
-        }
-        if (tournament.getConclusionDate() !=null && !tournament.getConclusionDate().matches("(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2})"))
-            tournament.setConclusionDate(LocalDateTime.parse(tournament.getConclusionDate().replaceAll(".$", ""), DateTimeFormatter.ISO_DATE_TIME).format(formatter));
     }
 
 }

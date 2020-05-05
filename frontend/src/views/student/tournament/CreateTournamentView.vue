@@ -13,26 +13,24 @@
         />
 
         <v-row>
-          <v-col  cols="12" sm="6"
-                  data-cy="startingDate">
-            <v-datetime-picker
-                    v-model="tournament.startingDate"
+          <v-col  cols="12" sm="6">
+            <VueCtkDateTimePicker
                     label="Starting Date"
-                    format="yyyy-MM-dd HH:mm"
-                    date-format="yyyy-MM-dd"
-                    time-format="HH:mm"
-            >
-            </v-datetime-picker>
+                    id="startingDateInput"
+                    v-model="tournament.startingDate"
+                    format="YYYY-MM-DDTHH:mm:ssZ"
+                    data-cy="startingDate"
+            ></VueCtkDateTimePicker>
+
           </v-col>
-          <v-col  cols="12" sm="6"
-                  data-cy="conclusionDate">
-            <v-datetime-picker
-                    v-model="tournament.conclusionDate"
+          <v-col  cols="12" sm="6">
+            <VueCtkDateTimePicker
                     label="Conclusion Date"
-                    date-format="yyyy-MM-dd"
-                    time-format="HH:mm"
-            >
-            </v-datetime-picker>
+                    id="conclusionDateInput"
+                    v-model="tournament.conclusionDate"
+                    format="YYYY-MM-DDTHH:mm:ssZ"
+                    data-cy="conclusionDate"
+            ></VueCtkDateTimePicker>
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
@@ -123,8 +121,9 @@
   import Topic from '@/models/management/Topic';
   import Tournament from '@/models/management/Tournament';
   import { Quiz } from '@/models/management/Quiz';
+  import VueCtkDateTimePicker from "vue-ctk-date-time-picker";
 
-
+  Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
 
   @Component
   export default class CreateTournamentView extends Vue {
