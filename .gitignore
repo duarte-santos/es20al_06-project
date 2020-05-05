@@ -6,3 +6,5 @@ scripts
 
 backend/src/main/resources/static/images/questions/
 data/
+
+frontend/tests/e2e/videos/

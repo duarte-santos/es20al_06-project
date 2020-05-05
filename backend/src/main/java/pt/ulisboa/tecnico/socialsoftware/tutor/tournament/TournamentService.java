@@ -52,6 +52,8 @@ public class TournamentService{
         CourseExecution courseExecution = courseExecutionRepository.findById(executionId).orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, executionId));
         Course course = courseExecution.getCourse();
 
+        System.out.println("WHut");
+
         Tournament tournament = new Tournament(tournamentDto);
         tournament.setCourseExecution(courseExecution);
 
