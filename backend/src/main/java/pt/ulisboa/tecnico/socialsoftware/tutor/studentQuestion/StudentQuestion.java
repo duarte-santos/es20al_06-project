@@ -21,7 +21,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
         })
 public class StudentQuestion {
     public enum State {
-        AWAITING_APPROVAL, APPROVED, REJECTED
+        AWAITING_APPROVAL, APPROVED, REJECTED, AVAILABLE
     }
 
     @Id
@@ -61,7 +61,7 @@ public class StudentQuestion {
     @Column(columnDefinition = "TEXT")
     private String justification;
 
-    private Integer correspondingQuestionKey;
+    private Integer correspondingQuestionId;
 
     public StudentQuestion() {}
 
@@ -248,12 +248,12 @@ public class StudentQuestion {
         this.justification = justification;
     }
 
-    public Integer getCorrespondingQuestionKey() {
-        return correspondingQuestionKey;
+    public Integer getCorrespondingQuestionId() {
+        return correspondingQuestionId;
     }
 
-    public void setCorrespondingQuestionKey(Integer correspondingQuestionKey) {
-        this.correspondingQuestionKey = correspondingQuestionKey;
+    public void setCorrespondingQuestionId(Integer correspondingQuestionId) {
+        this.correspondingQuestionId = correspondingQuestionId;
     }
 
     public void evaluateStudentQuestion(StudentQuestionDto studentQuestionDto) {
@@ -283,6 +283,20 @@ public class StudentQuestion {
         course = null;
         getOptions().clear();
         getTopics().clear();
+    }
+
+    public Question makeStudentQuestionAvailable(StudentQuestion studentQuestion) {
+        if (studentQuestion.state == State.AVAILABLE)
+            throw new TutorException(SQ_ALREADY_AVAILABLE);
+
+        if (studentQuestion.state != State.APPROVED)
+            throw new TutorException(SQ_CANNOT_BECOME_QUESTION);
+
+        Question question = new Question(studentQuestion);
+        setState(State.AVAILABLE);
+        //correspondingQuestionId must be added later
+
+        return question;
     }
 
 }

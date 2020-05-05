@@ -96,15 +96,8 @@ public class StudentQuestionService {
                 .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
 
         studentQuestion.evaluateStudentQuestion(studentQuestionDto);
-
-        if (studentQuestion.getState().name().equals("APPROVED") && studentQuestion.getCorrespondingQuestionKey() == null) {
-            Question question = new Question(studentQuestion);
-            question.updateTopics(studentQuestion.getTopics().stream().map(topic -> topicRepository.findTopicByName(question.getCourse().getId(), topic)).collect(Collectors.toSet()));
-            studentQuestion.setCorrespondingQuestionKey(question.getKey());
-            questionRepository.save(question);
-        }
-
         studentQuestionRepository.save(studentQuestion);
+
         return new StudentQuestionDto(studentQuestion);
     }
 
@@ -160,8 +153,8 @@ public class StudentQuestionService {
     public void removeStudentQuestion(Integer stQuestionId) {
         StudentQuestion stQuestion = studentQuestionRepository.findById(stQuestionId).orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, stQuestionId));
 
-        if (stQuestion.getState().name().equals("APPROVED")) {
-            Question question = questionRepository.findByKey(stQuestion.getCorrespondingQuestionKey()).orElse(null);
+        if (stQuestion.getState().name().equals("AVAILABLE")) {
+            Question question = questionRepository.findById(stQuestion.getCorrespondingQuestionId()).orElse(null);
             if (question != null) {
                 question.remove();
                 questionRepository.delete(question);
@@ -170,6 +163,25 @@ public class StudentQuestionService {
 
         stQuestion.remove();
         studentQuestionRepository.delete(stQuestion);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestionDto makeStudentQuestionAvailable(Integer studentQuestionId) {
+
+        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionId)
+                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
+
+        Question question = studentQuestion.makeStudentQuestionAvailable(studentQuestion);
+        question.updateTopics(studentQuestion.getTopics().stream().map(topic -> topicRepository.findTopicByName(question.getCourse().getId(), topic)).collect(Collectors.toSet()));
+        questionRepository.save(question);
+
+        studentQuestion.setCorrespondingQuestionId(question.getId()); //set now that question has id (was put in repository)
+        studentQuestionRepository.save(studentQuestion);
+
+        return new StudentQuestionDto(studentQuestion);
     }
 
 }
