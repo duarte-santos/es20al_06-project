@@ -61,6 +61,7 @@ public enum ErrorMessage {
     SQ_CONTENT_MISSING_DATA("Student's question contents cannot be blank"),
     SQ_OPTION_MISSING_DATA("Student's question options cannot be blank"),
     SQ_INVALID_CORRECT_OPTION("Questions must have 1 correct option"),
+    CANNOT_EDIT_STUDENT_QUESTION("Student's question can only be edited if rejected"),
 
     NO_CORRECT_OPTION("Question does not have a correct option"),
     NOT_ENOUGH_QUESTIONS("Not enough questions to create a quiz"),

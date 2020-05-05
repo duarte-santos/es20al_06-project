@@ -67,6 +67,7 @@ public class StudentQuestion {
 
     public StudentQuestion(Course course, User user, StudentQuestionDto stQuestionDto) {
         checkConsistentStudentQuestion(stQuestionDto);
+        stQuestionDto = trimStudentQuestion(stQuestionDto);
 
         this.key = stQuestionDto.getKey();
         this.student = user;
@@ -88,6 +89,8 @@ public class StudentQuestion {
         this.justification = stQuestionDto.getJustification();
     }
 
+    // TODO : check and trim parameters or change spock tests
+    // Only used in Spock Test
     public StudentQuestion(Course course, User user, String title, String content, List<String> options, Integer correct) {
         setCourse(course);
         this.student = user;
@@ -285,4 +288,32 @@ public class StudentQuestion {
         getTopics().clear();
     }
 
+    public void editStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        if (state != State.REJECTED)
+            throw new TutorException(CANNOT_EDIT_STUDENT_QUESTION);
+
+        checkConsistentStudentQuestion(studentQuestionDto);
+        studentQuestionDto = trimStudentQuestion(studentQuestionDto);
+
+        this.title = studentQuestionDto.getTitle();
+        this.content = studentQuestionDto.getContent();
+        this.options = studentQuestionDto.getOptions();
+        this.correct = studentQuestionDto.getCorrect();
+
+        this.justification = null;
+        this.state = State.AWAITING_APPROVAL;
+    }
+
+    public StudentQuestionDto trimStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        studentQuestionDto.setTitle(studentQuestionDto.getTitle().trim());
+        studentQuestionDto.setContent(studentQuestionDto.getContent().trim());
+
+        List<String> optionList = studentQuestionDto.getOptions();
+        for (int i = 0; i < optionList.size(); i++) {
+            optionList.set(i, optionList.get(i).trim());
+        }
+        studentQuestionDto.setOptions(optionList);
+
+        return studentQuestionDto;
+    }
 }
