@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
@@ -32,6 +33,8 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
     static final String COURSE_NAME = "Software Architecture"
     static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
+    static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
+    static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
     @Autowired
     TournamentService tournamentService
@@ -64,8 +67,6 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     def setup() {
 
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
 
@@ -81,14 +82,11 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         topicList = new ArrayList()
         topicList.add(topicDto)
 
-        startingDate = LocalDateTime.now().plusDays(1).format(formatter)
-        conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
-
     }
 
     def "the tournament exists and a student enrolls in it"(){
         given: "a tournament and a student"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
         Tournament tournament = new Tournament(tournamentDto)
         tournamentRepository.save(tournament)
         tournamentId = tournament.getId()
@@ -105,7 +103,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     def "the tournament exists and a student tries to enroll in it for the second time"(){
         given: "a tournament with a student, and that same student"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
         def studentList = new ArrayList()
         studentList.add(enrollingStudent)
         Tournament tournament = new Tournament(tournamentDto)
@@ -124,7 +122,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         given: "A tournament wth conclusion date prior to current date"
         def startingDate2 = LocalDateTime.now().minusDays(2)
         def conclusionDate2 = LocalDateTime.now().minusDays(1)
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
         Tournament tournament2 = new Tournament(tournamentDto)
         tournament2.setStartingDate(startingDate2)
         tournament2.setConclusionDate(conclusionDate2)
