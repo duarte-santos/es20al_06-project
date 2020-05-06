@@ -7,7 +7,7 @@
     max-height="70%"
   >
     <!-- If Cypress is acting funny add height parameter to v-card: <v-card height="500"> -->
-    <v-card>
+    <v-card height="500">
       <v-card-title>
         <span class="headline">
           New Question
