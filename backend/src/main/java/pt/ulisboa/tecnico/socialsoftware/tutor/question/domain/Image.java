@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.question.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.DomainEntity;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.Visitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
@@ -7,13 +8,18 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
 
 import javax.persistence.*;
 
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.INVALID_URL_FOR_IMAGE;
+
 @Entity
 @Table(name = "images")
 public class Image implements DomainEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(nullable = false)
     private String url;
+
     private Integer width;
 
     @OneToOne
@@ -27,8 +33,8 @@ public class Image implements DomainEntity {
     public Image() {}
 
     public Image(ImageDto imageDto) {
-        this.url = imageDto.getUrl();
-        this.width = imageDto.getWidth();
+        setUrl(imageDto.getUrl());
+        setWidth(imageDto.getWidth());
     }
 
     @Override
@@ -40,8 +46,23 @@ public class Image implements DomainEntity {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        if (url == null || url.isBlank())
+            throw new TutorException(INVALID_URL_FOR_IMAGE);
+
+        this.url = url;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public void setWidth(Integer width) {
+        this.width = width;
     }
 
     public Question getQuestion() {
@@ -58,22 +79,6 @@ public class Image implements DomainEntity {
 
     public void setStudentQuestion(StudentQuestion stQuestion) {
         this.studentQuestion = stQuestion;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Integer getWidth() {
-        return width;
-    }
-
-    public void setWidth(Integer width) {
-        this.width = width;
     }
 
     @Override

@@ -1,12 +1,13 @@
 import User from '@/models/user/User';
 import Topic from '@/models/management/Topic';
+import { ISOtoString } from '@/services/ConvertDateService';
 
 export default class Tournament {
   id!: number;
   title!: string;
   numberOfQuestions!: number;
-  startingDate!: string | undefined;
-  conclusionDate!: string | undefined;
+  startingDate!: string ;
+  conclusionDate!: string ;
   status!: string | undefined;
   studentList: User[] = [];
 
@@ -23,6 +24,11 @@ export default class Tournament {
       this.conclusionDate = jsonObj.conclusionDate;
 
       this.studentList = jsonObj.studentList;
+
+      if (jsonObj.startingDate)
+        this.startingDate = ISOtoString(jsonObj.startingDate);
+      if (jsonObj.conclusionDate)
+        this.conclusionDate = ISOtoString(jsonObj.conclusionDate);
     }
   }
 

@@ -112,7 +112,6 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         StudentQuestion.State.REJECTED    | JUSTIFICATION      || JUSTIFICATION
     }
 
-
     @Unroll("invalid arguments: #previousState | #newState | #justification || errorMessage ")
     def "invalid input values"() {
         // student question is not changed and exception is thrown

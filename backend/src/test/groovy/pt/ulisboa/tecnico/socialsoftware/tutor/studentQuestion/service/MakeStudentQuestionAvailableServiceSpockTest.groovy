@@ -90,12 +90,12 @@ public class MakeStudentQuestionAvailableServiceSpockTest extends Specification 
         image.setWidth(20)
 
         topic1 = new Topic()
-        topic1.setCourse(course)
         topic1.setName(TOPIC_NAME)
+        topic1.setCourse(course)
         topicRepository.save(topic1)
         topic2 = new Topic()
-        topic2.setCourse(course)
         topic2.setName(TOPIC_NAME2)
+        topic2.setCourse(course)
         topicRepository.save(topic2)
 
         studentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)

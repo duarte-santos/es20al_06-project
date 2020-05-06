@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -32,6 +33,8 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     static final String ACADEMIC_TERM = "1 SEM"
     static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
+    static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
+    static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
     @Autowired
     TournamentService tournamentService
@@ -74,8 +77,6 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
     def setup(){
 
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         execution =  new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseRepository.save(course)
@@ -84,13 +85,10 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
         topicList = new ArrayList()
 
-        startingDate = LocalDateTime.now().plusDays(1)format(formatter)
-        conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
-
-        tournament1 = createTournament("T1", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournament2 = createTournament("T2", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournament3 = createTournament("T3", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
-        tournament4 = createTournament("T4", topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        tournament1 = createTournament("T1", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        tournament2 = createTournament("T2", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        tournament3 = createTournament("T3", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        tournament4 = createTournament("T4", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
 
         tournament1.setCourseExecution(execution)
         tournament2.setCourseExecution(execution)
