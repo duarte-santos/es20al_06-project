@@ -18,12 +18,15 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.AssessmentRepository;
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository;
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
@@ -31,9 +34,13 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
+
+import java.util.HashSet;
 import java.util.List;
+
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -63,6 +70,9 @@ public class TournamentService{
     @Autowired
     private QuestionRepository questionRepository;
 
+    @Autowired
+    private QuizQuestionRepository quizQuestionRepository;
+
 
     @Retryable(
             value = { SQLException.class },
@@ -76,6 +86,7 @@ public class TournamentService{
         User student = userRepository.findById(studentId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, studentId));
 
         Tournament tournament = new Tournament(tournamentDto, student);
+
         tournament.setCourseExecution(courseExecution);
 
         /* Topics */
@@ -107,6 +118,45 @@ public class TournamentService{
             return tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
     }
 
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void cancelTournament(int tournamentId) {
+
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
+        tournament.removeTopicList();
+        tournament.removeUsers();
+        tournament.removeCourseExecution();
+
+
+        Quiz quiz = tournament.getQuiz();
+        if (quiz != null){
+            quiz.remove();
+
+            Set<QuizQuestion> quizQuestions = new HashSet<>(quiz.getQuizQuestions());
+
+            quizQuestions.forEach(QuizQuestion::remove);
+            quizQuestions.forEach(quizQuestion -> quizQuestionRepository.delete(quizQuestion));
+
+            quizRepository.delete(quiz);
+            tournament.setQuiz(null);
+        }
+
+        tournamentRepository.delete(tournament);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public TournamentDto getTournamentById(int tournamentId) {
+        return tournamentRepository.findById(tournamentId)
+                .map(TournamentDto::new)
+                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
+    }
 
 
     @Retryable(
@@ -161,13 +211,11 @@ public class TournamentService{
         quiz.setAvailableDate(tournament.getStartingDate());
         quiz.setConclusionDate(tournament.getConclusionDate());
 
-        QuizAnswer quizAnswer = new QuizAnswer(user, quiz);
 
         quiz.setCourseExecution(courseExecution);
         courseExecution.addQuiz(quiz);
 
         quizRepository.save(quiz);
-        quizAnswerRepository.save(quizAnswer);
         tournament.setQuiz(quiz);
     }
 

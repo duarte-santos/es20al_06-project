@@ -5,8 +5,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -14,6 +15,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -225,5 +227,28 @@ public class Tournament{
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
     }
+
+    public void removeTopicList() {
+
+        for (Topic topic : this.topicList){
+            topic.getTournaments().remove(this);
+        }
+
+        this.topicList = null;
+    }
+    public void removeUsers() {
+
+        for (User user : this.studentList){
+            user.getTournamentsEnrolled().remove(this);
+        }
+
+        this.studentList = null;
+    }
+    public void removeCourseExecution() {
+
+        courseExecution.getTournaments().remove(this);
+        courseExecution = null;
+    }
+
 }
 

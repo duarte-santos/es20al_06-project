@@ -75,6 +75,7 @@ class EnrollInTheTournamentServiceSpockPerformanceTest extends Specification {
         and: "a tournamentDto"
         def tournamentDto = new TournamentDto("Torneio", topicList, 3, TOMORROW, LATER)
 
+
         and: "a tournament"
         def tournament = new Tournament(tournamentDto)
         tournamentRepository.save(tournament)
