@@ -86,13 +86,13 @@ public class UpdateStudentQuestionTopicsServiceSpockTest extends Specification {
         studentQuestionDto = new StudentQuestionDto()
 
         topic1 = new Topic()
-        topic1.setCourse(course)
         topic1.setName(TOPIC_NAME)
+        topic1.setCourse(course)
         topicRepository.save(topic1)
 
         topic2 = new Topic()
-        topic2.setCourse(course)
         topic2.setName(TOPIC_NAME2)
+        topic2.setCourse(course)
         topicRepository.save(topic2)
     }
 

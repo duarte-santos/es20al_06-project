@@ -140,7 +140,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
                     && question.getImage().getUrl() == URL
                     && question.getImage().getWidth() == 20)
         }
-        return true;
+        return true
     }
 
     @Unroll("invalid arguments: #previousState | #newState | #justification || errorMessage ")
