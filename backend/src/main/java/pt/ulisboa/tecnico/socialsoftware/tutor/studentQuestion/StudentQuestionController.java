@@ -107,6 +107,12 @@ public class StudentQuestionController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/studentQuestions/{studentQuestionId}/available")
+    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS')")
+    public StudentQuestionDto makeStudentQuestionAvailable(@PathVariable Integer studentQuestionId) {
+        return this.studentQuestionService.makeStudentQuestionAvailable(studentQuestionId);
+    }
     
     private Path getTargetLocation(String url) {
         String fileLocation = figuresDir + url;
