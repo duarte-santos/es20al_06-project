@@ -113,4 +113,12 @@ public class StudentQuestionController {
         return Paths.get(fileLocation);
     }
 
+    @PutMapping("/studentQuestions/{studentQuestionId}")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public StudentQuestionDto editStudentQuestion(@PathVariable int studentQuestionId,
+                                                  @Valid @RequestBody StudentQuestionDto studentQuestionDto) {
+
+        return studentQuestionService.editStudentQuestion(studentQuestionId, studentQuestionDto);
+    }
+
 }
