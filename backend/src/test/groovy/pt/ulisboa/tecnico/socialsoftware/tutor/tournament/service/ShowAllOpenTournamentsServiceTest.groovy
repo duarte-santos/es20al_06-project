@@ -57,12 +57,7 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
     def course
     def static execution
-    def topic
-    def topicDto
     def static topicList
-    def static startingDate
-    def static conclusionDate
-    def formatter
     def tournament1
     def tournament2
     def tournament3

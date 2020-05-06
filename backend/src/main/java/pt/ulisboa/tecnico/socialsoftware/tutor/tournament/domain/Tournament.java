@@ -5,6 +5,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -29,6 +31,10 @@ public class Tournament{
 
     private String title;
 
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
     @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
 
@@ -48,6 +54,10 @@ public class Tournament{
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
 
+    @OneToOne
+    @JoinColumn(name = "quiz_id")
+    private Quiz quiz;
+
     public Tournament(){
         this.status = Tournament.Status.CLOSED;
     }
@@ -61,8 +71,6 @@ public class Tournament{
         LocalDateTime conclusionDateAux = DateHandler.toLocalDateTime(tournamentDto.getConclusionDate());
 
         Tournament.Status statusAux = tournamentDto.getStatus();
-
-
 
         if (titleAux == null || titleAux.trim().isEmpty()) {
             throw new TutorException(TOURNAMENT_TITLE_IS_EMPTY);
@@ -93,6 +101,12 @@ public class Tournament{
         }
     }
 
+    public Tournament(TournamentDto tournamentDto, User student) {
+        this(tournamentDto);
+        this.setCreator(student); // Set creating student
+        this.addStudent(student); // Enroll the creating student in the tournament
+    }
+
     public void setTopicDtoList(List<TopicDto> topicList){
         if (topicList == null || topicList.isEmpty()){
             throw new TutorException(TOURNAMENT_TOPIC_LIST_IS_EMPTY);
@@ -114,6 +128,14 @@ public class Tournament{
         });
     }
 
+    public void addStudent(User student){
+        if (studentList.contains(student))
+            throw new TutorException(STUDENT_ALREADY_ENROLLED);
+        if (conclusionDate.isBefore(LocalDateTime.now()))
+            throw new TutorException(TOURNAMENT_IS_CLOSED);
+
+        studentList.add(student);
+    }
 
     public CourseExecution getCourseExecution() {
         return courseExecution;
@@ -121,10 +143,6 @@ public class Tournament{
 
     public void setCourseExecution(CourseExecution courseExecution) {
         this.courseExecution = courseExecution;
-    }
-
-    public void addStudent(User student){
-        studentList.add(student);
     }
 
     public Status getStatus() {
@@ -190,6 +208,22 @@ public class Tournament{
     }
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public Quiz getQuiz() {
+        return quiz;
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
     }
 }
 

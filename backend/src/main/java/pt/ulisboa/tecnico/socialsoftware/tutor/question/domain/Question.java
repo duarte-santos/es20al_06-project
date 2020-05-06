@@ -348,4 +348,6 @@ public class Question implements DomainEntity {
         getTopics().forEach(topic -> topic.getQuestions().remove(this));
         getTopics().clear();
     }
+
+
 }
