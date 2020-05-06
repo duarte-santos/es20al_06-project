@@ -1,8 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.course;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.DomainEntity;
-import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.Visitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Assessment;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
@@ -16,7 +14,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
 @Entity
 @Table(name = "course_executions")
-public class CourseExecution implements DomainEntity {
+public class CourseExecution {
      public enum Status {ACTIVE, INACTIVE, HISTORIC}
 
     @Id
@@ -37,13 +35,13 @@ public class CourseExecution implements DomainEntity {
     private Course course;
 
     @ManyToMany(mappedBy = "courseExecutions")
-    private final Set<User> users = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "courseExecution", fetch=FetchType.LAZY, orphanRemoval=true)
-    private final Set<Quiz> quizzes = new HashSet<>();
+    private Set<Quiz> quizzes = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "courseExecution", fetch=FetchType.LAZY, orphanRemoval=true)
-    private final Set<Assessment> assessments = new HashSet<>();
+    private Set<Assessment> assessments = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "courseExecution", fetch=FetchType.LAZY, orphanRemoval=true)
     private Set<Tournament> tournaments = new HashSet<>();
@@ -52,20 +50,31 @@ public class CourseExecution implements DomainEntity {
     }
 
     public CourseExecution(Course course, String acronym, String academicTerm, Course.Type type) {
+        if (acronym == null || acronym.trim().isEmpty()) {
+            throw new TutorException(COURSE_EXECUTION_ACRONYM_IS_EMPTY);
+        }
+        if (academicTerm == null || academicTerm.trim().isEmpty()) {
+            throw new TutorException(COURSE_EXECUTION_ACADEMIC_TERM_IS_EMPTY);
+        }
         if (course.existsCourseExecution(acronym, academicTerm, type)) {
             throw new TutorException(DUPLICATE_COURSE_EXECUTION, acronym + academicTerm);
         }
 
-        setType(type);
-        setCourse(course);
-        setAcronym(acronym);
-        setAcademicTerm(academicTerm);
-        setStatus(Status.ACTIVE);
+        this.type = type;
+        this.course = course;
+        this.acronym = acronym;
+        this.academicTerm = academicTerm;
+        this.status = Status.ACTIVE;
+        course.addCourseExecution(this);
     }
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visitCourseExecution(this);
+    public void delete() {
+        if (!getQuizzes().isEmpty() || !getAssessments().isEmpty()) {
+            throw new TutorException(CANNOT_DELETE_COURSE_EXECUTION, acronym + academicTerm);
+        }
+
+        course.getCourseExecutions().remove(this);
+        users.forEach(user -> user.getCourseExecutions().remove(this));
     }
 
     public Set<Tournament> getTournaments() {
@@ -80,14 +89,8 @@ public class CourseExecution implements DomainEntity {
         return id;
     }
 
-    public Course.Type getType() {
-        return type;
-    }
-
-    public void setType(Course.Type type) {
-        if (type == null)
-            throw new TutorException(INVALID_TYPE_FOR_COURSE_EXECUTION);
-        this.type = type;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getAcronym() {
@@ -95,9 +98,6 @@ public class CourseExecution implements DomainEntity {
     }
 
     public void setAcronym(String acronym) {
-        if (acronym == null || acronym.trim().isEmpty()) {
-        throw new TutorException(INVALID_ACRONYM_FOR_COURSE_EXECUTION);
-    }
         this.acronym = acronym;
     }
 
@@ -106,9 +106,6 @@ public class CourseExecution implements DomainEntity {
     }
 
     public void setAcademicTerm(String academicTerm) {
-        if (academicTerm == null || academicTerm.isBlank())
-            throw new TutorException(INVALID_ACADEMIC_TERM_FOR_COURSE_EXECUTION);
-
         this.academicTerm = academicTerm;
     }
 
@@ -126,53 +123,37 @@ public class CourseExecution implements DomainEntity {
 
     public void setCourse(Course course) {
         this.course = course;
-        course.addCourseExecution(this);
     }
 
     public Set<User> getUsers() {
         return users;
     }
 
-    public void addUser(User user) {
-        users.add(user);
-    }
-
     public Set<Quiz> getQuizzes() {
         return quizzes;
-    }
-
-    public void addQuiz(Quiz quiz) {
-        quizzes.add(quiz);
     }
 
     public Set<Assessment> getAssessments() {
         return assessments;
     }
 
+    public void addQuiz(Quiz quiz) {
+        quizzes.add(quiz);
+    }
+
     public void addAssessment(Assessment assessment) {
         assessments.add(assessment);
     }
 
-    @Override
-    public String toString() {
-        return "CourseExecution{" +
-                "id=" + id +
-                ", type=" + type +
-                ", acronym='" + acronym + '\'' +
-                ", academicTerm='" + academicTerm + '\'' +
-                ", status=" + status +
-                ", users=" + users +
-                ", quizzes=" + quizzes +
-                ", assessments=" + assessments +
-                '}';
+    public void addUser(User user) {
+        users.add(user);
     }
 
-    public void remove() {
-        if (!getQuizzes().isEmpty() || !getAssessments().isEmpty()) {
-            throw new TutorException(CANNOT_DELETE_COURSE_EXECUTION, acronym + academicTerm);
-        }
+    public Course.Type getType() {
+        return type;
+    }
 
-        course.getCourseExecutions().remove(this);
-        users.forEach(user -> user.getCourseExecutions().remove(this));
+    public void setType(Course.Type type) {
+        this.type = type;
     }
 }

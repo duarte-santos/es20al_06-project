@@ -9,7 +9,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuestionAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuestionAnswerRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -43,7 +42,8 @@ class ImportExportAnswersTest extends Specification {
     public static final String OPTION_CONTENT = "optionId content"
     public static final Integer TIME_TAKEN = 1234
     public static final Integer SEQUENCE = 0
-    public static final LocalDateTime ANSWER_DATE = DateHandler.now()
+    public static final LocalDateTime ANSWER_DATE = LocalDateTime.now()
+
 
     @Autowired
     AnswerService answerService
@@ -88,6 +88,7 @@ class ImportExportAnswersTest extends Specification {
 
         def question = new Question()
         question.setCourse(course)
+        course.addQuestion(question)
         question.setKey(1)
         question.setTitle(QUESTION_TITLE)
         question.setContent(QUESTION_CONTENT)
@@ -95,23 +96,24 @@ class ImportExportAnswersTest extends Specification {
         questionRepository.save(question)
 
         def option = new Option()
+        option.setSequence(0)
         option.setContent(OPTION_CONTENT)
         option.setCorrect(true)
-        option.setSequence(0)
         option.setQuestion(question)
+        question.addOption(option)
         optionRepository.save(option)
 
         def quiz = new Quiz()
         quiz.setKey(1)
         quiz.setTitle(QUIZ_TITLE)
-        quiz.setType(Quiz.QuizType.GENERATED.toString())
+        quiz.setType(Quiz.QuizType.GENERATED)
         quiz.setCourseExecution(courseExecution)
         courseExecution.addQuiz(quiz)
 
-        quiz.setCreationDate(DateHandler.now())
-        quiz.setAvailableDate(DateHandler.now())
-        quiz.setConclusionDate(DateHandler.now())
-        quiz.setType(Quiz.QuizType.EXAM.toString())
+        quiz.setCreationDate(LocalDateTime.now())
+        quiz.setAvailableDate(LocalDateTime.now())
+        quiz.setConclusionDate(LocalDateTime.now())
+        quiz.setType(Quiz.QuizType.EXAM)
         quiz.setSeries(1)
         quiz.setVersion(VERSION)
         quizRepository.save(quiz)
@@ -120,6 +122,7 @@ class ImportExportAnswersTest extends Specification {
         quizQuestion.setSequence(SEQUENCE)
         quizQuestion.setQuiz(quiz)
         quizQuestion.setQuestion(question)
+        quiz.addQuizQuestion(quizQuestion)
         quizQuestionRepository.save(quizQuestion)
 
         def user = userService.createUser('Pedro', 'pc', User.Role.STUDENT)
@@ -132,6 +135,7 @@ class ImportExportAnswersTest extends Specification {
         quizAnswerRepository.save(quizAnswer)
 
         questionAnswer = new QuestionAnswer()
+        quizAnswer.addQuestionAnswer(questionAnswer)
         questionAnswer.setQuizAnswer(quizAnswer)
         questionAnswer.setTimeTaken(TIME_TAKEN)
         questionAnswer.setOption(option)
@@ -143,8 +147,10 @@ class ImportExportAnswersTest extends Specification {
     def 'export and import answers'() {
         given: 'a xml with a quiz'
         def answersXml = answerService.exportAnswers()
+        System.out.println(answersXml)
         and: 'delete answers'
-        answerService.deleteQuizAnswer(quizAnswer)
+        quizAnswerRepository.deleteAll()
+        questionAnswerRepository.deleteAll()
 
         when:
         answerService.importAnswers(answersXml)

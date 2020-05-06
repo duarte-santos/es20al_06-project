@@ -49,9 +49,8 @@ class UpdateTopicsTest extends Specification {
 
         question = new Question()
         question.setKey(1)
-        question.setTitle("Question Title")
-        question.setContent("Question Content")
         question.setCourse(course)
+        course.addQuestion(question)
 
         topicDtoOne = new TopicDto()
         topicDtoOne.setName(TOPIC_ONE)
@@ -146,4 +145,5 @@ class UpdateTopicsTest extends Specification {
             return new QuestionService()
         }
     }
+
 }

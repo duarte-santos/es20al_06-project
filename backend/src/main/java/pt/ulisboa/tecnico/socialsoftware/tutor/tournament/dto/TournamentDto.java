@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 
 import org.springframework.data.annotation.Transient;
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
@@ -25,6 +24,9 @@ public class TournamentDto implements Serializable{
     private Tournament.Status status;
     private List<UserDto> studentList = new ArrayList<>();
 
+    @Transient
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     public TournamentDto(){
         this.status = Tournament.Status.CLOSED;
     }
@@ -33,9 +35,8 @@ public class TournamentDto implements Serializable{
         this.id = tournament.getId();
         this.title = tournament.getTitle();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
-
-        this.startingDate = DateHandler.toISOString(tournament.getStartingDate());
-        this.conclusionDate = DateHandler.toISOString(tournament.getConclusionDate());
+        this.startingDate = tournament.getStartingDate().format(formatter);
+        this.conclusionDate = tournament.getConclusionDate().format(formatter);
         this.status = tournament.getStatus();
 
         List<Topic> topicListAux = tournament.getTopicList();
@@ -114,6 +115,21 @@ public class TournamentDto implements Serializable{
 
     public void setConclusionDate(String conclusionDate) {
         this.conclusionDate = conclusionDate;
+    }
+
+
+    public LocalDateTime getStartingDateDate() {
+        if (getStartingDate() == null || getStartingDate().isEmpty()) {
+            return null;
+        }
+        return LocalDateTime.parse(getStartingDate(), formatter);
+    }
+
+    public LocalDateTime getConclusionDateDate() {
+        if (getConclusionDate() == null || getConclusionDate().isEmpty()) {
+            return null;
+        }
+        return LocalDateTime.parse(getConclusionDate(), formatter);
     }
 
     public List<UserDto> getStudentList() {

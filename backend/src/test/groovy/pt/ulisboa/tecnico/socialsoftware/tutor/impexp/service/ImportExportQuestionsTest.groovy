@@ -16,6 +16,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import spock.lang.Specification
 
+import java.time.LocalDateTime
+
 @DataJpaTest
 class ImportExportQuestionsTest extends Specification {
     public static final String COURSE_NAME = "Arquitetura de Software"
@@ -78,6 +80,7 @@ class ImportExportQuestionsTest extends Specification {
     def 'export and import questions to xml'() {
         given: 'a xml with questions'
         def questionsXml = questionService.exportQuestionsToXml()
+        System.out.println(questionsXml)
         and: 'a clean database'
         questionService.removeQuestion(questionId)
 
@@ -91,6 +94,7 @@ class ImportExportQuestionsTest extends Specification {
         questionResult.getTitle() == QUESTION_TITLE
         questionResult.getContent() == QUESTION_CONTENT
         questionResult.getStatus() == Question.Status.AVAILABLE.name()
+        questionResult.getCreationDate() == LocalDateTime.now().format(Course.formatter)
         def imageResult = questionResult.getImage()
         imageResult.getWidth() == 20
         imageResult.getUrl() == URL
@@ -110,6 +114,7 @@ class ImportExportQuestionsTest extends Specification {
 
         then:
         questionsLatex != null
+        System.out.println(questionsLatex)
     }
 
     @TestConfiguration
@@ -120,4 +125,5 @@ class ImportExportQuestionsTest extends Specification {
             return new QuestionService()
         }
     }
+
 }

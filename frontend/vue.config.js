@@ -82,11 +82,7 @@ module.exports = {
                 path.join(__dirname, './public/index.html'),
                 path.join(__dirname, './**/*.vue'),
                 path.join(__dirname, './src/**/*.js'),
-                path.join(__dirname, './node_modules/vuetify/src/**/*.ts'),
-                path.join(
-                  __dirname,
-                  './node_modules/vue-ctk-date-time-picker/**/*.js'
-                )
+                path.join(__dirname, './node_modules/vuetify/src/**/*.ts')
               ],
               { nodir: true }
             )

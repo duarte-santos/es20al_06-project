@@ -14,7 +14,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
 
 @DataJpaTest
-class CreateQuizAnswerTest extends Specification {
+class CreateQuizTest extends Specification {
     @Autowired
     AnswerService answerService
 
@@ -26,6 +26,7 @@ class CreateQuizAnswerTest extends Specification {
 
     @Autowired
     QuizAnswerRepository quizAnswerRepository
+
 
     def setup() {
         def user = new User()

@@ -97,4 +97,5 @@ public class TopicsXmlImport {
 
 		questionService.updateQuestionTopics(questionDto.getId(), questionDto.getTopics().toArray(new TopicDto[0]));
 	}
+
 }

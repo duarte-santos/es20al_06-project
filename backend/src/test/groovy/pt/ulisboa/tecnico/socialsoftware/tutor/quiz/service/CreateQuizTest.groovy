@@ -5,25 +5,25 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import spock.lang.Specification
-import spock.lang.Unroll
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @DataJpaTest
 class CreateQuizTest extends Specification {
@@ -32,11 +32,7 @@ class CreateQuizTest extends Specification {
     public static final String ACADEMIC_TERM = "1 SEM"
     public static final String QUESTION_CONTENT = 'question content'
     public static final String QUIZ_TITLE = 'quiz title'
-    public static final String QUESTION_TITLE = 'question title'
     public static final String VERSION = 'B'
-    public static final String TODAY = DateHandler.toISOString(DateHandler.now())
-    public static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
-    public static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
     @Autowired
     QuizService quizService
@@ -55,53 +51,58 @@ class CreateQuizTest extends Specification {
 
     def course
     def courseExecution
-    def quizDto
+    def quiz
+    def creationDate
+    def availableDate
+    def conclusionDate
     def questionDto
+    def formatter
 
     def setup() {
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
 
         courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
 
-        quizDto = new QuizDto()
-        quizDto.setKey(1)
-        quizDto.setScramble(true)
-        quizDto.setOneWay(true)
-        quizDto.setQrCodeOnly(true)
-        quizDto.setAvailableDate(TODAY)
-        quizDto.setConclusionDate(TOMORROW)
-        quizDto.setResultsDate(LATER)
-        quizDto.setSeries(1)
-        quizDto.setVersion(VERSION)
+        quiz = new QuizDto()
+        quiz.setKey(1)
+        creationDate = LocalDateTime.now()
+        availableDate = LocalDateTime.now()
+        conclusionDate = LocalDateTime.now().plusDays(1)
+        quiz.setScramble(true)
+        quiz.setOneWay(true)
+        quiz.setQrCodeOnly(true)
+        quiz.setAvailableDate(availableDate.format(formatter))
+        quiz.setConclusionDate(conclusionDate.format(formatter))
+        quiz.setSeries(1)
+        quiz.setVersion(VERSION)
 
         def question = new Question()
         question.setKey(1)
         question.setCourse(course)
-        question.setTitle(QUESTION_TITLE)
+        course.addQuestion(question)
         questionRepository.save(question)
 
-        questionDto = new QuestionDto(question)
+        questionDto = new QuestionDto()
+        questionDto.setId(question.getId())
         questionDto.setKey(1)
         questionDto.setSequence(1)
 
         def questions = new ArrayList()
         questions.add(questionDto)
-        quizDto.setQuestions(questions)
+        quiz.setQuestions(questions)
     }
 
-    @Unroll
-    def "valid arguments: quizType=#quizType | title=#title | availableDate=#availableDate | conclusionDate=#conclusionDate | resultsDate=#resultsDate"() {
-        given: 'a quizDto'
-        quizDto.setTitle(title)
-        quizDto.setAvailableDate(availableDate)
-        quizDto.setConclusionDate(conclusionDate)
-        quizDto.setResultsDate(resultsDate)
-        quizDto.setType(quizType.toString())
+    def "create a quiz"() {
+        given: 'student quiz with title'
+        quiz.setTitle(QUIZ_TITLE)
+        quiz.setType(Quiz.QuizType.GENERATED)
 
         when:
-        quizService.createQuiz(courseExecution.getId(), quizDto)
+        quizService.createQuiz(courseExecution.getId(), quiz)
 
         then: "the correct quiz is inside the repository"
         quizRepository.count() == 1L
@@ -111,75 +112,74 @@ class CreateQuizTest extends Specification {
         result.getScramble()
         result.isOneWay()
         result.isQrCodeOnly()
-        result.getTitle() == title
+        result.getTitle() == QUIZ_TITLE
         result.getCreationDate() != null
-        result.getAvailableDate() == DateHandler.toLocalDateTime(availableDate)
-        result.getConclusionDate() == DateHandler.toLocalDateTime(conclusionDate)
-        if (resultsDate == null) {
-            result.getResultsDate() == DateHandler.toLocalDateTime(conclusionDate)
-        } else {
-            result.getResultsDate() == DateHandler.toLocalDateTime(resultsDate)
-        }
-        result.getType() == quizType
+        result.getAvailableDate().format(formatter) == availableDate.format(formatter)
+        result.getConclusionDate().format(formatter) == conclusionDate.format(formatter)
+        result.getType() == Quiz.QuizType.GENERATED
         result.getSeries() == 1
         result.getVersion() == VERSION
         result.getQuizQuestions().size() == 1
-
-        where:
-        quizType                | title      | availableDate               | conclusionDate | resultsDate
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | TODAY                       | TOMORROW       | LATER
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | "2020-04-22T02:03:00+01:00" | TOMORROW       | LATER
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | TODAY                       | null           | LATER
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | TODAY                       | null           | null
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | TODAY                       | null           | LATER
-        Quiz.QuizType.IN_CLASS  | QUIZ_TITLE | TODAY                       | TOMORROW       | null
     }
 
-    @Unroll
-    def "invalid arguments: quizType=#quizType | title=#title | availableDate=#availableDate | conclusionDate=#conclusionDate | resultsDate=#resultsDate || errorMessage=#errorMessage "() {
-        given: 'a quizDto'
-        quizDto.setTitle(title)
-        quizDto.setAvailableDate(availableDate)
-        quizDto.setConclusionDate(conclusionDate)
-        quizDto.setResultsDate(resultsDate)
-        quizDto.setType(quizType.toString())
+    def "create a quiz no title"() {
+        given: 'student quiz'
+        quiz.setType(Quiz.QuizType.GENERATED)
 
         when:
-        quizService.createQuiz(courseExecution.getId(), quizDto)
-
-        then:
-        def error = thrown(TutorException)
-        error.errorMessage == errorMessage
-        quizRepository.count() == 0L
-
-        where:
-        quizType                | title      | availableDate | conclusionDate     | resultsDate        || errorMessage
-        null                    | QUIZ_TITLE | TODAY         | TOMORROW           | LATER              || INVALID_TYPE_FOR_QUIZ
-        "   "                   | QUIZ_TITLE | TODAY         | TOMORROW           | LATER              || INVALID_TYPE_FOR_QUIZ
-        "Açores"                | QUIZ_TITLE | TODAY         | TOMORROW           | LATER              || INVALID_TYPE_FOR_QUIZ
-        Quiz.QuizType.PROPOSED  | null       | TODAY         | TOMORROW           | LATER              || INVALID_TITLE_FOR_QUIZ
-        Quiz.QuizType.PROPOSED  | "        " | TODAY         | TOMORROW           | LATER              || INVALID_TITLE_FOR_QUIZ
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | null          | TOMORROW           | LATER              || INVALID_AVAILABLE_DATE_FOR_QUIZ
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | TOMORROW      | TODAY              | LATER              || INVALID_CONCLUSION_DATE_FOR_QUIZ
-        Quiz.QuizType.IN_CLASS  | QUIZ_TITLE | TODAY         | null               | TOMORROW           || INVALID_CONCLUSION_DATE_FOR_QUIZ
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | TODAY         | LATER              | TOMORROW           || INVALID_RESULTS_DATE_FOR_QUIZ
-        Quiz.QuizType.PROPOSED  | QUIZ_TITLE | TOMORROW      | LATER              | TODAY              || INVALID_RESULTS_DATE_FOR_QUIZ
-    }
-
-    def "create quiz with wrong question sequence"() {
-        given: 'createQuiz a quiz'
-        quizDto.setTitle(QUIZ_TITLE)
-        quizDto.setType(Quiz.QuizType.GENERATED.toString())
-        questionDto.setSequence(3)
-
-        when:
-        quizService.createQuiz(courseExecution.getId(), quizDto)
+        quizService.createQuiz(courseExecution.getId(), quiz)
 
         then:
         def exception = thrown(TutorException)
-        exception.getErrorMessage() == INVALID_QUESTION_SEQUENCE_FOR_QUIZ
+        exception.getErrorMessage() == ErrorMessage.QUIZ_NOT_CONSISTENT
         quizRepository.count() == 0L
     }
+
+    def "create a TEACHER quiz no available date"() {
+        given: 'createQuiz a quiz'
+        quiz.setTitle(QUIZ_TITLE)
+        quiz.setAvailableDate(null)
+        quiz.setType(Quiz.QuizType.PROPOSED)
+
+        when:
+        quizService.createQuiz(courseExecution.getId(), quiz)
+
+        then:
+        def exception = thrown(TutorException)
+        exception.getErrorMessage() == ErrorMessage.QUIZ_NOT_CONSISTENT
+        quizRepository.count() == 0L
+    }
+
+    def "create a TEACHER quiz with available date after conclusion"() {
+        given: 'createQuiz a quiz'
+        quiz.setTitle(QUIZ_TITLE)
+        quiz.setConclusionDate(getAvailableDate().minusDays(1).format(formatter))
+        quiz.setType(Quiz.QuizType.PROPOSED)
+
+        when:
+        quizService.createQuiz(courseExecution.getId(), quiz)
+
+        then:
+        def exception = thrown(TutorException)
+        exception.getErrorMessage() == ErrorMessage.QUIZ_NOT_CONSISTENT
+        quizRepository.count() == 0L
+    }
+
+    def "create a TEACHER quiz wrong sequence"() {
+        given: 'createQuiz a quiz'
+        quiz.setTitle(QUIZ_TITLE)
+        quiz.setType(Quiz.QuizType.GENERATED)
+        questionDto.setSequence(3)
+
+        when:
+        quizService.createQuiz(courseExecution.getId(), quiz)
+
+        then:
+        def exception = thrown(TutorException)
+        exception.getErrorMessage() == ErrorMessage.QUIZ_NOT_CONSISTENT
+        quizRepository.count() == 0L
+    }
+
 
     @TestConfiguration
     static class QuizServiceImplTestContextConfiguration {
@@ -204,4 +204,5 @@ class CreateQuizTest extends Specification {
             return new AnswersXmlImport()
         }
     }
+
 }

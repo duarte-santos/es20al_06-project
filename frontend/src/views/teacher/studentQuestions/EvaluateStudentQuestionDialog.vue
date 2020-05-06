@@ -23,10 +23,10 @@
                 <li v-for="(option, index) in question.options" :key="index">
                   <span
                     v-if="question.correct - 1 === index"
-                    v-html="convertMarkDown('**[★]** ', null)"
+                    v-html="convertMarkDownNoFigure('**[★]** ', null)"
                   />
                   <span
-                    v-html="convertMarkDown(option, null)"
+                    v-html="convertMarkDownNoFigure(option, null)"
                     v-bind:class="[
                       question.correct - 1 === index ? 'font-weight-bold' : ''
                     ]"
@@ -86,7 +86,7 @@
 import { Component, Model, Prop, Vue } from 'vue-property-decorator';
 import StudentQuestion from '@/models/management/StudentQuestion';
 import RemoteServices from '@/services/RemoteServices';
-import { convertMarkDown } from '@/services/ConvertMarkdownService';
+import { convertMarkDownNoFigure } from '@/services/ConvertMarkdownService';
 import Image from '@/models/management/Image';
 
 @Component
@@ -128,8 +128,8 @@ export default class EvaluateStudentQuestionDialog extends Vue {
     }
   }
 
-  convertMarkDown(text: string, image: Image | null = null): string {
-    return convertMarkDown(text, image);
+  convertMarkDownNoFigure(text: string, image: Image | null = null): string {
+    return convertMarkDownNoFigure(text, image);
   }
 }
 </script>

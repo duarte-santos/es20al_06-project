@@ -69,8 +69,6 @@ class RemoveQuizTest extends Specification {
 
         question = new Question()
         question.setKey(1)
-        question.setTitle("Question Title")
-        question.setContent("Question Content")
 
         quiz = new Quiz()
         quiz.setKey(1)
@@ -79,7 +77,9 @@ class RemoveQuizTest extends Specification {
 
         quizQuestion = new QuizQuestion()
         quizQuestion.setSequence(1)
+        quiz.addQuizQuestion(quizQuestion)
         quizQuestion.setQuiz(quiz)
+        question.addQuizQuestion(quizQuestion)
         quizQuestion.setQuestion(question)
 
         quizRepository.save(quiz)
@@ -101,6 +101,7 @@ class RemoveQuizTest extends Specification {
         given: 'a quiz answer'
         def quizAnswer = new QuizAnswer()
         quizAnswer.setQuiz(quiz)
+        quiz.addQuizAnswer(quizAnswer)
         quizAnswerRepository.save(quizAnswer)
 
         when:
@@ -138,4 +139,5 @@ class RemoveQuizTest extends Specification {
             return new AnswersXmlImport()
         }
     }
+
 }
