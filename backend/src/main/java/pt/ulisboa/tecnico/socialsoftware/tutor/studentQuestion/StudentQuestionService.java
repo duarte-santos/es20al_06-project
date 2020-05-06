@@ -169,11 +169,12 @@ public class StudentQuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void editStudentQuestion(Integer studentQuestionId, StudentQuestionDto studentQuestionDto) {
+    public StudentQuestionDto editStudentQuestion(Integer studentQuestionId, StudentQuestionDto studentQuestionDto) {
         StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionId)
                 .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
 
         studentQuestion.editStudentQuestion(studentQuestionDto);
+        return new StudentQuestionDto(studentQuestion);
     }
 
     @Retryable(
