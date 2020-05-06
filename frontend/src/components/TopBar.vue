@@ -405,7 +405,6 @@
             </v-list-item-action>
             <v-list-item-content>Join Tournament</v-list-item-content>
           </v-list-item>
-
         </v-list-group>
 
         <v-list-item to="/courses" v-if="isLoggedIn && moreThanOneCourse">
