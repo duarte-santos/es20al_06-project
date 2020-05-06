@@ -1,10 +1,11 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,31 +16,32 @@ public class StatementQuizDto implements Serializable {
     private Integer id;
     private Integer quizAnswerId;
     private String title;
+    private boolean qrCodeOnly;
     private boolean oneWay;
     private String availableDate;
     private String conclusionDate;
-    private Long timeToAvailability;
-    private Long timeToSubmission;
-    private Long timeToResults;
+    private Long secondsToAvailability;
+    private Long secondsToSubmission;
     private List<StatementQuestionDto> questions = new ArrayList<>();
     private List<StatementAnswerDto> answers = new ArrayList<>();
 
-    public StatementQuizDto() {}
+    public StatementQuizDto(){}
 
     public StatementQuizDto(QuizAnswer quizAnswer) {
         this.id = quizAnswer.getQuiz().getId();
         this.quizAnswerId = quizAnswer.getId();
         this.title = quizAnswer.getQuiz().getTitle();
+        this.qrCodeOnly = quizAnswer.getQuiz().isQrCodeOnly();
         this.oneWay = quizAnswer.getQuiz().isOneWay();
-        this.availableDate = DateHandler.toISOString(quizAnswer.getQuiz().getAvailableDate());
-        this.conclusionDate = DateHandler.toISOString(quizAnswer.getQuiz().getConclusionDate());
-
-        if (quizAnswer.getQuiz().getConclusionDate() != null && quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS)) {
-            this.timeToSubmission = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getConclusionDate());
+        if (quizAnswer.getQuiz().getAvailableDate() != null) {
+            this.availableDate = quizAnswer.getQuiz().getAvailableDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         }
+        if (quizAnswer.getQuiz().getConclusionDate() != null) {
+            this.conclusionDate = quizAnswer.getQuiz().getConclusionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
-        if (quizAnswer.getQuiz().getResultsDate() != null && quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS)) {
-            this.timeToResults = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getResultsDate());
+            if (quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS)) {
+                this.secondsToSubmission = ChronoUnit.SECONDS.between(LocalDateTime.now(), quizAnswer.getQuiz().getConclusionDate());
+            }
         }
 
         this.questions = quizAnswer.getQuestionAnswers().stream()
@@ -57,6 +59,10 @@ public class StatementQuizDto implements Serializable {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public Integer getQuizAnswerId() {
         return quizAnswerId;
     }
@@ -71,6 +77,14 @@ public class StatementQuizDto implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public boolean isQrCodeOnly() {
+        return qrCodeOnly;
+    }
+
+    public void setQrCodeOnly(boolean qrCodeOnly) {
+        this.qrCodeOnly = qrCodeOnly;
     }
 
     public boolean isOneWay() {
@@ -97,28 +111,20 @@ public class StatementQuizDto implements Serializable {
         this.conclusionDate = conclusionDate;
     }
 
-    public Long getTimeToAvailability() {
-        return timeToAvailability;
+    public Long getSecondsToAvailability() {
+        return secondsToAvailability;
     }
 
-    public void setTimeToAvailability(Long timeToAvailability) {
-        this.timeToAvailability = timeToAvailability;
+    public void setSecondsToAvailability(Long secondsToAvailability) {
+        this.secondsToAvailability = secondsToAvailability;
     }
 
-    public Long getTimeToSubmission() {
-        return timeToSubmission;
+    public Long getSecondsToSubmission() {
+        return secondsToSubmission;
     }
 
-    public void setTimeToSubmission(Long timeToSubmission) {
-        this.timeToSubmission = timeToSubmission;
-    }
-
-    public Long getTimeToResults() {
-        return timeToResults;
-    }
-
-    public void setTimeToResults(Long timeToResults) {
-        this.timeToResults = timeToResults;
+    public void setSecondsToSubmission(Long secondsToSubmission) {
+        this.secondsToSubmission = secondsToSubmission;
     }
 
     public List<StatementQuestionDto> getQuestions() {
@@ -143,12 +149,10 @@ public class StatementQuizDto implements Serializable {
                 "id=" + id +
                 ", quizAnswerId=" + quizAnswerId +
                 ", title='" + title + '\'' +
-                ", oneWay=" + oneWay +
                 ", availableDate='" + availableDate + '\'' +
                 ", conclusionDate='" + conclusionDate + '\'' +
-                ", timeToAvailability=" + timeToAvailability +
-                ", timeToSubmission=" + timeToSubmission +
-                ", timeToResults=" + timeToResults +
+                ", secondsToAvailability=" + secondsToAvailability +
+                ", secondsToSubmission=" + secondsToSubmission +
                 ", questions=" + questions +
                 ", answers=" + answers +
                 '}';

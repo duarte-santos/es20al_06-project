@@ -5,21 +5,22 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import spock.lang.Specification
+
+import java.time.LocalDateTime
 
 @DataJpaTest
 class ImportExportQuizzesTest extends Specification {
@@ -36,6 +37,7 @@ class ImportExportQuizzesTest extends Specification {
     def creationDate
     def availableDate
     def conclusionDate
+    def formatter = Course.formatter
 
     @Autowired
     QuizService quizService
@@ -80,13 +82,13 @@ class ImportExportQuizzesTest extends Specification {
         quizDto.setQrCodeOnly(true)
         quizDto.setOneWay(false)
         quizDto.setTitle(QUIZ_TITLE)
-        creationDate = DateHandler.now()
-        availableDate = DateHandler.now()
-        conclusionDate = DateHandler.now().plusDays(2)
-        quizDto.setCreationDate(DateHandler.toISOString(creationDate))
-        quizDto.setAvailableDate(DateHandler.toISOString(availableDate))
-        quizDto.setConclusionDate(DateHandler.toISOString(conclusionDate))
-        quizDto.setType(Quiz.QuizType.EXAM.toString())
+        creationDate = LocalDateTime.now()
+        availableDate = LocalDateTime.now()
+        conclusionDate = LocalDateTime.now().plusDays(2)
+        quizDto.setCreationDate(creationDate.format(formatter))
+        quizDto.setAvailableDate(availableDate.format(formatter))
+        quizDto.setConclusionDate(conclusionDate.format(formatter))
+        quizDto.setType(Quiz.QuizType.EXAM)
         quizDto.setSeries(1)
         quizDto.setVersion(VERSION)
         quiz = quizService.createQuiz(courseExecution.getId(), quizDto)
@@ -97,6 +99,7 @@ class ImportExportQuizzesTest extends Specification {
     def 'export and import quizzes'() {
         given: 'a xml with a quiz'
         def quizzesXml = quizService.exportQuizzesToXml()
+        System.out.println(quizzesXml)
         and: 'delete quiz and quizQuestion'
         quizService.removeQuiz(quiz.getId())
 
@@ -112,9 +115,9 @@ class ImportExportQuizzesTest extends Specification {
         quizResult.isQrCodeOnly()
         !quizResult.isOneWay()
         quizResult.getTitle() == QUIZ_TITLE
-        quizResult.getCreationDate() == creationDate
-        quizResult.getAvailableDate() == availableDate
-        quizResult.getConclusionDate() == conclusionDate
+        quizResult.getCreationDate().format(formatter) == creationDate.format(formatter)
+        quizResult.getAvailableDate().format(formatter) == availableDate.format(formatter)
+        quizResult.getConclusionDate().format(formatter) == conclusionDate.format(formatter)
         quizResult.getType() == Quiz.QuizType.EXAM
         quizResult.getSeries() == 1
         quizResult.getVersion() == VERSION
@@ -131,6 +134,7 @@ class ImportExportQuizzesTest extends Specification {
 
         then:
         quizzesLatex != null
+        System.out.println(quizzesLatex)
     }
 
     @TestConfiguration
@@ -154,4 +158,5 @@ class ImportExportQuizzesTest extends Specification {
             return new AnswersXmlImport()
         }
     }
+
 }

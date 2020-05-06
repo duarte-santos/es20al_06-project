@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -19,18 +18,19 @@ public class TutorExceptionDto  implements TutorExceptionSubError {
 
 
     TutorExceptionDto(Throwable ex) {
-        this.timestamp = DateHandler.now();
+        this.timestamp = LocalDateTime.now();
         this.message = "Unexpected error";
         this.debugMessage = ex.getLocalizedMessage();
     }
 
+
     public TutorExceptionDto(TutorException e) {
-        this.timestamp = DateHandler.now();
+        this.timestamp = LocalDateTime.now();
         this.message = e.getMessage();
     }
 
     public TutorExceptionDto(ErrorMessage errorMessage) {
-        this.timestamp = DateHandler.now();
+        this.timestamp = LocalDateTime.now();
         this.message = errorMessage.label;
     }
 

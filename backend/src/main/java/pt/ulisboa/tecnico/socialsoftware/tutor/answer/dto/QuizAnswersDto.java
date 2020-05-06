@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuizAnswersDto implements Serializable {
-    private Long timeToSubmission;
+    private Long secondsToSubmission;
     private List<Integer> correctSequence;
     private List<QuizAnswerDto> quizAnswers = new ArrayList<>();
 
-    public Long getTimeToSubmission() {
-        return timeToSubmission;
+    public Long getSecondsToSubmission() {
+        return secondsToSubmission;
     }
 
-    public void setTimeToSubmission(Long timeToSubmission) {
-        this.timeToSubmission = timeToSubmission;
+    public void setSecondsToSubmission(Long secondsToSubmission) {
+        this.secondsToSubmission = secondsToSubmission;
     }
 
     public List<Integer> getCorrectSequence() {

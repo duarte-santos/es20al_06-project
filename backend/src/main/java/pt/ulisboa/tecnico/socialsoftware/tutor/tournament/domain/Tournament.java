@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
@@ -57,9 +56,8 @@ public class Tournament{
 
         String titleAux = tournamentDto.getTitle();
         Integer numberOfQuestionsAux = tournamentDto.getNumberOfQuestions();
-        LocalDateTime startingDateAux = DateHandler.toLocalDateTime(tournamentDto.getStartingDate());
-        LocalDateTime conclusionDateAux = DateHandler.toLocalDateTime(tournamentDto.getConclusionDate());
-
+        LocalDateTime startingDateAux = tournamentDto.getStartingDateDate();
+        LocalDateTime conclusionDateAux = tournamentDto.getConclusionDateDate();
         Tournament.Status statusAux = tournamentDto.getStatus();
 
 

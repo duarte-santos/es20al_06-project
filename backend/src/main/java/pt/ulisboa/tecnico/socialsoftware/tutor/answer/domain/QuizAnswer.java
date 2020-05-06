@@ -1,6 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.DomainEntity;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.Visitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
@@ -9,9 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "quiz_answers")
@@ -46,10 +44,12 @@ public class QuizAnswer implements DomainEntity {
     }
 
     public QuizAnswer(User user, Quiz quiz) {
-        setCompleted(false);
-        setUsedInStatistics(false);
-        setUser(user);
-        setQuiz(quiz);
+        this.completed = false;
+        this.usedInStatistics = false;
+        this.user = user;
+        user.addQuizAnswer(this);
+        this.quiz = quiz;
+        quiz.addQuizAnswer(this);
 
         List<QuizQuestion> quizQuestions = new ArrayList<>(quiz.getQuizQuestions());
         if (quiz.getScramble()) {
@@ -68,6 +68,10 @@ public class QuizAnswer implements DomainEntity {
 
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public LocalDateTime getCreationDate() {
@@ -108,7 +112,6 @@ public class QuizAnswer implements DomainEntity {
 
     public void setUser(User user) {
         this.user = user;
-        user.addQuizAnswer(this);
     }
 
     public Quiz getQuiz() {
@@ -117,7 +120,6 @@ public class QuizAnswer implements DomainEntity {
 
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
-        quiz.addQuizAnswer(this);
     }
 
     public void setQuestionAnswers(List<QuestionAnswer> questionAnswers) {
@@ -138,22 +140,19 @@ public class QuizAnswer implements DomainEntity {
         questionAnswers.add(questionAnswer);
     }
 
-    @Override
-    public String toString() {
-        return "QuizAnswer{" +
-                "id=" + id +
-                ", creationDate=" + creationDate +
-                ", answerDate=" + answerDate +
-                ", completed=" + completed +
-                ", usedInStatistics=" + usedInStatistics +
-                '}';
+
+    public void remove() {
+        user.getQuizAnswers().remove(this);
+        user = null;
+        quiz.getQuizAnswers().remove(this);
+        quiz = null;
+        questionAnswers.clear();
     }
 
-    public boolean canResultsBePublic(Integer courseExecutionId) {
+    public boolean canResultsBePublic(CourseExecution courseExecution) {
         return isCompleted() &&
-                getQuiz().getCourseExecution().getId().equals(courseExecutionId) &&
-                (!getQuiz().getType().equals(Quiz.QuizType.IN_CLASS) || getQuiz().getResultsDate().isBefore(DateHandler.now())
-                );
+                getQuiz().getCourseExecution() == courseExecution &&
+                !(getQuiz().getType().equals(Quiz.QuizType.IN_CLASS) && getQuiz().getConclusionDate().isAfter(LocalDateTime.now()));
     }
 
     public void calculateStatistics() {
@@ -165,6 +164,7 @@ public class QuizAnswer implements DomainEntity {
                 if (questionAnswer.getOption() != null && questionAnswer.getOption().getCorrect()) {
                     user.increaseNumberOfCorrectAnswers(getQuiz().getType());
                 }
+
             });
 
             getQuestionAnswers().forEach(questionAnswer ->
@@ -174,13 +174,4 @@ public class QuizAnswer implements DomainEntity {
         }
     }
 
-    public void remove() {
-        user.getQuizAnswers().remove(this);
-        user = null;
-
-        quiz.getQuizAnswers().remove(this);
-        quiz = null;
-
-        questionAnswers.clear();
-    }
 }

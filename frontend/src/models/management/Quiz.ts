@@ -1,20 +1,16 @@
 import Question from '@/models/management/Question';
-import { ISOtoString } from '@/services/ConvertDateService';
 
 export class Quiz {
   id!: number;
   number!: number;
   scramble!: boolean;
   qrCodeOnly!: boolean;
-  timed!: boolean;
   oneWay!: boolean;
   title!: string;
-  creationDate!: string;
-  availableDate!: string;
-  conclusionDate!: string;
-  resultsDate!: string;
-  timeToConclusion!: number;
-  timeToResults!: number;
+  creationDate!: string | undefined;
+  availableDate!: string | undefined;
+  conclusionDate!: string | undefined;
+  secondsToConclusion!: number;
   type!: string;
   series!: number;
   version!: string;
@@ -29,7 +25,6 @@ export class Quiz {
       this.number = jsonObj.number;
       this.scramble = jsonObj.scramble;
       this.qrCodeOnly = jsonObj.qrCodeOnly;
-      this.timed = jsonObj.timed;
       this.oneWay = jsonObj.oneWay;
       this.title = jsonObj.title;
       this.type = jsonObj.type;
@@ -37,17 +32,10 @@ export class Quiz {
       this.version = jsonObj.version;
       this.numberOfQuestions = jsonObj.numberOfQuestions;
       this.numberOfAnswers = jsonObj.numberOfAnswers;
-      this.timeToConclusion = jsonObj.timeToConclusion;
-      this.timeToResults = jsonObj.timeToResults;
-
-      if (jsonObj.creationDate)
-        this.creationDate = ISOtoString(jsonObj.creationDate);
-      if (jsonObj.availableDate)
-        this.availableDate = ISOtoString(jsonObj.availableDate);
-      if (jsonObj.conclusionDate)
-        this.conclusionDate = ISOtoString(jsonObj.conclusionDate);
-      if (jsonObj.resultsDate)
-        this.resultsDate = ISOtoString(jsonObj.resultsDate);
+      this.creationDate = jsonObj.creationDate;
+      this.availableDate = jsonObj.availableDate;
+      this.conclusionDate = jsonObj.conclusionDate;
+      this.secondsToConclusion = jsonObj.secondsToConclusion;
 
       if (jsonObj.questions) {
         this.questions = jsonObj.questions.map(

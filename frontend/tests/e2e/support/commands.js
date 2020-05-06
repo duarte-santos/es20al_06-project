@@ -25,12 +25,19 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 /// <reference types="Cypress" />
 
+Cypress.Commands.add('demoAdminLogin', () => {
+    cy.visit('/')
+    cy.get('[data-cy="adminButton"]').click()
+    cy.contains('Administration').click()
+    cy.contains('Manage Courses').click()
+});
+
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
-  cy.get('[data-cy="createButton"]').click();
-  cy.get('[data-cy="courseExecutionNameInput"]').type(name);
-  cy.get('[data-cy="courseExecutionAcronymInput"]').type(acronym);
-  cy.get('[data-cy="courseExecutionAcademicTermInput"]').type(academicTerm);
-  cy.get('[data-cy="saveButton"]').click();
+    cy.get('[data-cy="createButton"]').click()
+    cy.get('[data-cy="Name"]').type(name)
+    cy.get('[data-cy="Acronym"]').type(acronym)
+    cy.get('[data-cy="AcademicTerm"]').type(academicTerm)
+    cy.get('[data-cy="saveButton"]').click()
 });
 
 Cypress.Commands.add('closeErrorMessage', (name, acronym, academicTerm) => {
@@ -58,9 +65,17 @@ Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) 
         .should('have.length', 7)
         .find('[data-cy="createFromCourse"]')
         .click()
-    cy.get('[data-cy="courseExecutionAcronymInput"]').type(acronym);
-    cy.get('[data-cy="courseExecutionAcademicTermInput"]').type(academicTerm);
-    cy.get('[data-cy="saveButton"]').click();
+    cy.get('[data-cy="Acronym"]').type(acronym)
+    cy.get('[data-cy="AcademicTerm"]').type(academicTerm)
+    cy.get('[data-cy="saveButton"]').click()
+});
+
+
+
+
+Cypress.Commands.add('demoStudentLogin', () => {
+  cy.visit('/');
+  cy.get('[data-cy="studentButton"]').click();
 });
 
 
@@ -69,8 +84,6 @@ Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) 
 // ***********************************************
 
 /* ********** Create ********** */
-
-
 
 Cypress.Commands.add('gotoCreateTournamentPage', () => {
   cy.contains('Tournaments').click()
@@ -85,21 +98,16 @@ Cypress.Commands.add('createOpenTournament', (name, numberOfQuestions) => {
 
   /* Starting Date */
   cy.get('[data-cy="startingDate"]').click()
-  // Go back 1 month
-  cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > :nth-child(1)').click()
-  // Choose a day
-  cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
-  // Confirm
-  cy.get('#startingDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+  cy.get('.v-date-picker-header > :nth-child(1) > .v-btn__content > .v-icon').click()
+  cy.get('.v-date-picker-header > :nth-child(1) > .v-btn__content > .v-icon').click()
+  cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+  cy.get('.green--text > .v-btn__content').click()
 
   /* Conclusion Date */
   cy.get('[data-cy="conclusionDate"]').click()
-  // Advance 1 month
-  cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > .text-right').click()
-  // Choose a day
-  cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
-  // Confirm
-  cy.get('#conclusionDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+  cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
+  cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+  cy.get('.green--text > .v-btn__content:visible').click()
 
   /* Number of Questions */
   cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
@@ -122,26 +130,19 @@ Cypress.Commands.add('createClosedTournament', (name, numberOfQuestions, startin
   }
 
   /* Starting Date */
-  if(startingDate) {
+  if (startingDate) {
     cy.get('[data-cy="startingDate"]').click()
-    // Advance 1 month
-    cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > .text-right').click()
-    // Choose a day
-    cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
-    // Confirm
-    cy.get('#startingDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+    cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon').click()
+    cy.get(':nth-child(5) > :nth-child(6) > .v-btn').click()
+    cy.get('.green--text > .v-btn__content').click()
   }
 
   /* Conclusion Date */
-  if(conclusionDate) {
+  if (conclusionDate) {
     cy.get('[data-cy="conclusionDate"]').click()
-    // Advance 2 months
-    cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > .text-right').click()
-    cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > .text-right').click()
-    // Choose a day
-    cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
-    // Confirm
-    cy.get('#conclusionDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+    cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
+    cy.get(':nth-child(5) > :nth-child(7) > .v-btn:visible').click()
+    cy.get('.green--text > .v-btn__content:visible').click()
   }
 
   /* Number of Questions */
@@ -166,19 +167,15 @@ Cypress.Commands.add('createTournamentWrongDates', (name, numberOfQuestions) => 
 
   /* Starting Date */
   cy.get('[data-cy="startingDate"]').click()
-  // Choose a day
-  cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(15) > .datepicker-day-text').click()
-  // Confirm
-  cy.get('#startingDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
-
+  cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon').click()
+  cy.get(':nth-child(5) > :nth-child(7) > .v-btn').click()
+  cy.get('.green--text > .v-btn__content').click()
 
   /* Conclusion Date */
   cy.get('[data-cy="conclusionDate"]').click()
-  // Choose a day before the starting day
-  cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(7) > .datepicker-day-text').click()
-  // Confirm
-  cy.get('#conclusionDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
-
+  cy.get('.v-date-picker-header > :nth-child(3) > .v-btn__content > .v-icon:visible').click()
+  cy.get(':nth-child(5) > :nth-child(6) > .v-btn:visible').click()
+  cy.get('.green--text > .v-btn__content:visible').click()
 
   /* Number of Questions */
   cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
@@ -266,6 +263,11 @@ Cypress.Commands.add('studentMyQuestions', () => {
   cy.contains('My Questions').click();
 });
 
+Cypress.Commands.add('demoTeacherLogin', () => {
+  cy.visit('/');
+  cy.get('[data-cy="teacherButton"]').click();
+});
+
 Cypress.Commands.add('teacherEvaluateQuestions', () => {
   cy.contains('Management').click();
   cy.contains('Evaluate Questions').click();
@@ -324,6 +326,7 @@ Cypress.Commands.add(
       .should('have.length', 8)
       .find('[data-cy="evaluate"]')
       .click();
+
     if (state) {
       cy.get(`[data-cy="${state}"]`)
         .parent()

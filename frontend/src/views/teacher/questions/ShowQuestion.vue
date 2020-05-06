@@ -1,15 +1,16 @@
 <template>
   <div>
     <span v-html="convertMarkDown(question.content, question.image)" />
-    <br />
     <ul>
       <li v-for="option in question.options" :key="option.number">
         <span
           v-if="option.correct"
-          v-html="convertMarkDown('**[★]** ' + option.content)"
+          v-html="convertMarkDown('**[★]** ', null)"
+        />
+        <span
+          v-html="convertMarkDown(option.content, null)"
           v-bind:class="[option.correct ? 'font-weight-bold' : '']"
         />
-        <span v-else v-html="convertMarkDown(option.content)" />
       </li>
     </ul>
     <br />
