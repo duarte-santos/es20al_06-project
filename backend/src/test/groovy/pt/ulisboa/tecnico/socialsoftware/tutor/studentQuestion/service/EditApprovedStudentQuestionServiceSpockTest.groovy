@@ -22,7 +22,7 @@ import spock.lang.Unroll
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
-class EditStudentQuestionServiceSpockTest extends Specification {
+class EditApprovedStudentQuestionServiceSpockTest extends Specification {
     public static final String COURSE_NAME = "COURSE_NAME"
     public static final String ACRONYM = "ACRONYM"
     public static final String ACADEMIC_TERM = "ACADEMIC_TERM"
@@ -92,12 +92,12 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestion = new StudentQuestion(course, user, studentQuestionDto)
         studentQuestion.setImage(image)
         studentQuestion.setJustification(JUSTIFICATION)
-        studentQuestion.setState(StudentQuestion.State.REJECTED)
+        studentQuestion.setState(StudentQuestion.State.APPROVED)
         studentQuestionRepository.save(studentQuestion)
 
     }
 
-    def "edit a student question"() {
+    def "edit an approved student question"() {
         given: "a student question dto"
         def options = new ArrayList<String>()
         options.add(NEW_INCORRECT_OPTION)
@@ -112,7 +112,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(NEW_CORRECT_INDEX)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editApprovedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "the student question is changed"
         studentQuestionRepository.count() == 1L
@@ -137,9 +137,10 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         resultOptions.get(3) == NEW_INCORRECT_OPTION
     }
 
-    def "edit student question that wasn't rejected"() {
-        given: "a non rejected student question"
-        studentQuestion.setState(StudentQuestion.State.APPROVED)
+    @Unroll("non approved sq: #state")
+    def "edit student question that wasn't approved"() {
+        given: "a non approved student question"
+        studentQuestion.setState(state)
 
         and: "a student question dto"
         def options = new ArrayList<String>()
@@ -155,37 +156,18 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(NEW_CORRECT_INDEX)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editApprovedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
-        error.errorMessage == CANNOT_EDIT_STUDENT_QUESTION
-    }
+        error.errorMessage == CANNOT_EDIT_SQ_APPROVED
 
-    def "edit student question with the same data"() {
-        given: "a student question dto"
-        def options = new ArrayList<String>()
-        options.add(CORRECT_OPTION)
-        options.add(INCORRECT_OPTION)
-        options.add(INCORRECT_OPTION)
-        options.add(INCORRECT_OPTION)
-
-        def studentQuestionDto = new StudentQuestionDto()
-        studentQuestionDto.setTitle(QUESTION_TITLE)
-        studentQuestionDto.setContent(QUESTION_CONTENT)
-        studentQuestionDto.setOptions(options)
-        studentQuestionDto.setCorrect(CORRECT_INDEX)
-
-        when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
-
-        then: "an exception is thrown"
-        def error = thrown(TutorException)
-        error.errorMessage == EDIT_DATA_STUDENT_QUESTION
+        where:
+        state << [StudentQuestion.State.AWAITING_APPROVAL, StudentQuestion.State.REJECTED, StudentQuestion.State.AVAILABLE]
     }
 
     @Unroll("invalid arguments: #title | #content | #correct_option | #incorrect_option | #correct_index || error_message")
-    def "edit student question with missing data"() {
+    def "edit approved student question with missing data"() {
         given: "a student question dto"
         def options = new ArrayList<String>()
         options.add(incorrect_option)
@@ -200,7 +182,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(correct_index)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editApprovedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
@@ -221,7 +203,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
     }
 
     @Unroll("invalid arguments: #options_count || error_message ")
-    def "edit student question with less or more than four options"() {
+    def "edit approved student question with less or more than four options"() {
         given: "a student question dto"
         def studentQuestionDto = new StudentQuestionDto()
         studentQuestionDto.setTitle(NEW_QUESTION_TITLE)
@@ -230,7 +212,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(NEW_CORRECT_INDEX)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editApprovedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
