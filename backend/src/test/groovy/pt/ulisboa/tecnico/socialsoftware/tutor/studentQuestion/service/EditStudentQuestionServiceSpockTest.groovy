@@ -162,6 +162,28 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         error.errorMessage == CANNOT_EDIT_STUDENT_QUESTION
     }
 
+    def "edit student question with the same data"() {
+        given: "a student question dto"
+        def options = new ArrayList<String>()
+        options.add(CORRECT_OPTION)
+        options.add(INCORRECT_OPTION)
+        options.add(INCORRECT_OPTION)
+        options.add(INCORRECT_OPTION)
+
+        def studentQuestionDto = new StudentQuestionDto()
+        studentQuestionDto.setTitle(QUESTION_TITLE)
+        studentQuestionDto.setContent(QUESTION_CONTENT)
+        studentQuestionDto.setOptions(options)
+        studentQuestionDto.setCorrect(CORRECT_INDEX)
+
+        when:
+        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+
+        then: "an exception is thrown"
+        def error = thrown(TutorException)
+        error.errorMessage == EDIT_DATA_STUDENT_QUESTION
+    }
+
     @Unroll("invalid arguments: #title | #content | #correct_option | #incorrect_option | #correct_index || error_message")
     def "edit student question with missing data"() {
         given: "a student question dto"

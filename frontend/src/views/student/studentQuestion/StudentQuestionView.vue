@@ -72,6 +72,21 @@
           </template>
           <span>Show Question</span>
         </v-tooltip>
+
+        <v-tooltip bottom v-if="item.state === 'REJECTED'">
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="editQuestion(item)"
+              data-cy="edit"
+              >edit</v-icon
+            >
+          </template>
+          <span>Edit Question</span>
+        </v-tooltip>
+
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-icon
@@ -261,6 +276,11 @@ export default class StudentQuestionView extends Vue {
         await this.$store.dispatch('error', error);
       }
     }
+  }
+
+  async editQuestion(question: StudentQuestion) {
+    this.currentQuestion = question;
+    this.editQuestionDialog = true;
   }
 
   @Watch('editQuestionDialog')

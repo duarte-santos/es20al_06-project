@@ -12,7 +12,6 @@
 
       <v-card-text class="text-left">
         <show-question :student-question="studentQuestion" />
-        <!--FIXME WTF-->
       </v-card-text>
 
       <v-card-actions>
