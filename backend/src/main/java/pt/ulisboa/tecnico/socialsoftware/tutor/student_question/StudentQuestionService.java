@@ -168,18 +168,6 @@ public class StudentQuestionService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StudentQuestionDto editStudentQuestion(Integer studentQuestionId, StudentQuestionDto studentQuestionDto) {
-        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionId)
-                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
-
-        studentQuestion.editStudentQuestion(studentQuestionDto);
-        return new StudentQuestionDto(studentQuestion);
-    }
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public StudentQuestionDto makeStudentQuestionAvailable(Integer studentQuestionId) {
         StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionId)
                 .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
@@ -191,6 +179,30 @@ public class StudentQuestionService {
         studentQuestion.setCorrespondingQuestionId(question.getId()); //set now that question has id (was put in repository)
         studentQuestionRepository.save(studentQuestion);
 
+        return new StudentQuestionDto(studentQuestion);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestionDto editRejectedStudentQuestion(Integer studentQuestionId, StudentQuestionDto studentQuestionDto) {
+        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionId)
+                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
+
+        studentQuestion.editRejectedStudentQuestion(studentQuestionDto);
+        return new StudentQuestionDto(studentQuestion);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public StudentQuestionDto editApprovedStudentQuestion(Integer studentQuestionId, StudentQuestionDto studentQuestionDto) {
+        StudentQuestion studentQuestion = studentQuestionRepository.findById(studentQuestionId)
+                .orElseThrow(() -> new TutorException(STUDENT_QUESTION_NOT_FOUND, studentQuestionId));
+
+        studentQuestion.editApprovedStudentQuestion(studentQuestionDto);
         return new StudentQuestionDto(studentQuestion);
     }
 

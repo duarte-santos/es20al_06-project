@@ -288,14 +288,30 @@ public class StudentQuestion {
         getTopics().clear();
     }
 
-    public void editStudentQuestion(StudentQuestionDto studentQuestionDto) {
+    public void editRejectedStudentQuestion(StudentQuestionDto studentQuestionDto) {
         if (state != State.REJECTED)
-            throw new TutorException(CANNOT_EDIT_STUDENT_QUESTION);
+            throw new TutorException(CANNOT_EDIT_SQ_REJECTED);
 
         checkConsistentStudentQuestion(studentQuestionDto);
         studentQuestionDto = trimStudentQuestion(studentQuestionDto);
+
+        // when editing a question that was rejected, the question must be changed
         checkDifferentStudentQuestion(studentQuestionDto);
 
+        updateStudentQuestion(studentQuestionDto);
+    }
+
+    public void editApprovedStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        if (state != State.APPROVED)
+            throw new TutorException(CANNOT_EDIT_SQ_APPROVED);
+
+        checkConsistentStudentQuestion(studentQuestionDto);
+        studentQuestionDto = trimStudentQuestion(studentQuestionDto);
+
+        updateStudentQuestion(studentQuestionDto);
+    }
+
+    public void updateStudentQuestion(StudentQuestionDto studentQuestionDto) {
         this.title = studentQuestionDto.getTitle();
         this.content = studentQuestionDto.getContent();
         this.options = studentQuestionDto.getOptions();

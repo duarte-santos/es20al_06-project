@@ -124,7 +124,7 @@ public class StudentQuestionController {
     public StudentQuestionDto editStudentQuestion(@PathVariable int studentQuestionId,
                                                   @Valid @RequestBody StudentQuestionDto studentQuestionDto) {
 
-        return studentQuestionService.editStudentQuestion(studentQuestionId, studentQuestionDto);
+        return studentQuestionService.editRejectedStudentQuestion(studentQuestionId, studentQuestionDto);
     }
 
 }

@@ -22,7 +22,7 @@ import spock.lang.Unroll
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
-class EditStudentQuestionServiceSpockTest extends Specification {
+class EditRejectedStudentQuestionServiceSpockTest extends Specification {
     public static final String COURSE_NAME = "COURSE_NAME"
     public static final String ACRONYM = "ACRONYM"
     public static final String ACADEMIC_TERM = "ACADEMIC_TERM"
@@ -97,7 +97,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
 
     }
 
-    def "edit a student question"() {
+    def "edit a rejected student question"() {
         given: "a student question dto"
         def options = new ArrayList<String>()
         options.add(NEW_INCORRECT_OPTION)
@@ -112,7 +112,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(NEW_CORRECT_INDEX)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editRejectedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "the student question is changed"
         studentQuestionRepository.count() == 1L
@@ -137,9 +137,10 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         resultOptions.get(3) == NEW_INCORRECT_OPTION
     }
 
+    @Unroll("non rejected sq: #state")
     def "edit student question that wasn't rejected"() {
         given: "a non rejected student question"
-        studentQuestion.setState(StudentQuestion.State.APPROVED)
+        studentQuestion.setState(state)
 
         and: "a student question dto"
         def options = new ArrayList<String>()
@@ -155,14 +156,17 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(NEW_CORRECT_INDEX)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editRejectedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
-        error.errorMessage == CANNOT_EDIT_STUDENT_QUESTION
+        error.errorMessage == CANNOT_EDIT_SQ_REJECTED
+
+        where:
+        state << [StudentQuestion.State.AWAITING_APPROVAL, StudentQuestion.State.APPROVED, StudentQuestion.State.AVAILABLE]
     }
 
-    def "edit student question with the same data"() {
+    def "edit rejected student question with the same data"() {
         given: "a student question dto"
         def options = new ArrayList<String>()
         options.add(CORRECT_OPTION)
@@ -177,7 +181,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(CORRECT_INDEX)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editRejectedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
@@ -185,7 +189,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
     }
 
     @Unroll("invalid arguments: #title | #content | #correct_option | #incorrect_option | #correct_index || error_message")
-    def "edit student question with missing data"() {
+    def "edit rejected student question with missing data"() {
         given: "a student question dto"
         def options = new ArrayList<String>()
         options.add(incorrect_option)
@@ -200,7 +204,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(correct_index)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editRejectedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
@@ -221,7 +225,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
     }
 
     @Unroll("invalid arguments: #options_count || error_message ")
-    def "edit student question with less or more than four options"() {
+    def "edit rejected student question with less or more than four options"() {
         given: "a student question dto"
         def studentQuestionDto = new StudentQuestionDto()
         studentQuestionDto.setTitle(NEW_QUESTION_TITLE)
@@ -230,7 +234,7 @@ class EditStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto.setCorrect(NEW_CORRECT_INDEX)
 
         when:
-        studentQuestionService.editStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestionService.editRejectedStudentQuestion(studentQuestion.getId(), studentQuestionDto)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
