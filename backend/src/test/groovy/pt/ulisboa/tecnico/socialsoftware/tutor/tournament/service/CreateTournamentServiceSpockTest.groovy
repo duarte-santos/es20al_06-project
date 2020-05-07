@@ -75,6 +75,8 @@ class CreateTournamentServiceSpockTest extends Specification{
 
     def setup(){
 
+        System.out.println(TOMORROW)
+
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         execution =  new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseRepository.save(course)

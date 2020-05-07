@@ -39,6 +39,15 @@ public class TournamentController {
         return tournamentService.enrollInTournament(user.getId(), tournamentId);
     }
 
+    /* Used to test with DEMO_STUDENT, since we cant have more than 1
+     * This service allows a DEMO_STUDENT to enroll other students */
+    @PutMapping("/tournaments/{tournamentId}/enroll/{userId}")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public TournamentDto enrollInTournament(@PathVariable Integer tournamentId, @PathVariable Integer userId) {
+        return tournamentService.enrollInTournament(userId, tournamentId);
+    }
+
+
     @DeleteMapping("/tournaments/{tournamentId}/delete")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'CREATOR.ACCESS')")
     public ResponseEntity cancelTournament(@PathVariable int tournamentId) {
