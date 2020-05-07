@@ -48,7 +48,7 @@ public class TournamentController {
     }
 
 
-    @DeleteMapping("/tournaments/{tournamentId}/delete")
+    @DeleteMapping("/tournaments/{tournamentId}/cancel")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'CREATOR.ACCESS')")
     public ResponseEntity cancelTournament(@PathVariable int tournamentId) {
         tournamentService.cancelTournament(tournamentId);
