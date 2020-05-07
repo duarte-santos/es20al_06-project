@@ -320,36 +320,44 @@ Cypress.Commands.add('teacherEvaluateQuestions', () => {
   cy.contains('Evaluate Questions').click();
 });
 
+function editAndSave(title, content, optionList, correct) {
+  if (title) {
+    cy.get('[data-cy="title"]').type(title);
+  }
+  if (content) {
+    cy.get('[data-cy="content"]').type(content);
+  }
+  for (let i = 0; i < optionList.length; i++) {
+    cy.get(`[data-cy="option${i}"]`).type(optionList[i]);
+  }
+  if (correct) {
+    cy.get(`[data-cy="radio${correct}"]`)
+      .parent()
+      .click();
+  }
+  cy.get('[data-cy="saveButton"]').click();
+}
+
 Cypress.Commands.add(
   'createStudentQuestion',
   (title, content, optionList, correct) => {
     cy.get('[data-cy="createButton"]').click();
-    if (title) {
-      cy.get('[data-cy="title"]').type(title);
-    }
-    if (content) {
-      cy.get('[data-cy="content"]').type(content);
-    }
-    for (let i = 0; i < optionList.length; i++) {
-      cy.get(`[data-cy="option${i}"]`).type(optionList[i]);
-    }
-    if (correct) {
-      cy.get(`[data-cy="radio${correct}"]`)
-        .parent()
-        .click();
-    }
-    cy.get('[data-cy="saveButton"]').click();
+    editAndSave(title, content, optionList, correct);
   }
 );
 
-Cypress.Commands.add('deleteStudentQuestion', title => {
+function findRowAndClick(title, dataCy, elementCount) {
   cy.contains(title)
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
-    .find('[data-cy="delete"]')
+    .should('have.length', elementCount)
+    .find(`[data-cy="${dataCy}"]`)
     .click();
+}
+
+Cypress.Commands.add('deleteStudentQuestion', title => {
+  findRowAndClick(title, 'delete', 7);
 });
 
 Cypress.Commands.add('addStudentQuestionTopic', (title, topic) => {
@@ -366,13 +374,7 @@ Cypress.Commands.add('addStudentQuestionTopic', (title, topic) => {
 Cypress.Commands.add(
   'evaluateStudentQuestion',
   (title, state, justification) => {
-    cy.contains(title)
-      .parent()
-      .should('have.length', 1)
-      .children()
-      .should('have.length', 8)
-      .find('[data-cy="evaluate"]')
-      .click();
+    findRowAndClick(title, 'evaluate', 8);
     if (state) {
       cy.get(`[data-cy="${state}"]`)
         .parent()
@@ -393,13 +395,7 @@ Cypress.Commands.add('closeException', () => {
 });
 
 Cypress.Commands.add('makeStudentQuestionAvailable', title => {
-  cy.contains(title)
-    .parent()
-    .should('have.length', 1)
-    .children()
-    .should('have.length', 8)
-    .find('[data-cy="available"]')
-    .click();
+  findRowAndClick(title, 'available', 8);
 });
 
 Cypress.Commands.add('assertCantMakeSQAvailable', title => {
@@ -416,4 +412,22 @@ Cypress.Commands.add('assertQuestionExists', title => {
   cy.contains(title)
     .parent()
     .should('exist');
+});
+
+Cypress.Commands.add(
+  'editStudentQuestion',
+  (oldTitle, title, content, optionList, correct) => {
+    findRowAndClick(oldTitle, 'edit', 7);
+    editAndSave(title, content, optionList, correct);
+  }
+);
+
+Cypress.Commands.add('editNotAvailable', title => {
+  cy.contains(title)
+    .parent()
+    .should('have.length', 1)
+    .children()
+    .should('have.length', 7)
+    .find('[data-cy="edit"]')
+    .should('not.exist');
 });

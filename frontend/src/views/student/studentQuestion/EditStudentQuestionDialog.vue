@@ -10,7 +10,11 @@
     <v-card>
       <v-card-title>
         <span class="headline">
-          New Question
+          {{
+            editQuestion && editQuestion.id === null
+              ? 'New Question'
+              : 'Edit Question'
+          }}
         </span>
       </v-card-title>
 
@@ -91,7 +95,16 @@ export default class EditStudentQuestionDialog extends Vue {
   editQuestion!: StudentQuestion;
 
   created() {
-    this.editQuestion = new StudentQuestion(this.question);
+    if (this.question.id == null)
+      this.editQuestion = new StudentQuestion(this.question);
+    else {
+      this.editQuestion = new StudentQuestion();
+      this.editQuestion.id = this.question.id;
+      this.editQuestion.title = this.question.title;
+      this.editQuestion.content = this.question.content;
+      this.editQuestion.options = this.question.options;
+      this.editQuestion.correct = this.question.correct;
+    }
   }
 
   async saveQuestion() {
@@ -101,20 +114,20 @@ export default class EditStudentQuestionDialog extends Vue {
     ) {
       await this.$store.dispatch(
         'error',
-        'Question must have title and content'
+        'Student Question must have title and content'
       );
       return;
     }
 
-    if (this.editQuestion) {
-      try {
-        const result = await RemoteServices.createStudentQuestion(
-          this.editQuestion
-        );
-        this.$emit('save-studentquestion', result);
-      } catch (error) {
-        await this.$store.dispatch('error', error);
-      }
+    try {
+      const result =
+        this.editQuestion.id != null
+          ? await RemoteServices.updateStudentQuestion(this.editQuestion)
+          : await RemoteServices.createStudentQuestion(this.editQuestion);
+
+      this.$emit('save-studentquestion', result);
+    } catch (error) {
+      await this.$store.dispatch('error', error);
     }
   }
 }

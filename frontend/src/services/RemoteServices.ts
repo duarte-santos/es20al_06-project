@@ -555,6 +555,107 @@ export default class RemoteServices {
       });
   }
 
+  static async exportAll() {
+    return httpClient
+      .get('/admin/export', {
+        responseType: 'blob'
+      })
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        let dateTime = new Date();
+        link.setAttribute(
+          'download',
+          `export-${dateTime.toLocaleString()}.zip`
+        );
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async errorMessage(error: any): Promise<string> {
+    if (error.message === 'Network Error') {
+      return 'Unable to connect to server';
+    } else if (error.message.split(' ')[0] === 'timeout') {
+      return 'Request timeout - Server took too long to respond';
+    } else if (error.response) {
+      return error.response.data.message;
+    } else if (error.message === 'Request failed with status code 403') {
+      await Store.dispatch('logout');
+      return 'Unauthorized access or Expired token';
+    } else {
+      console.log(error);
+      return 'Unknown Error - Contact admin';
+    }
+  }
+
+  // ***********************************************
+  // Tournaments
+  // ***********************************************
+
+  static createTournament(tournament: Tournament): Promise<Tournament> {
+    return httpClient
+      .post(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments`,
+        tournament
+      )
+      .then(response => {
+        return new Tournament(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static getAvailableTournaments(): Promise<Tournament[]> {
+    return httpClient
+      .get(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/available`
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static enrollInTournament(tournament: Tournament): Promise<Tournament> {
+    return httpClient
+      .put(`/tournaments/${tournament.id}/enroll`)
+      .then(response => {
+        return new Tournament(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static getOpenTournaments(): Promise<Tournament[]> {
+    return httpClient
+      .get(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/show-open`
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  // ***********************************************
+  // Student Question
+  // ***********************************************
+
   static async getStudentQuestions(): Promise<StudentQuestion[]> {
     return httpClient
       .get('/studentQuestions/ownQuestions')
@@ -654,99 +755,6 @@ export default class RemoteServices {
       .put(`/studentQuestions/${questionId}/available`)
       .then(response => {
         return new StudentQuestion(response.data);
-      })
-      .catch(async error => {
-        throw Error(await this.errorMessage(error));
-      });
-  }
-
-  static async exportAll() {
-    return httpClient
-      .get('/admin/export', {
-        responseType: 'blob'
-      })
-      .then(response => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        let dateTime = new Date();
-        link.setAttribute(
-          'download',
-          `export-${dateTime.toLocaleString()}.zip`
-        );
-        document.body.appendChild(link);
-        link.click();
-      })
-      .catch(async error => {
-        throw Error(await this.errorMessage(error));
-      });
-  }
-
-  static async errorMessage(error: any): Promise<string> {
-    if (error.message === 'Network Error') {
-      return 'Unable to connect to server';
-    } else if (error.message.split(' ')[0] === 'timeout') {
-      return 'Request timeout - Server took too long to respond';
-    } else if (error.response) {
-      return error.response.data.message;
-    } else if (error.message === 'Request failed with status code 403') {
-      await Store.dispatch('logout');
-      return 'Unauthorized access or Expired token';
-    } else {
-      console.log(error);
-      return 'Unknown Error - Contact admin';
-    }
-  }
-
-  static createTournament(tournament: Tournament): Promise<Tournament> {
-    return httpClient
-      .post(
-        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments`,
-        tournament
-      )
-      .then(response => {
-        return new Tournament(response.data);
-      })
-      .catch(async error => {
-        throw Error(await this.errorMessage(error));
-      });
-  }
-
-  static getAvailableTournaments(): Promise<Tournament[]> {
-    return httpClient
-      .get(
-        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/available`
-      )
-      .then(response => {
-        return response.data.map((tournament: any) => {
-          return new Tournament(tournament);
-        });
-      })
-      .catch(async error => {
-        throw Error(await this.errorMessage(error));
-      });
-  }
-
-  static enrollInTournament(tournament: Tournament): Promise<Tournament> {
-    return httpClient
-      .put(`/tournaments/${tournament.id}/enroll`)
-      .then(response => {
-        return new Tournament(response.data);
-      })
-      .catch(async error => {
-        throw Error(await this.errorMessage(error));
-      });
-  }
-
-  static getOpenTournaments(): Promise<Tournament[]> {
-    return httpClient
-      .get(
-        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/show-open`
-      )
-      .then(response => {
-        return response.data.map((tournament: any) => {
-          return new Tournament(tournament);
-        });
       })
       .catch(async error => {
         throw Error(await this.errorMessage(error));

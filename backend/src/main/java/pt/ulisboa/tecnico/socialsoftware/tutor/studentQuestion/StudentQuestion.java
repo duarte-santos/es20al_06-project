@@ -294,6 +294,7 @@ public class StudentQuestion {
 
         checkConsistentStudentQuestion(studentQuestionDto);
         studentQuestionDto = trimStudentQuestion(studentQuestionDto);
+        checkDifferentStudentQuestion(studentQuestionDto);
 
         this.title = studentQuestionDto.getTitle();
         this.content = studentQuestionDto.getContent();
@@ -302,6 +303,22 @@ public class StudentQuestion {
 
         this.justification = null;
         this.state = State.AWAITING_APPROVAL;
+    }
+
+    public void checkDifferentStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        if (studentQuestionDto.getTitle().equals(this.title) &&
+            studentQuestionDto.getContent().equals(this.content) &&
+            studentQuestionDto.getCorrect().equals(this.correct)) {
+
+            List<String> optionList = studentQuestionDto.getOptions();
+            for (int i = 0; i < optionList.size(); i++) {
+                if ( !optionList.get(i).equals(this.options.get(i)) )
+                    return;
+            }
+
+            throw new TutorException(EDIT_DATA_STUDENT_QUESTION);
+        }
+
     }
 
     public StudentQuestionDto trimStudentQuestion(StudentQuestionDto studentQuestionDto) {
