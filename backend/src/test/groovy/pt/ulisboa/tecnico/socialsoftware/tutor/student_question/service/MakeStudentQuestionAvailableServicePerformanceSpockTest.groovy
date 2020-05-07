@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.service
+package pt.ulisboa.tecnico.socialsoftware.tutor.student_question.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -8,16 +8,15 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.student_question.StudentQuestion
+import pt.ulisboa.tecnico.socialsoftware.tutor.student_question.StudentQuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.student_question.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
 
 @DataJpaTest
-class ViewStudentQuestionServicePerformanceSpockTest extends Specification {
+class MakeStudentQuestionAvailableServicePerformanceSpockTest extends Specification {
     public static final String COURSE_NAME = "COURSE_NAME"
     public static final String FIRST_NAME = "FIRST_NAME"
     public static final String USERNAME = "USERNAME"
@@ -25,9 +24,9 @@ class ViewStudentQuestionServicePerformanceSpockTest extends Specification {
     public static final String QUESTION_CONTENT = "QUESTION_CONTENT"
     public static final String OPTION_CORRECT = "OPTION_CORRECT"
     public static final String OPTION_INCORRECT = "OPTION_INCORRECT"
+    public static final String JUSTIFICATION = "JUSTIFICATION"
     public static final String ACRONYM = "C1"
     public static final String ACADEMIC_TERM = "1st Term"
-
 
     @Autowired
     StudentQuestionService studentQuestionService
@@ -44,7 +43,7 @@ class ViewStudentQuestionServicePerformanceSpockTest extends Specification {
     @Autowired
     UserRepository userRepository
 
-    def "Performance Test - View 100 (one hundred) StudentQuestions 10000 (ten thousand) times"() {
+    def "Performance Test - Make 10000 (ten thousand) StudentQuestions available"() {
         given: "a course"
         def course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
@@ -54,19 +53,24 @@ class ViewStudentQuestionServicePerformanceSpockTest extends Specification {
         and: "a user"
         def user = new User(FIRST_NAME, USERNAME, 1, User.Role.STUDENT)
         userRepository.save(user)
-        and: "100 StudentQuestions"
+        and: "10000 approved StudentQuestions"
         List<String> options = new ArrayList<String>()
         options.add(OPTION_CORRECT)
         options.add(OPTION_INCORRECT)
         options.add(OPTION_INCORRECT)
         options.add(OPTION_INCORRECT)
-        1.upto(1/*00*/, {
+        def firstStudentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
+        firstStudentQuestion.setState(StudentQuestion.State.APPROVED)
+        studentQuestionRepository.save(firstStudentQuestion)
+        Integer firstId = firstStudentQuestion.getId()
+        1.upto(5/*0000*/, {
             def studentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
+            studentQuestion.setState(StudentQuestion.State.APPROVED)
             studentQuestionRepository.save(studentQuestion)
         })
 
         when:
-        0.upto(1/*0000*/, { studentQuestionService.viewOwnStudentQuestions(user.getId()) })
+        0.upto(5/*0000*/, { studentQuestionService.makeStudentQuestionAvailable(firstId + it as Integer) })
 
         then:
         true

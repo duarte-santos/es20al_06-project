@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion;
+package pt.ulisboa.tecnico.socialsoftware.tutor.student_question;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
@@ -19,8 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -193,6 +192,24 @@ public class StudentQuestionService {
         studentQuestionRepository.save(studentQuestion);
 
         return new StudentQuestionDto(studentQuestion);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public SQDashboardDto getSQDashboard(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+
+        SQDashboardDto dashboardDto = new SQDashboardDto();
+
+        int totalQuestions = studentQuestionRepository.getSQCount(user.getId());
+        int totalApprovedQuestions = studentQuestionRepository.getAprovedSQCount(user.getId());
+
+        dashboardDto.setTotalQuestions(totalQuestions);
+        dashboardDto.setTotalApprovedQuestions(totalApprovedQuestions);
+
+        return dashboardDto;
     }
 
 }

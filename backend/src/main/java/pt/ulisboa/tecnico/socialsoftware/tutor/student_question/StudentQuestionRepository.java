@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion;
+package pt.ulisboa.tecnico.socialsoftware.tutor.student_question;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,5 +19,12 @@ public interface StudentQuestionRepository extends JpaRepository<StudentQuestion
 
     @Query(value = "SELECT * FROM student_questions sq WHERE sq.user_id = :userId", nativeQuery = true)
     List<StudentQuestion> viewStudentQuestions(int userId);
+
+    @Query(value = "SELECT COUNT(*) FROM student_questions sq WHERE sq.user_id = :userId AND " +
+            "(sq.state = 'APPROVED' OR sq.state = 'AVAILABLE')", nativeQuery = true)
+    Integer getAprovedSQCount(Integer userId);
+
+    @Query(value = "SELECT COUNT(*) FROM student_questions sq WHERE sq.user_id = :userId", nativeQuery = true)
+    Integer getSQCount(Integer userId);
 
 }
