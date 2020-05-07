@@ -647,6 +647,19 @@ export default class RemoteServices {
       });
   }
 
+  static async makeStudentQuestionAvailable(
+    questionId: number
+  ): Promise<StudentQuestion> {
+    return httpClient
+      .put(`/studentQuestions/${questionId}/available`)
+      .then(response => {
+        return new StudentQuestion(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static async exportAll() {
     return httpClient
       .get('/admin/export', {

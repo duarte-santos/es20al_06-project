@@ -228,6 +228,7 @@ export default class StudentQuestionView extends Vue {
   getStateColor(state: string) {
     if (state === 'REJECTED') return 'red';
     else if (state === 'APPROVED') return 'green';
+    else if (state === 'AVAILABLE') return 'blue';
     else return 'orange';
   }
 
