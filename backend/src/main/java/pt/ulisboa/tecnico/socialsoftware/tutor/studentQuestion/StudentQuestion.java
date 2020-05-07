@@ -21,7 +21,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
         })
 public class StudentQuestion {
     public enum State {
-        AWAITING_APPROVAL, APPROVED, REJECTED
+        AWAITING_APPROVAL, APPROVED, REJECTED, AVAILABLE
     }
 
     @Id
@@ -61,12 +61,13 @@ public class StudentQuestion {
     @Column(columnDefinition = "TEXT")
     private String justification;
 
-    private Integer correspondingQuestionKey;
+    private Integer correspondingQuestionId;
 
     public StudentQuestion() {}
 
     public StudentQuestion(Course course, User user, StudentQuestionDto stQuestionDto) {
         checkConsistentStudentQuestion(stQuestionDto);
+        stQuestionDto = trimStudentQuestion(stQuestionDto);
 
         this.key = stQuestionDto.getKey();
         this.student = user;
@@ -88,6 +89,8 @@ public class StudentQuestion {
         this.justification = stQuestionDto.getJustification();
     }
 
+    // TODO : check and trim parameters or change spock tests
+    // Only used in Spock Test
     public StudentQuestion(Course course, User user, String title, String content, List<String> options, Integer correct) {
         setCourse(course);
         this.student = user;
@@ -248,12 +251,12 @@ public class StudentQuestion {
         this.justification = justification;
     }
 
-    public Integer getCorrespondingQuestionKey() {
-        return correspondingQuestionKey;
+    public Integer getCorrespondingQuestionId() {
+        return correspondingQuestionId;
     }
 
-    public void setCorrespondingQuestionKey(Integer correspondingQuestionKey) {
-        this.correspondingQuestionKey = correspondingQuestionKey;
+    public void setCorrespondingQuestionId(Integer correspondingQuestionId) {
+        this.correspondingQuestionId = correspondingQuestionId;
     }
 
     public void evaluateStudentQuestion(StudentQuestionDto studentQuestionDto) {
@@ -283,6 +286,66 @@ public class StudentQuestion {
         course = null;
         getOptions().clear();
         getTopics().clear();
+    }
+
+    public void editStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        if (state != State.REJECTED)
+            throw new TutorException(CANNOT_EDIT_STUDENT_QUESTION);
+
+        checkConsistentStudentQuestion(studentQuestionDto);
+        studentQuestionDto = trimStudentQuestion(studentQuestionDto);
+        checkDifferentStudentQuestion(studentQuestionDto);
+
+        this.title = studentQuestionDto.getTitle();
+        this.content = studentQuestionDto.getContent();
+        this.options = studentQuestionDto.getOptions();
+        this.correct = studentQuestionDto.getCorrect();
+
+        this.justification = null;
+        this.state = State.AWAITING_APPROVAL;
+    }
+
+    public void checkDifferentStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        if (studentQuestionDto.getTitle().equals(this.title) &&
+            studentQuestionDto.getContent().equals(this.content) &&
+            studentQuestionDto.getCorrect().equals(this.correct)) {
+
+            List<String> optionList = studentQuestionDto.getOptions();
+            for (int i = 0; i < optionList.size(); i++) {
+                if ( !optionList.get(i).equals(this.options.get(i)) )
+                    return;
+            }
+
+            throw new TutorException(EDIT_DATA_STUDENT_QUESTION);
+        }
+
+    }
+
+    public StudentQuestionDto trimStudentQuestion(StudentQuestionDto studentQuestionDto) {
+        studentQuestionDto.setTitle(studentQuestionDto.getTitle().trim());
+        studentQuestionDto.setContent(studentQuestionDto.getContent().trim());
+
+        List<String> optionList = studentQuestionDto.getOptions();
+        for (int i = 0; i < optionList.size(); i++) {
+            optionList.set(i, optionList.get(i).trim());
+        }
+        studentQuestionDto.setOptions(optionList);
+
+        return studentQuestionDto;
+    }
+
+    public Question makeStudentQuestionAvailable(StudentQuestion studentQuestion) {
+        if (studentQuestion.state == State.AVAILABLE)
+            throw new TutorException(SQ_ALREADY_AVAILABLE);
+
+        if (studentQuestion.state != State.APPROVED)
+            throw new TutorException(SQ_CANNOT_BECOME_QUESTION);
+
+        Question question = new Question(studentQuestion);
+        setState(State.AVAILABLE);
+        //correspondingQuestionId must be added later
+
+        return question;
     }
 
 }

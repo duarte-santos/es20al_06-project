@@ -6,11 +6,10 @@ export default class Tournament {
   id!: number;
   title!: string;
   numberOfQuestions!: number;
-  startingDate!: string ;
-  conclusionDate!: string ;
+  startingDate!: string;
+  conclusionDate!: string;
   status!: string | undefined;
   studentList: User[] = [];
-
 
   topicList: Topic[] = [];
 
@@ -32,8 +31,7 @@ export default class Tournament {
     }
   }
 
-  getTitle(){
+  getTitle() {
     return this.title;
   }
-
 }

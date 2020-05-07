@@ -107,10 +107,24 @@ public class StudentQuestionController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/studentQuestions/{studentQuestionId}/available")
+    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS')")
+    public StudentQuestionDto makeStudentQuestionAvailable(@PathVariable Integer studentQuestionId) {
+        return this.studentQuestionService.makeStudentQuestionAvailable(studentQuestionId);
+    }
     
     private Path getTargetLocation(String url) {
         String fileLocation = figuresDir + url;
         return Paths.get(fileLocation);
+    }
+
+    @PutMapping("/studentQuestions/{studentQuestionId}")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public StudentQuestionDto editStudentQuestion(@PathVariable int studentQuestionId,
+                                                  @Valid @RequestBody StudentQuestionDto studentQuestionDto) {
+
+        return studentQuestionService.editStudentQuestion(studentQuestionId, studentQuestionDto);
     }
 
 }

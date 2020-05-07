@@ -49,7 +49,7 @@
           </template>
           <span>Show Question</span>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom v-if="item.state === 'AWAITING_APPROVAL'">
           <template v-slot:activator="{ on }">
             <v-icon
               small
@@ -60,6 +60,20 @@
             >
           </template>
           <span>Evaluate Question</span>
+        </v-tooltip>
+        <v-tooltip bottom v-if="item.state === 'APPROVED'">
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="makeQuestionAvailable(item)"
+              data-cy="available"
+              color="blue"
+              >check_circle</v-icon
+            >
+          </template>
+          <span>Make Question Available</span>
         </v-tooltip>
       </template>
     </v-data-table>
@@ -180,6 +194,27 @@ export default class EvaluateQuestionView extends Vue {
     }
   }
 
+  async makeQuestionAvailable(question: StudentQuestion) {
+    if (
+      question.id &&
+      confirm(
+        'Are you sure you want to add this question to the question pool?'
+      )
+    ) {
+      try {
+        const result = await RemoteServices.makeStudentQuestionAvailable(
+          question.id
+        );
+        this.studentQuestions = this.studentQuestions.filter(
+          q => q.id !== result.id
+        );
+        this.studentQuestions.unshift(result);
+      } catch (error) {
+        await this.$store.dispatch('error', error);
+      }
+    }
+  }
+
   async onSaveStudentQuestionEvaluation(question: StudentQuestion) {
     this.studentQuestions = this.studentQuestions.filter(
       q => q.id !== question.id
@@ -192,6 +227,7 @@ export default class EvaluateQuestionView extends Vue {
   getStateColor(state: string) {
     if (state === 'REJECTED') return 'red';
     else if (state === 'APPROVED') return 'green';
+    else if (state === 'AVAILABLE') return 'blue';
     else return 'orange';
   }
 

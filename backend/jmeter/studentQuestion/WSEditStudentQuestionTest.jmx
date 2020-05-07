@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.2.1">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Web Service evaluateStudentQuestion" enabled="true">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Web Service editStudentQuestion" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
@@ -102,7 +102,9 @@
 	&quot;title&quot;: &quot;Student_Question_Title_FOR_TEST&quot;,&#xd;
 	&quot;content&quot;: &quot;Student_Question_Content_FOR_TEST&quot;,&#xd;
 	&quot;options&quot;: [ &quot;Option_A_FOR_TEST&quot;, &quot;Option_B_FOR_TEST&quot;, &quot;Option_C_FOR_TEST&quot;, &quot;Option_D_FOR_TEST&quot;],&#xd;
-	&quot;correct&quot;: &quot;1&quot;&#xd;
+	&quot;correct&quot;: &quot;1&quot;,&#xd;
+	&quot;justification&quot;: &quot;Justification_FOR_TEST&quot;,&#xd;
+	&quot;state&quot;: &quot;REJECTED&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -227,7 +229,7 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login as Demo Teacher" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login as Demo Student" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
@@ -235,7 +237,7 @@
           <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/auth/demo/teacher</stringProp>
+          <stringProp name="HTTPSampler.path">/auth/demo/student</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -268,15 +270,17 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to Evaluate a StudentQuestion" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to Edit a StudentQuestion" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">														{&#xd;
-	&quot;state&quot;: &quot;APPROVED&quot;,&#xd;
-	&quot;justification&quot;: &quot;Justification_FOR_TEST&quot;&#xd;
+                  <stringProp name="Argument.value">{&#xd;
+	&quot;title&quot;: &quot;NEW_Student_Question_Title_FOR_TEST&quot;,&#xd;
+	&quot;content&quot;: &quot;NEW_Student_Question_Content_FOR_TEST&quot;,&#xd;
+	&quot;options&quot;: [ &quot;NEW_Option_A_FOR_TEST&quot;, &quot;NEW_Option_B_FOR_TEST&quot;, &quot;NEW_Option_C_FOR_TEST&quot;, &quot;NEW_Option_D_FOR_TEST&quot;],&#xd;
+	&quot;correct&quot;: &quot;2&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -286,7 +290,7 @@
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/studentQuestions/${__property(studentQuestionId)}/evaluate</stringProp>
+            <stringProp name="HTTPSampler.path">/studentQuestions/${__property(studentQuestionId)}</stringProp>
             <stringProp name="HTTPSampler.method">PUT</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -297,9 +301,45 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert title" enabled="true">
+              <stringProp name="JSON_PATH">$.title</stringProp>
+              <stringProp name="EXPECTED_VALUE">NEW_Student_Question_Title_FOR_TEST</stringProp>
+              <boolProp name="JSONVALIDATION">true</boolProp>
+              <boolProp name="EXPECT_NULL">false</boolProp>
+              <boolProp name="INVERT">false</boolProp>
+              <boolProp name="ISREGEX">false</boolProp>
+            </JSONPathAssertion>
+            <hashTree/>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert content" enabled="true">
+              <stringProp name="JSON_PATH">$.content</stringProp>
+              <stringProp name="EXPECTED_VALUE">NEW_Student_Question_Content_FOR_TEST</stringProp>
+              <boolProp name="JSONVALIDATION">true</boolProp>
+              <boolProp name="EXPECT_NULL">false</boolProp>
+              <boolProp name="INVERT">false</boolProp>
+              <boolProp name="ISREGEX">false</boolProp>
+            </JSONPathAssertion>
+            <hashTree/>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert options" enabled="true">
+              <stringProp name="JSON_PATH">$.options</stringProp>
+              <stringProp name="EXPECTED_VALUE">[&quot;NEW_Option_A_FOR_TEST&quot;,&quot;NEW_Option_B_FOR_TEST&quot;,&quot;NEW_Option_C_FOR_TEST&quot;,&quot;NEW_Option_D_FOR_TEST&quot;]</stringProp>
+              <boolProp name="JSONVALIDATION">true</boolProp>
+              <boolProp name="EXPECT_NULL">false</boolProp>
+              <boolProp name="INVERT">false</boolProp>
+              <boolProp name="ISREGEX">false</boolProp>
+            </JSONPathAssertion>
+            <hashTree/>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert correct" enabled="true">
+              <stringProp name="JSON_PATH">$.correct</stringProp>
+              <stringProp name="EXPECTED_VALUE">2</stringProp>
+              <boolProp name="JSONVALIDATION">true</boolProp>
+              <boolProp name="EXPECT_NULL">false</boolProp>
+              <boolProp name="INVERT">false</boolProp>
+              <boolProp name="ISREGEX">false</boolProp>
+            </JSONPathAssertion>
+            <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert state" enabled="true">
               <stringProp name="JSON_PATH">$.state</stringProp>
-              <stringProp name="EXPECTED_VALUE">APPROVED</stringProp>
+              <stringProp name="EXPECTED_VALUE">AWAITING_APPROVAL</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -308,9 +348,9 @@
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert justification" enabled="true">
               <stringProp name="JSON_PATH">$.justification</stringProp>
-              <stringProp name="EXPECTED_VALUE">Justification_FOR_TEST</stringProp>
+              <stringProp name="EXPECTED_VALUE"></stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
+              <boolProp name="EXPECT_NULL">true</boolProp>
               <boolProp name="INVERT">false</boolProp>
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
@@ -418,18 +458,18 @@
           <boolProp name="keepAlive">true</boolProp>
           <stringProp name="connectionAge">5000</stringProp>
           <stringProp name="checkQuery"></stringProp>
-          <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb?autoReconnect=true</stringProp>
+          <stringProp name="dbUrl">jdbc:postgresql://localhost:5433/tutordb?autoReconnect=true</stringProp>
           <stringProp name="driver">org.postgresql.Driver</stringProp>
-          <stringProp name="username">sofia</stringProp>
-          <stringProp name="password">bolonhesi</stringProp>
+          <stringProp name="username">duarte</stringProp>
+          <stringProp name="password">bheu0325</stringProp>
           <stringProp name="connectionProperties"></stringProp>
         </JDBCDataSource>
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
           <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
-DELETE FROM student_questions WHERE title=&apos;Student_Question_Title_FOR_TEST&apos;;</stringProp>
+          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;NEW_Option_A_FOR_TEST&apos;,&apos;NEW_Option_B_FOR_TEST&apos;,&apos;NEW_Option_C_FOR_TEST&apos;,&apos;NEW_Option_D_FOR_TEST&apos;);
+DELETE FROM student_questions WHERE title=&apos;NEW_Student_Question_Title_FOR_TEST&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>

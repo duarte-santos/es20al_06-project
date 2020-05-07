@@ -18,7 +18,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
@@ -95,38 +94,38 @@ public class RemoveStudentQuestionServiceSpockTest extends Specification {
         studentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
         studentQuestion.setImage(image)
         studentQuestionRepository.save(studentQuestion)
-        studentQuestionDto = new StudentQuestionDto()
     }
 
-    @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated | addedJustification")
+    @Unroll("studentQuestion evaluation: #evaluation | #justification")
     def "remove question with different states"() {
         given: "an evaluation"
-        studentQuestionDto.setState(evaluation.name())
-        studentQuestionDto.setJustification(justification)
-        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
-        def newQuestionKey = studentQuestion.getCorrespondingQuestionKey()
+        studentQuestion.setState(evaluation)
+        studentQuestion.setJustification(justification)
+        if (available) //test when there is a corresponding question
+            studentQuestionService.makeStudentQuestionAvailable(studentQuestion.getId())
 
         when:
         studentQuestionService.removeStudentQuestion(studentQuestion.getId())
 
         then: "the studentQuestion is removed"
-            studentQuestionRepository.count() == 0L
-            imageRepository.count() == 0L
+        studentQuestionRepository.count() == 0L
+        imageRepository.count() == 0L
 
         and: "if created, the new question has been removed"
-            questionRepository.count() == 0L
+        questionRepository.count() == 0L
 
         where:
-        evaluation                                 | justification
-        StudentQuestion.State.AWAITING_APPROVAL    | null
-        StudentQuestion.State.REJECTED             | JUSTIFICATION
-        StudentQuestion.State.APPROVED             | JUSTIFICATION
+        evaluation                                 | justification      | available
+        StudentQuestion.State.AWAITING_APPROVAL    | null               | false
+        StudentQuestion.State.REJECTED             | JUSTIFICATION      | false
+        StudentQuestion.State.APPROVED             | JUSTIFICATION      | false
+        StudentQuestion.State.APPROVED             | JUSTIFICATION      | true
     }
 
     def "invalid input values"() {
         given: "an approved student question"
-        studentQuestionDto.setState("APPROVED")
-        studentQuestionService.evaluateStudentQuestion(studentQuestion.getId(), studentQuestionDto)
+        studentQuestion.setState(StudentQuestion.State.APPROVED)
+        studentQuestionService.makeStudentQuestionAvailable(studentQuestion.getId())
         and: "a corresponding question with answers"
         def question = questionRepository.findAll().get(0)
         def quiz = new Quiz()

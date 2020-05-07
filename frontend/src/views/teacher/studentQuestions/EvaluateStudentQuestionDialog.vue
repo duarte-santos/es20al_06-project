@@ -23,14 +23,10 @@
                 <li v-for="(option, index) in question.options" :key="index">
                   <span
                     v-if="question.correct - 1 === index"
-                    v-html="convertMarkDown('**[★]** ', null)"
+                    v-html="convertMarkDown('**[★]** ' + option)"
+                    v-bind:class="['font-weight-bold']"
                   />
-                  <span
-                    v-html="convertMarkDown(option, null)"
-                    v-bind:class="[
-                      question.correct - 1 === index ? 'font-weight-bold' : ''
-                    ]"
-                  />
+                  <span v-else v-html="convertMarkDown(option)" />
                 </li>
               </ul>
             </v-flex>

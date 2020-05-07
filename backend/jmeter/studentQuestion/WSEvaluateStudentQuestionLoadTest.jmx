@@ -341,7 +341,7 @@ vars.put(&quot;currentSQId&quot;, currentSQId.toString());
               <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/studentQuestions/${currentSQId}</stringProp>
+              <stringProp name="HTTPSampler.path">/studentQuestions/${currentSQId}/evaluate</stringProp>
               <stringProp name="HTTPSampler.method">PUT</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -465,9 +465,7 @@ vars.put(&quot;currentSQId&quot;, currentSQId.toString());
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
           <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="query">DELETE FROM options WHERE content in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
-DELETE FROM questions WHERE title=&apos;Student_Question_Title_FOR_TEST&apos;;
-DELETE FROM student_question_options WHERE options in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
+          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
 DELETE FROM student_questions WHERE title=&apos;Student_Question_Title_FOR_TEST&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>

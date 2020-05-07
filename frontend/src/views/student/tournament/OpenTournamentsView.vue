@@ -8,7 +8,7 @@
         <div class="col">#Questions</div>
         <div class="col">Answer Quiz</div>
       </li>
-      <li class="list-row" v-if="tournaments.length == 0">
+      <li class="list-row" v-if="tournaments.length === 0">
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
         <p class="noT">There are no open tournaments</p>
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
@@ -28,7 +28,8 @@
           {{ tournament.numberOfQuestions }}
         </div>
         <div :id="tournament.id" class="col last-col">
-          <v-btn medium
+          <v-btn
+            medium
             width="3cm"
             color="primary"
             @click="answerQuiz(tournament)"
