@@ -31,7 +31,7 @@ import java.time.LocalDateTime
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
-class StudentAnswersTournamentQuestionsSpockTest extends Specification{
+class StartTournamentServiceSpockTest extends Specification{
 
     static final String TOURNAMENT_TITLE = "T12"
     static final String STUDENT_NAME = "StudentName"
@@ -144,12 +144,13 @@ class StudentAnswersTournamentQuestionsSpockTest extends Specification{
         tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
 
         when:
-        tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
+        def result = tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
         /* The actual answering of questions is controlled by the Quiz Services, which are out of
         the scope of this test. */
 
-        then: "The tournament quiz was started"
+        then: "The tournament was started"
         /* No exceptions were thrown */
+        result == true;
     }
 
     def "a student that's not enrolled tries to participate in a tournament"(){

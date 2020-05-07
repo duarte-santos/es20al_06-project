@@ -20,10 +20,10 @@ public class TournamentController {
 
     @PostMapping("/executions/{executionId}/tournaments")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
-    public TournamentDto createTournament(@PathVariable int executionId, Authentication authentication,
+    public TournamentDto createTournament(@PathVariable int executionId, Principal principal,
                                           @RequestBody TournamentDto tournamentDto) {
-        Integer studentId = ((User) authentication.getPrincipal()).getId();
-        return tournamentService.createTournament(executionId, studentId, tournamentDto);
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.createTournament(executionId, user.getId(), tournamentDto);
     }
 
     @GetMapping("/executions/{executionId}/tournaments/show-open")
@@ -59,6 +59,13 @@ public class TournamentController {
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> showAvailableTournaments(@PathVariable int executionId) {
         return tournamentService.showAvailableTournaments(executionId);
+    }
+
+    @GetMapping("/tournaments/{tournamentId}/start")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public boolean startTournament(Principal principal, @PathVariable int tournamentId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.startTournament(user.getId(), tournamentId);
     }
 
 }

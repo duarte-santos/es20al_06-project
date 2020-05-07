@@ -241,7 +241,7 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void startTournament(int userId, int tournamentId) {
+    public boolean startTournament(int userId, int tournamentId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
         LocalDateTime now = LocalDateTime.now();
@@ -265,5 +265,7 @@ public class TournamentService{
         if (tournament.getConclusionDate().isBefore(now)){
             throw new TutorException(TOURNAMENT_IS_FINISHED);
         }
+
+        return true;
     }
 }
