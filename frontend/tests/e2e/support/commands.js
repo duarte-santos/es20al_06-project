@@ -302,6 +302,69 @@ Cypress.Commands.add('checkForNoTournament', title => {
   });
 });
 
+/* ****** Create Tournament with Different Student ****** */
+
+Cypress.Commands.add(
+  'createTournamentDifferentStudent',
+  (id, title, creator) => {
+    // Create tournament
+    cy.exec(
+      'PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+        '"INSERT INTO tournaments (id, starting_date, conclusion_date, number_of_questions, status, title, course_execution_id, creator_id) ' +
+        'VALUES (' +
+        `${id}, \'2018-04-28 05:32:00\', \'2100-04-28 05:32:00\', 5, \'OPEN\',\'` +
+        `${title}\', 11, ` +
+        `${creator});"`
+    );
+
+    // Enroll creator in the tournament
+    cy.exec(
+      'PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+        '"INSERT INTO tournaments_student_list (tournaments_enrolled_id, student_list_id) ' +
+        'VALUES (' +
+        id +
+        ',' +
+        creator +
+        ');"'
+    );
+
+    // Add topics
+    cy.exec(
+      'PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+        '"INSERT INTO tournaments_topic_list (tournaments_id, topic_list_id) ' +
+        'VALUES (' +
+        id +
+        ',108);"'
+    );
+  }
+);
+
+/* ********** Delete Tournament from DB ********** */
+
+Cypress.Commands.add('deleteTournament', id => {
+  cy.exec(
+    'PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+      '"DELETE FROM tournaments_topic_list WHERE tournaments_id =' +
+      id +
+      '; ' +
+      ' DELETE FROM tournaments_student_list WHERE tournaments_enrolled_id =' +
+      id +
+      '; ' +
+      ' DELETE FROM tournaments WHERE id=' +
+      id +
+      '; "'
+  );
+});
+
+/* ********** Tournament Generates Quiz ********** */
+
+Cypress.Commands.add('checkTournamentQuiz', title => {
+  cy.contains('Tournaments').click();
+  cy.contains('Show Open').click();
+  cy.wait(200);
+  cy.get('[data-cy="' + title + '.startButton"]').should('be.visible');
+});
+
 // ***********************************************
 // Student Question
 // ***********************************************

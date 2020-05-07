@@ -60,7 +60,7 @@ public class User implements UserDetails, DomainEntity {
     @ManyToMany
     private Set<CourseExecution> courseExecutions = new HashSet<>();
 
-    @ManyToMany(mappedBy = "topicList")
+    @ManyToMany(mappedBy = "studentList")
     private Set<Tournament> tournamentsEnrolled = new HashSet<>();
 
     public User() {

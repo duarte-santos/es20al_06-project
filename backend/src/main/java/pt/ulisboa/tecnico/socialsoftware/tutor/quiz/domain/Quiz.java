@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.Visitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -77,6 +78,9 @@ public class Quiz implements DomainEntity {
     @ManyToOne
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "quiz", fetch=FetchType.LAZY, orphanRemoval=true)
+    private Tournament tournament;
 
     public Quiz() {}
 
