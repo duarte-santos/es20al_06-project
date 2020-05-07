@@ -216,7 +216,7 @@ public class StudentQuestionService {
         SQDashboardDto dashboardDto = new SQDashboardDto();
 
         int totalQuestions = studentQuestionRepository.getSQCount(user.getId());
-        int totalApprovedQuestions = studentQuestionRepository.getAprovedSQCount(user.getId());
+        int totalApprovedQuestions = studentQuestionRepository.getApprovedSQCount(user.getId());
 
         dashboardDto.setTotalQuestions(totalQuestions);
         dashboardDto.setTotalApprovedQuestions(totalApprovedQuestions);

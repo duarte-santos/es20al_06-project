@@ -22,7 +22,7 @@ public interface StudentQuestionRepository extends JpaRepository<StudentQuestion
 
     @Query(value = "SELECT COUNT(*) FROM student_questions sq WHERE sq.user_id = :userId AND " +
             "(sq.state = 'APPROVED' OR sq.state = 'AVAILABLE')", nativeQuery = true)
-    Integer getAprovedSQCount(Integer userId);
+    Integer getApprovedSQCount(Integer userId);
 
     @Query(value = "SELECT COUNT(*) FROM student_questions sq WHERE sq.user_id = :userId", nativeQuery = true)
     Integer getSQCount(Integer userId);

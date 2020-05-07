@@ -133,4 +133,9 @@ public class StudentQuestionController {
 
     }
 
+    @GetMapping("/dashboard/{studentId}/studentQuestions")
+    public SQDashboardDto getSQDashboard(@PathVariable int studentId) {
+        return studentQuestionService.getSQDashboard(studentId);
+    }
+
 }
