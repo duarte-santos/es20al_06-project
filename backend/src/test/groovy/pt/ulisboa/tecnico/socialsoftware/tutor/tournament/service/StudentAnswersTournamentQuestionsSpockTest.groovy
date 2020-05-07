@@ -17,7 +17,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
@@ -25,11 +24,14 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentR
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.time.LocalDateTime
 
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
+
 @DataJpaTest
-class CancelTournamentServiceSpockTest extends Specification{
+class StudentAnswersTournamentQuestionsSpockTest extends Specification{
 
     static final String TOURNAMENT_TITLE = "T12"
     static final String STUDENT_NAME = "StudentName"
@@ -41,19 +43,14 @@ class CancelTournamentServiceSpockTest extends Specification{
     static final String ACADEMIC_TERM = "1 SEM"
     static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
-    static final String YESTERDAY = DateHandler.toISOString(DateHandler.now().minusDays(1))
-    static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
-    static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
+    static final LocalDateTime EARLIER = LocalDateTime.now().minusDays(2)
+    static final LocalDateTime YESTERDAY = LocalDateTime.now().minusDays(1)
+    static final LocalDateTime TOMORROW = LocalDateTime.now().plusDays(1)
+    static final LocalDateTime LATER = LocalDateTime.now().plusDays(2)
     public static final String QUESTION_TITLE = 'question title'
 
     @Autowired
     TournamentService tournamentService
-
-    @Autowired
-    QuizRepository quizRepository
-
-    @Autowired
-    UserRepository userRepository
 
     @Autowired
     TournamentRepository tournamentRepository
@@ -65,7 +62,10 @@ class CancelTournamentServiceSpockTest extends Specification{
     CourseRepository courseRepository
 
     @Autowired
-    CourseExecutionRepository courseExecutionRepository;
+    CourseExecutionRepository courseExecutionRepository
+
+    @Autowired
+    UserRepository userRepository
 
     @Autowired
     QuestionRepository questionRepository;
@@ -79,13 +79,14 @@ class CancelTournamentServiceSpockTest extends Specification{
     def topicDto
     def static topicList
     def static topicDtoList
+    def static tournament
     def tournamentDto
     def studentId
     def tournamentId
     def question
     def questionDto
 
-    def setup() {
+    def setup(){
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         execution =  new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
@@ -109,8 +110,18 @@ class CancelTournamentServiceSpockTest extends Specification{
         topicList = new ArrayList()
         topicList.add(topic)
 
+        def yesterday = DateHandler.toISOString(DateHandler.now().minusDays(1))
+        def tomorrow = DateHandler.toISOString(DateHandler.now().plusDays(1))
 
-        /* Question */
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, yesterday, tomorrow)
+        tournament = new Tournament(tournamentDto, creator)
+        tournament.setCourseExecution(execution)
+        tournament.setTopicList(topicList)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
+
+
+        /* Create new questions associated with the created Topic */
         question = new Question()
         question.setKey(1)
         question.setCourse(course)
@@ -125,108 +136,82 @@ class CancelTournamentServiceSpockTest extends Specification{
 
     }
 
-    def "Student cancels an existing tournament (no quiz)"(){
-        given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        Tournament tournament = new Tournament(tournamentDto, creator)
-        tournament.setCourseExecution(execution)
-        tournament.setTopicList(topicList)
-        tournamentRepository.save(tournament)
-        tournamentId = tournament.getId()
+    def "an enrolled student starts answering to a tournament's questions"(){
+        given: "An open tournament"
+        tournament.setStartingDate(YESTERDAY)
+        tournament.setConclusionDate(TOMORROW)
+        and: "An enrolled student"
+        tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
 
         when:
-        tournamentService.cancelTournament(tournamentId)
-        def result = tournamentRepository.findAll()
+        tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
+        /* The actual answering of questions is controlled by the Quiz Services, which are out of
+        the scope of this test. */
 
-        then: "The tournament is no longer in the data base"
-        result.size() == 0
-
+        then: "The tournament quiz was started"
+        /* No exceptions were thrown */
     }
 
-    def "Student cancels a tournament with a generated quiz"(){
-        given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        Tournament tournament = new Tournament(tournamentDto, creator)
-        tournament.setCourseExecution(execution)
-        tournament.setTopicList(topicList)
-        tournamentRepository.save(tournament)
-        tournamentId = tournament.getId()
+    def "a student that's not enrolled tries to participate in a tournament"(){
+        given: "An open tournament"
+        tournament.setStartingDate(YESTERDAY)
+        tournament.setConclusionDate(TOMORROW)
+        tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
+        and: "A student that's not enrolled"
+        def student2 = new User("NotEnrolled", "NotEnrolled", 3, User.Role.STUDENT)
+        userRepository.save(student2)
 
         when:
-        tournamentService.createTournamentQuiz(tournament)
-        tournamentService.cancelTournament(tournamentId)
-
-        then: "The tournament and quiz are properly deleted"
-        tournamentRepository.findAll().size() == 0
-        quizRepository.findAll().size() == 0
+        tournamentService.startTournament(student2.getId(), tournamentId)
 
 
-    }
-
-
-    def "Student cancels the same tournament twice"(){
-        given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        Tournament tournament = new Tournament(tournamentDto, creator)
-        tournament.setCourseExecution(execution)
-        tournament.setTopicList(topicList)
-        tournamentRepository.save(tournament)
-        tournamentId = tournament.getId()
-
-        when:
-        tournamentService.cancelTournament(tournamentId)
-        tournamentService.cancelTournament(tournamentId)
-
-        then: "Throw an Exception"
+        then: "An exception was thrown"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+        error.errorMessage == ErrorMessage.STUDENT_NOT_ENROLLED
     }
 
-    def "Student tries to cancel the wrong tournament"(){
-        given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        Tournament tournament = new Tournament(tournamentDto, creator)
-        tournament.setCourseExecution(execution)
-        tournament.setTopicList(topicList)
-        tournamentRepository.save(tournament)
-        tournamentId = tournament.getId()
+    def "the student tries to participate in a tournament that has not generated its quiz yet"(){
+        given: "An open tournament"
+        tournament.setStartingDate(YESTERDAY)
+        tournament.setConclusionDate(TOMORROW)
 
         when:
-        tournamentService.cancelTournament(tournamentId + 1)
+        tournamentService.startTournament(creator.getId(), tournamentId)
 
-        then: "Throw an Exception"
+        then: "An exception was thrown"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+        error.errorMessage == ErrorMessage.QUIZ_NOT_GENERATED
     }
 
-    def "Student cancels an open tournament"(){
-        given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, YESTERDAY, LATER)
-        Tournament tournament = new Tournament(tournamentDto, creator)
-        tournament.setCourseExecution(execution)
-        tournament.setTopicList(topicList)
-        tournamentRepository.save(tournament)
-        tournamentId = tournament.getId()
+    def "the student tries to participate in a tournament that hasn't started yet"(){
+        given: "An open tournament"
+        tournament.setStartingDate(TOMORROW)
+        tournament.setConclusionDate(LATER)
+        tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
 
         when:
-        tournamentService.cancelTournament(tournamentId)
+        tournamentService.startTournament(creator.getId(), tournamentId)
 
-        then: "Throw an Exception"
+        then: "An exception was thrown"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.TOURNAMENT_IS_OPEN
-
+        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_OPEN
     }
 
-    def "No tournaments exist and a student tries to cancel"(){
+    def "the student tries to participate in an already finished tournament"(){
+        given: "An finished tournament"
+        tournament.setStartingDate(YESTERDAY)
+        tournament.setConclusionDate(TOMORROW)
+        tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
+        tournament.setStartingDate(EARLIER)
+        tournament.setConclusionDate(YESTERDAY)
+
         when:
-        tournamentService.cancelTournament(1)
+        tournamentService.startTournament(creator.getId(), tournamentId)
 
-        then: "Throw an Exception"
+        then: "An exception was thrown"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+        error.errorMessage == ErrorMessage.TOURNAMENT_IS_FINISHED
     }
-
-
 
     @TestConfiguration
     static class TournamentServiceImplTestContextConfiguration {
@@ -236,5 +221,6 @@ class CancelTournamentServiceSpockTest extends Specification{
             return new TournamentService()
         }
     }
+
 
 }

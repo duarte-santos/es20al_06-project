@@ -117,7 +117,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         topicList.add(topic)
 
 
-        /* Question */
+        /* Create new questions associated with the created Topic */
         question = new Question()
         question.setKey(1)
         question.setCourse(course)

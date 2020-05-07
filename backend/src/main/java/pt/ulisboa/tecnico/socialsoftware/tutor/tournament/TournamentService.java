@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
@@ -26,7 +25,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository;
 
-
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
@@ -34,8 +32,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
 import java.sql.SQLException;
-
 import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import java.util.stream.Collectors;
 
@@ -59,9 +58,6 @@ public class TournamentService{
 
     @Autowired
     private QuizRepository quizRepository;
-
-    @Autowired
-    private QuizAnswerRepository quizAnswerRepository;
 
     @Autowired
     private QuestionRepository questionRepository;
@@ -177,13 +173,13 @@ public class TournamentService{
         user.getTournamentsEnrolled().add(tournament);
 
         if (tournament.getStudentList().size() == 2 && tournament.getQuiz() == null){
-            generateTournamentQuiz(tournament, user);
+            createTournamentQuiz(tournament);
         }
 
         return new TournamentDto(tournament);
     }
 
-    public void generateTournamentQuiz(Tournament tournament, User user){
+    public void createTournamentQuiz(Tournament tournament){
         Quiz quiz = new Quiz();
         quiz.setType(Quiz.QuizType.GENERATED.toString());
         quiz.setCreationDate(DateHandler.now());
@@ -194,28 +190,14 @@ public class TournamentService{
         List<Question> questions = questionRepository.findAvailableQuestions(courseExecution.getCourse().getId());
         // Get only questions with the correct topics
         List<Question> availableQuestions =  parseQuestions(questions, tournament);
-
-        /*
-        if(quizDetails.getAssessment() != null) {
-            availableQuestions = filterByAssessment(availableQuestions, quizDetails);
-        }
-        // TODO else use default assessment
-        */
-
-
         if (availableQuestions.size() < tournament.getNumberOfQuestions()) {
             throw new TutorException(NOT_ENOUGH_QUESTIONS);
         }
-
-        // ???
-        availableQuestions = user.filterQuestionsByStudentModel(tournament.getNumberOfQuestions(), availableQuestions);
 
         quiz.generate(availableQuestions);
         quiz.setTitle(tournament.getTitle() + " (Quiz)");
         quiz.setAvailableDate(tournament.getStartingDate());
         quiz.setConclusionDate(tournament.getConclusionDate());
-
-
         quiz.setCourseExecution(courseExecution);
         courseExecution.addQuiz(quiz);
 
@@ -238,31 +220,6 @@ public class TournamentService{
         return availableQuestions;
     }
 
-    /*
-    public List<Question> parseQuestions(List<Question> questions, Tournament tournament){
-        List<Topic> topics = tournament.getTopicList();
-        List<Question> availableQuestions = new ArrayList<>();
-        boolean next = false;
-        for (Question q : questions){
-            for (Topic t : q.getTopics()){
-                for (Topic tt : topics) {
-                    if (t.getId() == tt.getId()) {
-                        availableQuestions.add(q);
-                        next = true;
-                        break;
-                    }
-                }
-                if (next){
-                    next = false;
-                    break;
-                }
-            }
-        }
-
-        return availableQuestions;
-    }
-    */
-
 
     @Retryable(
             value = { SQLException.class },
@@ -278,5 +235,35 @@ public class TournamentService{
                 .map(Tournament::getCourseExecution)
                 .map(CourseDto::new)
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void startTournament(int userId, int tournamentId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+        LocalDateTime now = LocalDateTime.now();
+
+        // Check if quiz was generated
+        if (tournament.getQuiz() == null){
+            throw new TutorException(QUIZ_NOT_GENERATED);
+        }
+
+        // Check if user in enrolled
+        if (!tournament.getStudentList().contains(user)){
+            throw new TutorException(STUDENT_NOT_ENROLLED);
+        }
+
+        // Check if tournament hasn't started
+        if (tournament.getStartingDate().isAfter(now)){
+            throw new TutorException(TOURNAMENT_NOT_OPEN);
+        }
+
+        // Check if tournament is already finished
+        if (tournament.getConclusionDate().isBefore(now)){
+            throw new TutorException(TOURNAMENT_IS_FINISHED);
+        }
     }
 }

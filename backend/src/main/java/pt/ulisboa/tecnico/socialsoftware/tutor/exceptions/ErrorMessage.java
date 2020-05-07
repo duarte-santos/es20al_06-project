@@ -69,6 +69,11 @@ public enum ErrorMessage {
     TOURNAMENT_IS_OPEN("Can not cancel open tournaments"),
     NO_OPEN_TOURNAMENTS("There are no open tournaments"),
     STUDENT_ALREADY_ENROLLED("The student has signed up for this tournament before"),
+    STUDENT_NOT_ENROLLED(" The student is not enrolled in this tournament"),
+    TOURNAMENT_NOT_OPEN(" The tournament has not opened yet"),
+    TOURNAMENT_IS_FINISHED("The tournament is already finished"),
+    QUIZ_NOT_GENERATED("The tournament quiz hasn't been generated yet"),
+    TOURNAMENT_ALREADY_COMPLETED("The student has already participated in this tournament"),
 
     STUDENT_QUESTION_NOT_FOUND("Student's question not found with id %d"),
     STUDENT_QUESTION_ALREADY_EVALUATED("Student's question has already been evaluated"),
