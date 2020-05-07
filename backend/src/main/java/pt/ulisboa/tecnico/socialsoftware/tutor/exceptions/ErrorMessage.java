@@ -66,6 +66,7 @@ public enum ErrorMessage {
     TOURNAMENT_TOPIC_DOESNT_EXIST("The tournament topicList has a topic that doesnt exist"),
     TOURNAMENT_NOT_FOUND("The tournament doesn't exist"),
     TOURNAMENT_IS_CLOSED("The tournament is closed"),
+    TOURNAMENT_IS_OPEN("Can not cancel open tournaments"),
     NO_OPEN_TOURNAMENTS("There are no open tournaments"),
     STUDENT_ALREADY_ENROLLED("The student has signed up for this tournament before"),
 

@@ -1,43 +1,55 @@
 <template>
   <div class="container">
-    <h2>Open Tournaments</h2>
-    <ul>
+    <h2>Available Tournaments</h2>
+    <ul data-cy="tournamentsList">
       <li class="list-header">
         <div class="col">Title</div>
+        <div class="col">Questions</div>
+        <div class="col">Start</div>
         <div class="col">End</div>
-        <div class="col">#Questions</div>
-        <div class="col">Answer Quiz</div>
+        <div class="col">Creator</div>
+        <div class="col">Status</div>
+
+        <div class="col last-col"><v-icon>fas fa-check</v-icon></div>
       </li>
       <li class="list-row" v-if="tournaments.length == 0">
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
-        <p class="noT">There are no open tournaments</p>
+        <p class="noT">There are no available tournaments</p>
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
       </li>
       <li
         class="list-row"
-        v-for="tournament in tournaments"
+        v-for="(tournament,index) in tournaments"
         :key="tournament.id"
+        :id="tournament.id"
       >
-        <div data-cy="tournamentTitle" class="col">
+        <div class="col" style="font-weight: bold">
           {{ tournament.title }}
+        </div>
+        <div class="col">
+          {{ tournament.numberOfQuestions }}
+        </div>
+        <div class="col">
+          {{ tournament.startingDate }}
         </div>
         <div class="col">
           {{ tournament.conclusionDate }}
         </div>
         <div class="col">
-          {{ tournament.numberOfQuestions }}
+          {{ tournament.creatorUsername }}
         </div>
-        <div :id="tournament.id" class="col last-col">
-          <v-btn medium
-            width="3cm"
-            color="primary"
-            @click="answerQuiz(tournament)"
-            v-if="tournament.studentList.length > 1"
-            :data-cy="tournament.title + '.startButton'"
-          >
-            START
-          </v-btn>
-          <v-icon v-else> </v-icon>
+        <div class="col">
+          {{ status[index] }}
+        </div>
+        <div class="col last-col">
+          <div>
+            <v-icon v-if="status[index] == 'CLOSED' && tournament.creatorUsername == user.username"
+                    style="color: green"
+                    @click="cancel(tournament)"
+            >
+              fas fa-trash
+            </v-icon>
+          </div>
         </div>
       </li>
     </ul>
@@ -47,29 +59,45 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
-import StatementQuestion from '@/models/statement/StatementQuestion';
-import StatementAnswer from '@/models/statement/StatementAnswer';
 import Tournament from '@/models/management/Tournament';
+import User from '@/models/user/User';
 
 @Component
-export default class OpenTournamentsView extends Vue {
+export default class CancelTournamentView extends Vue {
   tournaments: Tournament[] = [];
+  user: User = new User();
+  status: String[] = [];
 
   async created() {
     await this.$store.dispatch('loading');
     try {
-      this.tournaments = (await RemoteServices.getOpenTournaments()).reverse();
+      this.user = this.$store.getters.getUser;
+      this.tournaments = await RemoteServices.getAvailableTournaments();
+
+      for(let i = 0; i < this.tournaments.length; i++){
+        let start = new Date(this.tournaments[i].startingDate);
+        let current = new Date()
+        let end = new Date(this.tournaments[i].conclusionDate);
+        if (current.getTime() > start.getTime() && current.getTime() < end.getTime()){
+          this.status[i] = new String('OPEN');
+        }
+        else{
+          this.status[i] = new String('CLOSED');
+        }
+
+      }
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
   }
 
-  async answerQuiz(tournament: Tournament) {
+  async cancel(tournament: Tournament) {
     await this.$store.dispatch('loading');
     try {
+      await RemoteServices.deleteTournament(tournament.id);
+
       document.getElementById(tournament.id.toString())!.style.visibility = 'hidden';
-      // TODO call remote services
       this.$forceUpdate();
     } catch (error) {
       await this.$store.dispatch('error', error);
@@ -117,12 +145,16 @@ export default class OpenTournamentsView extends Vue {
       text-align: center;
     }
 
-    .col {
-      flex-basis: 33% !important;
-      margin: auto; /* Important */
-      text-align: center;
+    .col last-col {
+      width: 13%;
     }
 
+    .col {
+      width: 14% !important;
+      margin: auto; /* Important */
+      text-align: center;
+      word-break: break-word;
+    }
     .noT {
       flex-basis: 50% !important;
       margin: auto; /* Important */

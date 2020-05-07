@@ -715,6 +715,7 @@ export default class RemoteServices {
       });
   }
 
+
   static enrollInTournament(tournament:Tournament): Promise<Tournament> {
     return httpClient
       .put(
@@ -729,7 +730,7 @@ export default class RemoteServices {
 
   static async deleteTournament(tournamentId: number) {
     return httpClient
-      .delete(`/tournament/${tournamentId}/cancel`)
+      .delete(`/tournaments/${tournamentId}/cancel`)
       .catch(async error => {
         throw Error(await this.errorMessage(error));
       });

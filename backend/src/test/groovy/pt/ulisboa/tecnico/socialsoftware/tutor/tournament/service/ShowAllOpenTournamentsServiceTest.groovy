@@ -31,8 +31,8 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
     static final String COURSE_NAME = "Software Architecture"
     static final String ACRONYM = "AS1"
     static final String ACADEMIC_TERM = "1 SEM"
-    static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
+    static final String YESTERDAY = DateHandler.toISOString(DateHandler.now().minusDays(1))
     static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
     static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
@@ -80,9 +80,9 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
         topicList = new ArrayList()
 
-        tournament1 = createTournament("T1", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        tournament1 = createTournament("T1", topicList, NUMBER_OF_QUESTIONS, YESTERDAY, LATER)
         tournament2 = createTournament("T2", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        tournament3 = createTournament("T3", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        tournament3 = createTournament("T3", topicList, NUMBER_OF_QUESTIONS, YESTERDAY, LATER)
         tournament4 = createTournament("T4", topicList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
 
         tournament1.setCourseExecution(execution)
@@ -94,11 +94,6 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
     def "Both open and close tournaments exist"(){
         given: "several open tournaments"
-
-        tournament1.setStatus(Tournament.Status.OPEN)
-        tournament2.setStatus(Tournament.Status.CLOSED)
-        tournament3.setStatus(Tournament.Status.OPEN)
-        tournament4.setStatus(Tournament.Status.CLOSED)
 
         tournamentRepository.save(tournament1)
         tournamentRepository.save(tournament2)
@@ -117,14 +112,8 @@ class ShowAllOpenTournamentsServiceTest extends Specification{
 
     def "No tournaments are open"(){
         given: "Only closed tournaments"
-        tournament1.setStatus(Tournament.Status.CLOSED)
-        tournament2.setStatus(Tournament.Status.CLOSED)
-        tournament3.setStatus(Tournament.Status.CLOSED)
-        tournament4.setStatus(Tournament.Status.CLOSED)
 
-        tournamentRepository.save(tournament1);
         tournamentRepository.save(tournament2);
-        tournamentRepository.save(tournament3);
         tournamentRepository.save(tournament4);
 
         when:

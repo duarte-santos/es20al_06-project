@@ -5,7 +5,7 @@
       <li class="list-header">
         <div class="col">Title</div>
         <div class="col">Questions</div>
-        <div class="col">Beginning</div>
+        <div class="col">Start</div>
         <div class="col">End</div>
         <div class="col">Status</div>
 
@@ -18,7 +18,7 @@
       </li>
       <li
         class="list-row"
-        v-for="tournament in tournaments"
+        v-for="(tournament,index) in tournaments"
         :key="tournament.id"
       >
         <div class="col" style="font-weight: bold">
@@ -34,7 +34,7 @@
           {{ tournament.conclusionDate }}
         </div>
         <div class="col">
-          {{ tournament.status }}
+          {{ status[index] }}
         </div>
         <div :id="tournament.id" class="col last-col">
           <div>
@@ -58,13 +58,26 @@ import User from '@/models/user/User';
 export default class EnrollInTournamentView extends Vue {
   tournaments: Tournament[] = [];
   user: User = new User();
-  tournament: Tournament = new Tournament();
+  status: String[] = [];
 
   async created() {
     await this.$store.dispatch('loading');
     try {
       this.user = this.$store.getters.getUser;
       this.tournaments = await RemoteServices.getAvailableTournaments();
+
+      for(let i = 0; i < this.tournaments.length; i++){
+        let start = new Date(this.tournaments[i].startingDate);
+        let current = new Date()
+        let end = new Date(this.tournaments[i].conclusionDate);
+        if (current.getTime() > start.getTime() && current.getTime() < end.getTime()){
+          this.status[i] = new String('OPEN');
+        }
+        else{
+          this.status[i] = new String('CLOSED');
+        }
+
+      }
     } catch (error) {
       await this.$store.dispatch('error', error);
     }

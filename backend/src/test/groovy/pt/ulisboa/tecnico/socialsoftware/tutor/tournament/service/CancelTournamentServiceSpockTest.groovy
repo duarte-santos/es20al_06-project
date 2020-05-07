@@ -41,6 +41,7 @@ class CancelTournamentServiceSpockTest extends Specification{
     static final String ACADEMIC_TERM = "1 SEM"
     static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
+    static final String YESTERDAY = DateHandler.toISOString(DateHandler.now().minusDays(1))
     static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
     static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
     public static final String QUESTION_TITLE = 'question title'
@@ -196,6 +197,24 @@ class CancelTournamentServiceSpockTest extends Specification{
         then: "Throw an Exception"
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+    }
+
+    def "Student cancels an open tournament"(){
+        given: "a tournament"
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, YESTERDAY, LATER)
+        Tournament tournament = new Tournament(tournamentDto, creator)
+        tournament.setCourseExecution(execution)
+        tournament.setTopicList(topicList)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
+
+        when:
+        tournamentService.cancelTournament(tournamentId)
+
+        then: "Throw an Exception"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.TOURNAMENT_IS_OPEN
+
     }
 
     def "No tournaments exist and a student tries to cancel"(){

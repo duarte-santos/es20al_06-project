@@ -6,8 +6,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService;
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
@@ -27,6 +26,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository;
 
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
@@ -35,12 +35,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
 import java.sql.SQLException;
 
-import java.util.ArrayList;
+import java.util.*;
 
-import java.util.HashSet;
-import java.util.List;
-
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -115,8 +111,11 @@ public class TournamentService{
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<TournamentDto> showAllOpenTournaments(int executionId){
-            return tournamentRepository.findOpen(executionId).stream().map(TournamentDto::new).collect(Collectors.toList());
-    }
+        return tournamentRepository.findAvailable(executionId).stream()
+                    .filter(tournament -> DateHandler.now().isBefore(tournament.getConclusionDate()))
+                    .filter(tournament -> tournament.getStartingDate().isBefore(DateHandler.now()))
+                    .map(TournamentDto::new).collect(Collectors.toList());
+        }
 
     @Retryable(
             value = { SQLException.class },
@@ -125,6 +124,11 @@ public class TournamentService{
     public void cancelTournament(int tournamentId) {
 
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
+
+        if (tournament.getStartingDate().isBefore(DateHandler.now())){
+            throw new TutorException(TOURNAMENT_IS_OPEN, tournamentId);
+        }
 
         tournament.removeTopicList();
         tournament.removeUsers();

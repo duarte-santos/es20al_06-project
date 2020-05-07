@@ -6,10 +6,10 @@ export default class Tournament {
   id!: number;
   title!: string;
   numberOfQuestions!: number;
-  startingDate!: string ;
-  conclusionDate!: string ;
-  status!: string | undefined;
+  startingDate!: string;
+  conclusionDate!: string;
   studentList: User[] = [];
+  creatorUsername!: string;
 
 
   topicList: Topic[] = [];
@@ -17,12 +17,11 @@ export default class Tournament {
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {
       this.id = jsonObj.id;
+      this.creatorUsername = jsonObj.creatorUsername;
       this.numberOfQuestions = jsonObj.numberOfQuestions;
       this.title = jsonObj.title;
-      this.status = jsonObj.status;
       this.startingDate = jsonObj.startingDate;
       this.conclusionDate = jsonObj.conclusionDate;
-
       this.studentList = jsonObj.studentList;
 
       if (jsonObj.startingDate)
@@ -32,8 +31,5 @@ export default class Tournament {
     }
   }
 
-  getTitle(){
-    return this.title;
-  }
 
 }

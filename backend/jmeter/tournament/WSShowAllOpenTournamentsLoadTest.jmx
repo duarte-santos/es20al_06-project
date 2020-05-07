@@ -101,7 +101,7 @@
               <boolProp name="recycle">true</boolProp>
               <stringProp name="shareMode">shareMode.all</stringProp>
               <boolProp name="stopThread">false</boolProp>
-              <stringProp name="variableNames">title,numberOfQuestions,startingDate,conclusionDate,status</stringProp>
+              <stringProp name="variableNames">title,numberOfQuestions,startingDate,conclusionDate</stringProp>
             </CSVDataSet>
             <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to create tournaments" enabled="true">
@@ -124,8 +124,7 @@
         	&quot;id&quot;: 83,&#xd;
         	&quot;name&quot;:&quot;Architectural Style&quot;&#xd;
         }&#xd;
-    ],&#xd;
-	&quot;status&quot;: &quot;${status}&quot;&#xd;
+    ]&#xd;
 }&#xd;
 </stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>

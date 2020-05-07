@@ -29,7 +29,7 @@ class ShowOpenTournamentsServiceSpockPerformanceTest extends Specification {
     static final String ACRONYM = "C12"
     static final String ACADEMIC_TERM = "1º Semestre"
     static final String TOPIC_NAME = "TopicName"
-    static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
+    static final String YESTERDAY = DateHandler.toISOString(DateHandler.now().minusDays(1))
     static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
     @Autowired
@@ -76,10 +76,9 @@ class ShowOpenTournamentsServiceSpockPerformanceTest extends Specification {
         topicList.add(topicDto)
 
         and: "a tournament"
-        def tournamentDto = new TournamentDto("Torneio", topicList, 3, TOMORROW, LATER)
+        def tournamentDto = new TournamentDto("Torneio", topicList, 3, YESTERDAY, LATER)
         def tournament = new Tournament(tournamentDto)
         tournament.setCourseExecution(courseExecution)
-        tournament.setStatus(Tournament.Status.OPEN)
         tournamentRepository.save(tournament)
 
         when:

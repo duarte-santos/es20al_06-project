@@ -25,7 +25,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 @Table(name = "tournaments")
 public class Tournament{
 
-    public enum Status {OPEN, CLOSED}
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,9 +49,6 @@ public class Tournament{
     private LocalDateTime conclusionDate;
 
 
-    @Enumerated(EnumType.STRING)
-    private Tournament.Status status;
-
     @ManyToOne
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
@@ -60,9 +57,7 @@ public class Tournament{
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
-    public Tournament(){
-        this.status = Tournament.Status.CLOSED;
-    }
+    public Tournament(){}
 
 
     public Tournament(TournamentDto tournamentDto){
@@ -72,7 +67,6 @@ public class Tournament{
         LocalDateTime startingDateAux = DateHandler.toLocalDateTime(tournamentDto.getStartingDate());
         LocalDateTime conclusionDateAux = DateHandler.toLocalDateTime(tournamentDto.getConclusionDate());
 
-        Tournament.Status statusAux = tournamentDto.getStatus();
 
         if (titleAux == null || titleAux.trim().isEmpty()) {
             throw new TutorException(TOURNAMENT_TITLE_IS_EMPTY);
@@ -95,12 +89,7 @@ public class Tournament{
         this.numberOfQuestions = numberOfQuestionsAux;
         this.startingDate = startingDateAux;
         this.conclusionDate = conclusionDateAux;
-        this.status = statusAux;
 
-        //temporary, only while scheduling isn't implemented
-        if (LocalDateTime.now().isAfter(startingDateAux) && !(LocalDateTime.now().isAfter(conclusionDateAux))){
-            this.status = Status.OPEN;
-        }
     }
 
     public Tournament(TournamentDto tournamentDto, User student) {
@@ -147,9 +136,6 @@ public class Tournament{
         this.courseExecution = courseExecution;
     }
 
-    public Status getStatus() {
-        return status;
-    }
 
     public Integer getId() {
         return id;
@@ -170,8 +156,6 @@ public class Tournament{
     public List<Topic> getTopicList() {
         return topicList;
     }
-
-
 
     public void setTopicList(List<Topic> topicList) {
         this.topicList = topicList;
@@ -207,9 +191,6 @@ public class Tournament{
 
     public void setStudentList(List<User> studentList) {
         this.studentList = studentList;
-    }
-    public void setStatus(Status status) {
-        this.status = status;
     }
 
     public User getCreator() {

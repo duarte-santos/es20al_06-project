@@ -23,14 +23,12 @@ public class TournamentDto implements Serializable{
     private Integer numberOfQuestions;
     private String startingDate;
     private String conclusionDate;
-    private Tournament.Status status;
     private List<UserDto> studentList = new ArrayList<>();
     private Integer creatingUserId;
     private Integer quizId;
+    private String creatorUsername;
 
-    public TournamentDto(){
-        this.status = Tournament.Status.CLOSED;
-    }
+    public TournamentDto(){}
 
     public TournamentDto(Tournament tournament){
         this.id = tournament.getId();
@@ -39,13 +37,14 @@ public class TournamentDto implements Serializable{
 
         this.startingDate = DateHandler.toISOString(tournament.getStartingDate());
         this.conclusionDate = DateHandler.toISOString(tournament.getConclusionDate());
-        this.status = tournament.getStatus();
 
         if (tournament.getQuiz() != null)
             this.quizId = tournament.getQuiz().getId();
 
-        if (tournament.getCreator() != null)
+        if (tournament.getCreator() != null){
             this.creatingUserId = tournament.getCreator().getId();
+            this.creatorUsername = tournament.getCreator().getUsername();
+        }
 
         List<Topic> topicListAux = tournament.getTopicList();
 
@@ -63,16 +62,7 @@ public class TournamentDto implements Serializable{
         this.numberOfQuestions = numOfQuestions;
         this.startingDate = startingDate;
         this.conclusionDate = conclusionDate;
-        this.status = Tournament.Status.CLOSED;
 
-    }
-
-    public Tournament.Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Tournament.Status status) {
-        this.status = status;
     }
 
     public String getTitle() {
@@ -139,6 +129,14 @@ public class TournamentDto implements Serializable{
 
     public void setQuizId(Integer quizId) {
         this.quizId = quizId;
+    }
+
+    public String getCreatorUsername() {
+        return creatorUsername;
+    }
+
+    public void setCreatorUsername(String creatorUsername) {
+        this.creatorUsername = creatorUsername;
     }
 
     public Integer getCreatingUserId() {

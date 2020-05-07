@@ -87,22 +87,30 @@ Cypress.Commands.add('createOpenTournament', (name, numberOfQuestions) => {
   cy.get('[data-cy="startingDate"]').click()
   // Go back 1 month
   cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > :nth-child(1)').click()
+  cy.wait(500)
   // Choose a day
   cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
+  cy.wait(500)
   // Confirm
   cy.get('#startingDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+  cy.wait(200)
 
   /* Conclusion Date */
   cy.get('[data-cy="conclusionDate"]').click()
+  cy.wait(500)
   // Advance 1 month
   cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > .text-right').click()
+  cy.wait(500)
   // Choose a day
   cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
+  cy.wait(500)
   // Confirm
   cy.get('#conclusionDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+  cy.wait(500)
 
   /* Number of Questions */
   cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
+  cy.wait(200)
 
   /*Topics*/
   cy.get('.v-input--selection-controls__input')
@@ -130,22 +138,29 @@ Cypress.Commands.add('createClosedTournament', (name, numberOfQuestions, startin
     cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
     // Confirm
     cy.get('#startingDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+    cy.wait(200)
   }
 
   /* Conclusion Date */
   if(conclusionDate) {
     cy.get('[data-cy="conclusionDate"]').click()
+    cy.wait(500)
     // Advance 2 months
     cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > .text-right').click()
+    cy.wait(500)
     cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .datepicker-controls > .text-right').click()
+    cy.wait(500)
     // Choose a day
     cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(6) > .datepicker-day-text').eq(1).click()
+    cy.wait(500)
     // Confirm
     cy.get('#conclusionDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+    cy.wait(500)
   }
 
   /* Number of Questions */
   cy.get('[data-cy="' + numberOfQuestions + 'questions"]').click()
+  cy.wait(200)
 
   /*Topics*/
   if (selectTopic) {
@@ -166,18 +181,24 @@ Cypress.Commands.add('createTournamentWrongDates', (name, numberOfQuestions) => 
 
   /* Starting Date */
   cy.get('[data-cy="startingDate"]').click()
+  cy.wait(200)
   // Choose a day
   cy.get('#startingDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(15) > .datepicker-day-text').click()
+  cy.wait(200)
   // Confirm
   cy.get('#startingDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+  cy.wait(200)
 
 
   /* Conclusion Date */
   cy.get('[data-cy="conclusionDate"]').click()
+  cy.wait(200)
   // Choose a day before the starting day
   cy.get('#conclusionDateInput-picker-container-DatePicker > .calendar > .month-container > :nth-child(1) > .datepicker-days > :nth-child(7) > .datepicker-day-text').click()
+  cy.wait(500)
   // Confirm
   cy.get('#conclusionDateInput-wrapper > .datetimepicker > .datepicker > .datepicker-buttons-container > .validate').click()
+  cy.wait(200)
 
 
   /* Number of Questions */
@@ -229,9 +250,30 @@ Cypress.Commands.add('assertEnrolled', (name) => {
     })
 });
 
-
 Cypress.Commands.add('shouldCloseConfirmationAlert', () => {
     cy.contains('OK').click()
+});
+
+/* ********** Canceling ********** */
+
+Cypress.Commands.add('goToTournamentCanceling', () => {
+  cy.contains('Tournaments').click()
+  cy.contains('Cancel').click()
+});
+
+
+Cypress.Commands.add('assertCanceled', (name) => {
+  cy.get('[data-cy="tournamentsList"]').children()
+    .should((element) => {
+      expect(element).not.to.contain(name)
+    })
+});
+
+Cypress.Commands.add('cancelTheTournament', (name) => {
+  cy.contains(name).parent().within(
+    () => {
+      cy.get('[class="col last-col"]').children().first().children().first().click()
+    })
 });
 
 
@@ -239,7 +281,7 @@ Cypress.Commands.add('shouldCloseConfirmationAlert', () => {
 
 Cypress.Commands.add('checkForTournament', (title) => {
     cy.contains('Tournaments').click()
-    cy.contains('Show Open').click()
+    cy.contains('Available').click()
     cy.get('[data-cy="tournamentTitle"]').should(
       (element) => {
         expect(element).to.contain(title)
@@ -248,7 +290,7 @@ Cypress.Commands.add('checkForTournament', (title) => {
 
 Cypress.Commands.add('checkForNoTournament', (title) => {
   cy.contains('Tournaments').click()
-  cy.contains('Show Open').click()
+  cy.contains('Available').click()
   cy.wait(200)
   cy.get('[data-cy="tournamentTitle"]').should(
     (element) => {
@@ -260,17 +302,17 @@ Cypress.Commands.add('checkForNoTournament', (title) => {
 
 Cypress.Commands.add('createTournamentDifferentStudent', (id, title, creator) => {
   // Create tournament
-  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
     '"INSERT INTO tournaments (id, starting_date, conclusion_date, number_of_questions, status, title, course_execution_id, creator_id) ' +
     'VALUES (' + id + ', \'2018-04-28 05:32:00\', \'2100-04-28 05:32:00\', 5, \'OPEN\',\'' + title + '\', 11,' + creator + ');"')
 
   // Enroll creator in the tournament
-  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
     '"INSERT INTO tournaments_student_list (tournaments_enrolled_id, student_list_id) ' +
     'VALUES (' + id + ',' + creator + ');"')
 
   // Add topics
-  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
     '"INSERT INTO tournaments_topic_list (tournaments_id, topic_list_id) ' +
     'VALUES (' + id + ',108);"')
 });
@@ -278,7 +320,7 @@ Cypress.Commands.add('createTournamentDifferentStudent', (id, title, creator) =>
 /* ********** Delete Tournament from DB ********** */
 
 Cypress.Commands.add('deleteTournament', (id) => {
-  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
     '"DELETE FROM tournaments_topic_list WHERE tournaments_id =' + id + '; ' +
     ' DELETE FROM tournaments_student_list WHERE tournaments_enrolled_id =' + id + '; ' +
     ' DELETE FROM tournaments WHERE id=' + id + '; "')
