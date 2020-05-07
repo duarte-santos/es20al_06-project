@@ -11,15 +11,15 @@
 
         <div class="col last-col"><v-icon>fas fa-check</v-icon></div>
       </li>
-      <li class="list-row" v-if="tournaments.length == 0" >
+      <li class="list-row" v-if="tournaments.length == 0">
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
         <p class="noT">There are no available tournaments</p>
         <v-icon size="37" class="img">far fa-sad-tear</v-icon>
       </li>
       <li
-          class="list-row"
-          v-for="tournament in tournaments"
-          :key="tournament.id"
+        class="list-row"
+        v-for="tournament in tournaments"
+        :key="tournament.id"
       >
         <div class="col" style="font-weight: bold">
           {{ tournament.title }}
@@ -36,12 +36,11 @@
         <div class="col">
           {{ tournament.status }}
         </div>
-        <div :id = "tournament.id" class="col last-col">
+        <div :id="tournament.id" class="col last-col">
           <div>
-            <v-icon
-                    style="color: green"
-                    @click="enroll(tournament)">
-              as fa-user-plus </v-icon>
+            <v-icon style="color: green" @click="enroll(tournament)">
+              as fa-user-plus
+            </v-icon>
           </div>
         </div>
       </li>
@@ -54,7 +53,6 @@ import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Tournament from '@/models/management/Tournament';
 import User from '@/models/user/User';
-
 
 @Component
 export default class EnrollInTournamentView extends Vue {
@@ -74,20 +72,17 @@ export default class EnrollInTournamentView extends Vue {
   }
 
   async enroll(tournament: Tournament) {
-
-
     await this.$store.dispatch('loading');
     try {
-      document.getElementById(tournament.id.toString())!.style.visibility = "hidden";
+      document.getElementById(tournament.id.toString())!.style.visibility =
+        'hidden';
       await RemoteServices.enrollInTournament(tournament);
       this.$forceUpdate();
-
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
   }
-
 }
 </script>
 
@@ -152,7 +147,6 @@ export default class EnrollInTournamentView extends Vue {
       margin: auto; /* Important */
       text-align: center;
     }
-
 
     .list-row {
       background-color: #ffffff;

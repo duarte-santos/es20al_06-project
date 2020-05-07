@@ -49,6 +49,11 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         def course = new Course(COURSE, Course.Type.TECNICO)
         courseRepository.save(course)
 
+        and: "a user"
+        def user = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
+        userRepository.save(user)
+        def userId = user.getId()
+
         and: "a course execution"
         def courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
@@ -66,7 +71,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         def tournamentDto = new TournamentDto("Torneio", topicList, 3, TOMORROW, LATER)
 
         when:
-        1.upto(3/*000*/, { tournamentService.createTournament(courseExecution.getId(),tournamentDto)})
+        1.upto(3/*000*/, { tournamentService.createTournament(courseExecution.getId(), userId, tournamentDto)})
 
         then:
         true

@@ -11,14 +11,13 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
@@ -26,21 +25,11 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentR
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
-import spock.mock.AutoAttach
 
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.stream.Collectors
-
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_DATES_WRONG_FORMAT
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_DATES_WRONG_FORMAT
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_TITLE_IS_EMPTY
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_TOPIC_LIST_IS_EMPTY
 
 @DataJpaTest
-class EnrollInTheTournamentServiceSpockTest extends Specification{
+class CancelTournamentServiceSpockTest extends Specification{
 
     static final String TOURNAMENT_TITLE = "T12"
     static final String STUDENT_NAME = "StudentName"
@@ -58,6 +47,9 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     @Autowired
     TournamentService tournamentService
+
+    @Autowired
+    QuizRepository quizRepository
 
     @Autowired
     UserRepository userRepository
@@ -132,7 +124,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     }
 
-    def "the tournament exists, a student enrolls in it and a quiz is generated"(){
+    def "Student cancels an existing tournament (no quiz)"(){
         given: "a tournament"
         tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
         Tournament tournament = new Tournament(tournamentDto, creator)
@@ -142,67 +134,17 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         tournamentId = tournament.getId()
 
         when:
-        tournamentService.enrollInTournament(studentId, tournamentId)
-        def result = tournamentRepository.findAll().get(0)
+        tournamentService.cancelTournament(tournamentId)
+        def result = tournamentRepository.findAll()
 
-        then: "Student is enrolled in the tournament"
-        result.getStudentList().size() == 2
-        result.getStudentList().get(1) == enrollingStudent
+        then: "The tournament is no longer in the data base"
+        result.size() == 0
 
-        and: "Quiz is generated"
-        result.getQuiz().getTitle() == TOURNAMENT_TITLE + " (Quiz)"
-        result.getQuiz().getQuizQuestions().size() == 1
     }
 
-
-    def "the tournament exists and a student tries to enroll in it for the second time"(){
-        given: "a tournament with a student, and that same student"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        def studentList = new ArrayList()
-        studentList.add(enrollingStudent)
-        Tournament tournament = new Tournament(tournamentDto, creator)
-        tournament.setCourseExecution(execution)
-        tournament.setStudentList(studentList)
-        tournamentRepository.save(tournament)
-        tournamentId = tournament.getId()
-
-        when:
-        tournamentService.enrollInTournament(studentId, tournamentId)
-
-        then: "Throw an Exception"
-        thrown(TutorException)
-    }
-
-    def "a student tries to enroll in a tournament after the conclusion date"(){
-        given: "A tournament wth conclusion date prior to current date"
-        def startingDate2 = LocalDateTime.now().minusDays(2)
-        def conclusionDate2 = LocalDateTime.now().minusDays(1)
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        Tournament tournament2 = new Tournament(tournamentDto, creator)
-        tournament2.setCourseExecution(execution)
-        tournament2.setStartingDate(startingDate2)
-        tournament2.setConclusionDate(conclusionDate2)
-        tournamentRepository.save(tournament2)
-        def tournamentId2 = tournament2.getId()
-
-        when:
-        tournamentService.enrollInTournament(studentId, tournamentId2)
-
-        then: "Throw an Exception"
-        thrown(TutorException)
-    }
-
-    def "the tournament doesn't exist and a student tries to enroll in it"(){
-        when:
-        tournamentService.enrollInTournament(studentId, 1)
-
-        then: "Throw an Exception"
-        thrown(TutorException)
-    }
-
-    def "the quiz cant be generated because there arent enough questions"(){
+    def "Student cancels a tournament with a generated quiz"(){
         given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, 3, TOMORROW, LATER)
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
         Tournament tournament = new Tournament(tournamentDto, creator)
         tournament.setCourseExecution(execution)
         tournament.setTopicList(topicList)
@@ -210,12 +152,61 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         tournamentId = tournament.getId()
 
         when:
-        tournamentService.enrollInTournament(studentId, tournamentId)
+        tournamentService.generateTournamentQuiz(tournament, creator)
+        tournamentService.cancelTournament(tournamentId)
 
-        then: "Throw an Exception : Not enough questions"
+        then: "The tournament and quiz are properly deleted"
+        tournamentRepository.findAll().size() == 0
+        quizRepository.findAll().size() == 0
+
+
+    }
+
+
+    def "Student cancels the same tournament twice"(){
+        given: "a tournament"
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        Tournament tournament = new Tournament(tournamentDto, creator)
+        tournament.setCourseExecution(execution)
+        tournament.setTopicList(topicList)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
+
+        when:
+        tournamentService.cancelTournament(tournamentId)
+        tournamentService.cancelTournament(tournamentId)
+
+        then: "Throw an Exception"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.NOT_ENOUGH_QUESTIONS
+        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
     }
+
+    def "Student tries to cancel the wrong tournament"(){
+        given: "a tournament"
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        Tournament tournament = new Tournament(tournamentDto, creator)
+        tournament.setCourseExecution(execution)
+        tournament.setTopicList(topicList)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
+
+        when:
+        tournamentService.cancelTournament(tournamentId + 1)
+
+        then: "Throw an Exception"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+    }
+
+    def "No tournaments exist and a student tries to cancel"(){
+        when:
+        tournamentService.cancelTournament(1)
+
+        then: "Throw an Exception"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.TOURNAMENT_NOT_FOUND
+    }
+
 
 
     @TestConfiguration

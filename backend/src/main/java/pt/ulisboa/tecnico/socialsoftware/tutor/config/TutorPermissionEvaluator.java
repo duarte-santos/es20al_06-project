@@ -12,6 +12,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService;
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService;
 
@@ -81,6 +82,8 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
                     return userHasThisExecution(userId, quizService.findQuizCourseExecution(id).getCourseExecutionId());
                 case "TOURNAMENT.ACCESS":
                     return userHasThisExecution(userId, tournamentService.findTournamentCourseExecution(id).getCourseExecutionId());
+                case "CREATOR.ACCESS":
+                    return (userHasThisExecution(userId, tournamentService.findTournamentCourseExecution(id).getCourseExecutionId()) && userIsTheCreator(userId, id));
                 case "STUDENT_QUESTION.ACCESS":
                     return userHasAnExecutionOfTheCourse(userId, studentQuestionService.findStudentQuestionCourse(id).getCourseId());
                 default: return false;
@@ -93,6 +96,11 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
     private boolean userHasAnExecutionOfTheCourse(int userId, int courseId) {
         return userService.getCourseExecutions(userId).stream()
                 .anyMatch(course -> course.getCourseId() == courseId);
+    }
+
+    private boolean userIsTheCreator(int userId, int tournamentId) {
+        TournamentDto tDto = tournamentService.getTournamentById(tournamentId);
+        return tDto.getCreatingUserId() == userId;
     }
 
     private boolean userHasThisExecution(int userId, int courseExecutionId) {

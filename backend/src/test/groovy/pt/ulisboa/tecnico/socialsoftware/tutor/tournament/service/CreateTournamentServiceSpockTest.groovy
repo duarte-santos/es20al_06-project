@@ -70,9 +70,12 @@ class CreateTournamentServiceSpockTest extends Specification{
     def static topicList
     def static startingDate
     def static conclusionDate
-    def formatter
+    def static user
+    def static userId
 
     def setup(){
+
+        System.out.println(TOMORROW)
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         execution =  new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
@@ -88,9 +91,9 @@ class CreateTournamentServiceSpockTest extends Specification{
         topicList = new ArrayList()
         topicList.add(topicDto)
 
-        System.out.println(TOMORROW); System.out.println(startingDate);
-
-
+        user = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
+        userRepository.save(user)
+        userId = user.getId()
     }
 
     def "a student creates a tournament"(){
@@ -103,7 +106,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(LATER)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then: "The returned data is correct"
         tournamentRepository.count() == 1L
@@ -126,7 +129,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusiondate)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -154,7 +157,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(TOMORROW)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then:
         thrown(TutorException)
@@ -176,7 +179,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(LATER)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)

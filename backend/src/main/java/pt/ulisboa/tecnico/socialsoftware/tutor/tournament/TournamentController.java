@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,10 @@ public class TournamentController {
 
     @PostMapping("/executions/{executionId}/tournaments")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
-    public TournamentDto createTournament(@PathVariable int executionId, @RequestBody TournamentDto tournamentDto) {
-        return tournamentService.createTournament(executionId, tournamentDto);
+    public TournamentDto createTournament(@PathVariable int executionId, Authentication authentication,
+                                          @RequestBody TournamentDto tournamentDto) {
+        Integer studentId = ((User) authentication.getPrincipal()).getId();
+        return tournamentService.createTournament(executionId, studentId, tournamentDto);
     }
 
     @GetMapping("/executions/{executionId}/tournaments/show-open")
@@ -34,6 +37,22 @@ public class TournamentController {
     public TournamentDto enrollInTournament(Principal principal, @PathVariable Integer tournamentId) {
         User user = (User) ((Authentication) principal).getPrincipal();
         return tournamentService.enrollInTournament(user.getId(), tournamentId);
+    }
+
+    /* Used to test with DEMO_STUDENT, since we cant have more than 1
+     * This service allows a DEMO_STUDENT to enroll other students */
+    @PutMapping("/tournaments/{tournamentId}/enroll/{userId}")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public TournamentDto enrollInTournament(@PathVariable Integer tournamentId, @PathVariable Integer userId) {
+        return tournamentService.enrollInTournament(userId, tournamentId);
+    }
+
+
+    @DeleteMapping("/tournaments/{tournamentId}/delete")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'CREATOR.ACCESS')")
+    public ResponseEntity cancelTournament(@PathVariable int tournamentId) {
+        tournamentService.cancelTournament(tournamentId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/executions/{executionId}/tournaments/available")
