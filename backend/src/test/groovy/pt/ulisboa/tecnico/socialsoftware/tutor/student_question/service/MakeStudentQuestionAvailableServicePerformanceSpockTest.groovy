@@ -63,14 +63,14 @@ class MakeStudentQuestionAvailableServicePerformanceSpockTest extends Specificat
         firstStudentQuestion.setState(StudentQuestion.State.APPROVED)
         studentQuestionRepository.save(firstStudentQuestion)
         Integer firstId = firstStudentQuestion.getId()
-        1.upto(5/*0000*/, {
+        1.upto(1/*0000*/, {
             def studentQuestion = new StudentQuestion(course, user, QUESTION_TITLE, QUESTION_CONTENT, options, 1)
             studentQuestion.setState(StudentQuestion.State.APPROVED)
             studentQuestionRepository.save(studentQuestion)
         })
 
         when:
-        0.upto(5/*0000*/, { studentQuestionService.makeStudentQuestionAvailable(firstId + it as Integer) })
+        0.upto(1/*0000*/, { studentQuestionService.makeStudentQuestionAvailable(firstId + it as Integer) })
 
         then:
         true

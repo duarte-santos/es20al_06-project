@@ -120,11 +120,17 @@ public class StudentQuestionController {
     }
 
     @PutMapping("/studentQuestions/{studentQuestionId}")
-    @PreAuthorize("hasRole('ROLE_STUDENT')")
-    public StudentQuestionDto editStudentQuestion(@PathVariable int studentQuestionId,
+    @PreAuthorize("hasRole('ROLE_STUDENT') or ( hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS') )")
+    public StudentQuestionDto editStudentQuestion(@PathVariable int studentQuestionId, Authentication authentication,
                                                   @Valid @RequestBody StudentQuestionDto studentQuestionDto) {
+        User user = ((User) authentication.getPrincipal());
 
-        return studentQuestionService.editRejectedStudentQuestion(studentQuestionId, studentQuestionDto);
+        if (user.getRole() == User.Role.STUDENT) // student editing
+            return studentQuestionService.editRejectedStudentQuestion(studentQuestionId, studentQuestionDto);
+
+        else // teacher editing
+            return studentQuestionService.editApprovedStudentQuestion(studentQuestionId, studentQuestionDto);
+
     }
 
 }
