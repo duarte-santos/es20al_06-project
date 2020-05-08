@@ -1,6 +1,16 @@
 <template>
   <div class="container">
-    <h2>Statistics</h2>
+    <div class="dashboard-header">
+      <h2>Statistics</h2>
+      <v-switch
+        v-model="stats.visible"
+        inset
+        class="ma-4"
+        :label="`VISIBILITY: ${stats.visible ? 'PUBLIC' : 'PRIVATE'}`"
+        @change="savePrivacy"
+        data-cy="privacy"
+      />
+    </div>
     <div v-if="stats != null" class="stats-container">
       <div class="items">
         <div class="icon-wrapper" ref="totalQuestions">
@@ -42,6 +52,16 @@ export default class SQDashboardView extends Vue {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
+  }
+
+  async savePrivacy() {
+    if (this.stats != null) {
+      try {
+        await RemoteServices.changeSQDashboardPrivacy(this.stats);
+      } catch (error) {
+        await this.$store.dispatch('error', error);
+      }
+    }
   }
 }
 </script>
@@ -104,5 +124,10 @@ export default class SQDashboardView extends Vue {
   & .icon-wrapper i {
     transform: translateY(5px);
   }
+}
+
+.dashboard-header {
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 5px;
 }
 </style>
