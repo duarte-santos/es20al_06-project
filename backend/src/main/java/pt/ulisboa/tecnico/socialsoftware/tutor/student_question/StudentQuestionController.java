@@ -133,8 +133,10 @@ public class StudentQuestionController {
 
     }
 
-    @GetMapping("/dashboard/{studentId}/studentQuestions")
-    public SQDashboardDto getSQDashboard(@PathVariable int studentId) {
+    @GetMapping("/dashboards/myself/studentQuestions")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public SQDashboardDto getSQDashboard(Authentication authentication) {
+        Integer studentId = ((User) authentication.getPrincipal()).getId();
         return studentQuestionService.getSQDashboard(studentId);
     }
 
