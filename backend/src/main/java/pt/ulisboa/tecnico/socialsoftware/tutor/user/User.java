@@ -48,7 +48,7 @@ public class User implements UserDetails, DomainEntity {
     private Integer numberOfCorrectInClassAnswers;
     private Integer numberOfCorrectStudentAnswers;
 
-    private boolean publicSQDashboard;
+    private Boolean publicSQDashboard;
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
@@ -91,11 +91,13 @@ public class User implements UserDetails, DomainEntity {
         visitor.visitUser(this);
     }
 
-    public boolean getPublicSQDashboard() {
-        return publicSQDashboard;
+    public Boolean getPublicSQDashboard() {
+        if (this.publicSQDashboard == null)
+            this.publicSQDashboard = true;
+        return this.publicSQDashboard;
     }
 
-    public void setPublicSQDashboard(boolean bool) {
+    public void setPublicSQDashboard(Boolean bool) {
         this.publicSQDashboard = bool;
     }
 

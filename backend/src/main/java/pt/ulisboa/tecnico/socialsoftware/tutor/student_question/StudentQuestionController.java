@@ -140,4 +140,13 @@ public class StudentQuestionController {
         return studentQuestionService.getSQDashboard(studentId);
     }
 
+    @PutMapping("/dashboards/myself/studentQuestions/privacy")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public ResponseEntity changeSQDashboardPrivacy(Authentication authentication, @RequestBody SQDashboardDto dto) {
+        Integer studentId = ((User) authentication.getPrincipal()).getId();
+        studentQuestionService.changeSQDashboardPrivacy(studentId, dto.isVisible());
+
+        return ResponseEntity.ok().build();
+    }
+
 }

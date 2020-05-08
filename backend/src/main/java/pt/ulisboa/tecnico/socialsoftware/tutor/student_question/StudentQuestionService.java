@@ -220,6 +220,7 @@ public class StudentQuestionService {
 
         dashboardDto.setTotalQuestions(totalQuestions);
         dashboardDto.setTotalApprovedQuestions(totalApprovedQuestions);
+        dashboardDto.setVisible( user.getPublicSQDashboard() );
 
         return dashboardDto;
     }
