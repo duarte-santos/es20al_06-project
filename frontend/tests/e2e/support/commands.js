@@ -502,3 +502,8 @@ Cypress.Commands.add('editNotAvailable', title => {
     .find('[data-cy="edit"]')
     .should('not.exist');
 });
+
+Cypress.Commands.add('gotoSQDashboard', () => {
+  cy.contains('Dashboard').click();
+  cy.get('[data-cy="question-dashboard"]').click();
+});
