@@ -30,7 +30,7 @@
 
       <template v-slot:item.content="{ item }">
         <p
-          v-html="convertMarkDownNoFigure(item.content, null)"
+          v-html="convertMarkDown(item.content, null)"
           @click="showQuestionDialog(item)"
       /></template>
 
@@ -72,6 +72,21 @@
           </template>
           <span>Show Question</span>
         </v-tooltip>
+
+        <v-tooltip bottom v-if="item.state === 'REJECTED'">
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="editQuestion(item)"
+              data-cy="edit"
+              >edit</v-icon
+            >
+          </template>
+          <span>Edit Question</span>
+        </v-tooltip>
+
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-icon
@@ -108,7 +123,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
-import { convertMarkDownNoFigure } from '@/services/ConvertMarkdownService';
+import { convertMarkDown } from '@/services/ConvertMarkdownService';
 import StudentQuestion from '@/models/management/StudentQuestion';
 import ShowStudentQuestionDialog from '@/views/student/studentQuestion/ShowStudentQuestionDialog.vue';
 import EditStudentQuestionDialog from '@/views/student/studentQuestion/EditStudentQuestionDialog.vue';
@@ -189,8 +204,8 @@ export default class StudentQuestionView extends Vue {
     await this.$store.dispatch('clearLoading');
   }
 
-  convertMarkDownNoFigure(text: string, image: Image | null = null): string {
-    return convertMarkDownNoFigure(text, image);
+  convertMarkDown(text: string, image: Image | null = null): string {
+    return convertMarkDown(text, image);
   }
 
   showQuestionDialog(question: StudentQuestion) {
@@ -228,6 +243,7 @@ export default class StudentQuestionView extends Vue {
   getStateColor(state: string) {
     if (state === 'REJECTED') return 'red';
     else if (state === 'APPROVED') return 'green';
+    else if (state === 'AVAILABLE') return 'blue';
     else return 'orange';
   }
 
@@ -261,6 +277,11 @@ export default class StudentQuestionView extends Vue {
         await this.$store.dispatch('error', error);
       }
     }
+  }
+
+  async editQuestion(question: StudentQuestion) {
+    this.currentQuestion = question;
+    this.editQuestionDialog = true;
   }
 
   @Watch('editQuestionDialog')

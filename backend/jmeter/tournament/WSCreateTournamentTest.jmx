@@ -96,8 +96,8 @@
                   <stringProp name="Argument.value">{&#xd;
 	&quot;title&quot;: &quot;Torneio1&quot;,&#xd;
 	&quot;numberOfQuestions&quot;: 3,&#xd;
-	&quot;startingDate&quot;: &quot;2999-01-22 04:20&quot;,&#xd;
-	&quot;conclusionDate&quot;: &quot;2999-04-27 00:42&quot;,&#xd;
+	&quot;startingDate&quot;: &quot;2999-05-07T22:15:27.675153Z&quot;,&#xd;
+	&quot;conclusionDate&quot;: &quot;2999-09-07T22:15:27.675153Z&quot;,&#xd;
 	&quot;topicList&quot;: [&#xd;
         {&#xd;
         	&quot;id&quot;: 82,&#xd;
@@ -150,7 +150,7 @@
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert tournament startingDate" enabled="true">
               <stringProp name="JSON_PATH">$.startingDate</stringProp>
-              <stringProp name="EXPECTED_VALUE">2999-01-22 04:20</stringProp>
+              <stringProp name="EXPECTED_VALUE">2999-05-07T22:15:27.675153Z</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -159,7 +159,7 @@
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert tounament conclusionDate" enabled="true">
               <stringProp name="JSON_PATH">$.conclusionDate</stringProp>
-              <stringProp name="EXPECTED_VALUE">2999-04-27 00:42</stringProp>
+              <stringProp name="EXPECTED_VALUE">2999-09-07T22:15:27.675153Z</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -294,18 +294,21 @@
           <stringProp name="driver">org.postgresql.Driver</stringProp>
           <stringProp name="initQuery"></stringProp>
           <boolProp name="keepAlive">true</boolProp>
-          <stringProp name="password">c3</stringProp>
+          <stringProp name="password">dude</stringProp>
           <stringProp name="poolMax">0</stringProp>
           <boolProp name="preinit">false</boolProp>
           <stringProp name="timeout">10000</stringProp>
           <stringProp name="transactionIsolation">DEFAULT</stringProp>
           <stringProp name="trimInterval">60000</stringProp>
-          <stringProp name="username">c3</stringProp>
+          <stringProp name="username">guilherme</stringProp>
         </JDBCDataSource>
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">DELETE FROM tournaments WHERE title=&apos;Torneio1&apos;;</stringProp>
+          <stringProp name="query">DELETE FROM tournaments_student_list WHERE tournaments_enrolled_id in (SELECT id FROM tournaments WHERE title=&apos;Torneio1&apos;);
+DELETE FROM tournaments_topic_list WHERE tournaments_id in (SELECT id FROM tournaments WHERE title=&apos;Torneio1&apos;);
+
+DELETE FROM tournaments WHERE title=&apos;Torneio1&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>

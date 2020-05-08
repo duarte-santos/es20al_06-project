@@ -9,8 +9,15 @@
     <!-- If Cypress is acting funny add height parameter to v-card: <v-card height="500"> -->
     <v-card>
       <v-card-title>
-        <span class="headline">
-          New Question
+        <span v-if="question.state === 'APPROVED'" class="headline">
+          Make Question Available
+        </span>
+        <span v-else class="headline">
+          {{
+            editQuestion && editQuestion.id === null
+              ? 'New Question'
+              : 'Edit Question'
+          }}
         </span>
       </v-card-title>
 
@@ -64,12 +71,23 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
-          color="blue darken-1"
+          color="grey"
           @click="$emit('dialog', false)"
           data-cy="cancelButton"
           >Cancel</v-btn
         >
-        <v-btn color="blue darken-1" @click="saveQuestion" data-cy="saveButton"
+        <v-btn
+          v-if="question.state === 'APPROVED'"
+          color="blue darken-1"
+          @click="saveQuestion"
+          data-cy="saveButton"
+          >Make Available</v-btn
+        >
+        <v-btn
+          v-else
+          color="blue darken-1"
+          @click="saveQuestion"
+          data-cy="saveButton"
           >Save</v-btn
         >
       </v-card-actions>
@@ -91,7 +109,16 @@ export default class EditStudentQuestionDialog extends Vue {
   editQuestion!: StudentQuestion;
 
   created() {
-    this.editQuestion = new StudentQuestion(this.question);
+    if (this.question.id == null)
+      this.editQuestion = new StudentQuestion(this.question);
+    else {
+      this.editQuestion = new StudentQuestion();
+      this.editQuestion.id = this.question.id;
+      this.editQuestion.title = this.question.title;
+      this.editQuestion.content = this.question.content;
+      this.editQuestion.options = this.question.options;
+      this.editQuestion.correct = this.question.correct;
+    }
   }
 
   async saveQuestion() {
@@ -101,20 +128,20 @@ export default class EditStudentQuestionDialog extends Vue {
     ) {
       await this.$store.dispatch(
         'error',
-        'Question must have title and content'
+        'Student Question must have title and content'
       );
       return;
     }
 
-    if (this.editQuestion) {
-      try {
-        const result = await RemoteServices.createStudentQuestion(
-          this.editQuestion
-        );
-        this.$emit('save-studentquestion', result);
-      } catch (error) {
-        await this.$store.dispatch('error', error);
-      }
+    try {
+      const result =
+        this.editQuestion.id != null
+          ? await RemoteServices.updateStudentQuestion(this.editQuestion)
+          : await RemoteServices.createStudentQuestion(this.editQuestion);
+
+      this.$emit('save-studentquestion', result);
+    } catch (error) {
+      await this.$store.dispatch('error', error);
     }
   }
 }

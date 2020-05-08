@@ -1,17 +1,13 @@
-F<template>
-  <v-container grid-list-md fluid>
-    <v-layout column wrap>
-      <ol>
-        <li
-          v-for="question in questions"
-          :key="question.sequence"
-          class="text-left"
-        >
-          <show-question :question="question" />
-        </li>
-      </ol>
-    </v-layout>
-  </v-container>
+<template>
+  <ol>
+    <li
+      v-for="question in questions"
+      :key="question.sequence"
+      class="text-left"
+    >
+      <show-question :question="question" />
+    </li>
+  </ol>
 </template>
 
 <script lang="ts">

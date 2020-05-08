@@ -1,9 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
+
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
+
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -11,6 +15,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +25,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 @Table(name = "tournaments")
 public class Tournament{
 
-    public enum Status {OPEN, CLOSED}
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,38 +33,40 @@ public class Tournament{
 
     private String title;
 
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
     @ManyToMany
     private List<Topic> topicList = new ArrayList<>();
 
     @ManyToMany
     private List<User> studentList = new ArrayList<>();
 
+    @ManyToMany
+    private List<User> answeredList = new ArrayList<>();
 
     private Integer numberOfQuestions;
     private LocalDateTime startingDate;
     private LocalDateTime conclusionDate;
 
-
-    @Enumerated(EnumType.STRING)
-    private Tournament.Status status;
-
     @ManyToOne
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
 
-    public Tournament(){
-        this.status = Tournament.Status.CLOSED;
-    }
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "quiz_id", referencedColumnName = "id")
+    private Quiz quiz;
+
+    public Tournament(){}
 
 
     public Tournament(TournamentDto tournamentDto){
 
         String titleAux = tournamentDto.getTitle();
         Integer numberOfQuestionsAux = tournamentDto.getNumberOfQuestions();
-        LocalDateTime startingDateAux = tournamentDto.getStartingDateDate();
-        LocalDateTime conclusionDateAux = tournamentDto.getConclusionDateDate();
-        Tournament.Status statusAux = tournamentDto.getStatus();
-
+        LocalDateTime startingDateAux = DateHandler.toLocalDateTime(tournamentDto.getStartingDate());
+        LocalDateTime conclusionDateAux = DateHandler.toLocalDateTime(tournamentDto.getConclusionDate());
 
 
         if (titleAux == null || titleAux.trim().isEmpty()) {
@@ -83,12 +90,13 @@ public class Tournament{
         this.numberOfQuestions = numberOfQuestionsAux;
         this.startingDate = startingDateAux;
         this.conclusionDate = conclusionDateAux;
-        this.status = statusAux;
 
-        //temporary, only while scheduling isn't implemented
-        if (LocalDateTime.now().isAfter(startingDateAux) && !(LocalDateTime.now().isAfter(conclusionDateAux))){
-            this.status = Status.OPEN;
-        }
+    }
+
+    public Tournament(TournamentDto tournamentDto, User student) {
+        this(tournamentDto);
+        this.setCreator(student); // Set creating student
+        this.addStudent(student); // Enroll the creating student in the tournament
     }
 
     public void setTopicDtoList(List<TopicDto> topicList){
@@ -112,6 +120,19 @@ public class Tournament{
         });
     }
 
+    public void addStudent(User student){
+        if (studentList.contains(student))
+            throw new TutorException(STUDENT_ALREADY_ENROLLED);
+        if (conclusionDate.isBefore(LocalDateTime.now()))
+            throw new TutorException(TOURNAMENT_IS_CLOSED);
+
+        studentList.add(student);
+    }
+
+    public boolean isOpen(){
+        LocalDateTime now = LocalDateTime.now();
+        return (startingDate.isBefore(now) && conclusionDate.isAfter(now));
+    }
 
     public CourseExecution getCourseExecution() {
         return courseExecution;
@@ -121,13 +142,6 @@ public class Tournament{
         this.courseExecution = courseExecution;
     }
 
-    public void addStudent(User student){
-        studentList.add(student);
-    }
-
-    public Status getStatus() {
-        return status;
-    }
 
     public Integer getId() {
         return id;
@@ -148,8 +162,6 @@ public class Tournament{
     public List<Topic> getTopicList() {
         return topicList;
     }
-
-
 
     public void setTopicList(List<Topic> topicList) {
         this.topicList = topicList;
@@ -186,8 +198,51 @@ public class Tournament{
     public void setStudentList(List<User> studentList) {
         this.studentList = studentList;
     }
-    public void setStatus(Status status) {
-        this.status = status;
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public Quiz getQuiz() {
+        return quiz;
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
+    }
+
+    public void removeTopicList() {
+
+        for (Topic topic : this.topicList){
+            topic.getTournaments().remove(this);
+        }
+
+        this.topicList = null;
+    }
+    public void removeUsers() {
+
+        for (User user : this.studentList){
+            user.getTournamentsEnrolled().remove(this);
+        }
+
+        this.studentList = null;
+    }
+    public void removeCourseExecution() {
+
+        courseExecution.getTournaments().remove(this);
+        courseExecution = null;
+    }
+
+    public List<User> getAnsweredList() {
+        return answeredList;
+    }
+
+    public void setAnsweredList(List<User> answeredList) {
+        this.answeredList = answeredList;
     }
 }
 

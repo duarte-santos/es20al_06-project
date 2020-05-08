@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -21,7 +22,6 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_CREATOR_DOESNT_EXIST
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_DATES_WRONG_FORMAT
@@ -41,6 +41,8 @@ class CreateTournamentServiceSpockTest extends Specification{
     static final String TOPIC_NAME2 = "TopicName2"
     static final int NUMBER_OF_QUESTIONS = 1
     static final String TOURNAMENT_TITLE = "T12"
+    static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
+    static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
     @Autowired
     TournamentService tournamentService
@@ -68,10 +70,12 @@ class CreateTournamentServiceSpockTest extends Specification{
     def static topicList
     def static startingDate
     def static conclusionDate
-    def formatter
+    def static user
+    def static userId
 
     def setup(){
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+
+        System.out.println(TOMORROW)
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         execution =  new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
@@ -87,9 +91,9 @@ class CreateTournamentServiceSpockTest extends Specification{
         topicList = new ArrayList()
         topicList.add(topicDto)
 
-        startingDate = LocalDateTime.now().plusDays(1).format(formatter)
-        conclusionDate = LocalDateTime.now().plusDays(2).format(formatter)
-
+        user = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
+        userRepository.save(user)
+        userId = user.getId()
     }
 
     def "a student creates a tournament"(){
@@ -98,11 +102,11 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setTitle(TOURNAMENT_TITLE)
         tournamentDto.setTopicList(topicList)
         tournamentDto.setNumberOfQuestions(NUMBER_OF_QUESTIONS)
-        tournamentDto.setStartingDate(startingDate)
-        tournamentDto.setConclusionDate(conclusionDate)
+        tournamentDto.setStartingDate(TOMORROW)
+        tournamentDto.setConclusionDate(LATER)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then: "The returned data is correct"
         tournamentRepository.count() == 1L
@@ -110,8 +114,8 @@ class CreateTournamentServiceSpockTest extends Specification{
         result.getTitle() == TOURNAMENT_TITLE
         result.getTopicList().get(0).getName() == TOPIC_NAME
         result.getNumberOfQuestions() == NUMBER_OF_QUESTIONS
-        result.getStartingDate().format(formatter) == startingDate
-        result.getConclusionDate().format(formatter) == conclusionDate
+        result.getStartingDate() == DateHandler.toLocalDateTime(TOMORROW)
+        result.getConclusionDate()== DateHandler.toLocalDateTime(LATER)
     }
 
     @Unroll
@@ -125,7 +129,7 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setConclusionDate(conclusiondate)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -133,12 +137,12 @@ class CreateTournamentServiceSpockTest extends Specification{
 
         where:
         title              | topiclist | nOfQuestions | startingdate | conclusiondate || errorMessage
-        null               | topicList | 1            | startingDate | conclusionDate || TOURNAMENT_TITLE_IS_EMPTY
-        TOURNAMENT_TITLE   | null      | 1            | startingDate | conclusionDate || TOURNAMENT_TOPIC_LIST_IS_EMPTY
-        TOURNAMENT_TITLE   | topicList | 0            | startingDate | conclusionDate || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
-        TOURNAMENT_TITLE   | topicList | -1           | startingDate | conclusionDate || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
-        TOURNAMENT_TITLE   | topicList | 1            | null         | conclusionDate || TOURNAMENT_DATES_WRONG_FORMAT
-        TOURNAMENT_TITLE   | topicList | 1            | startingDate | null           || TOURNAMENT_DATES_WRONG_FORMAT
+        null               | topicList | 1            | TOMORROW     | LATER          || TOURNAMENT_TITLE_IS_EMPTY
+        TOURNAMENT_TITLE   | null      | 1            | TOMORROW     | LATER          || TOURNAMENT_TOPIC_LIST_IS_EMPTY
+        TOURNAMENT_TITLE   | topicList | 0            | TOMORROW     | LATER          || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
+        TOURNAMENT_TITLE   | topicList | -1           | TOMORROW     | LATER          || TOURNAMENT_NOFQUESTIONS_SMALLER_THAN_1
+        TOURNAMENT_TITLE   | topicList | 1            | null         | LATER          || TOURNAMENT_DATES_WRONG_FORMAT
+        TOURNAMENT_TITLE   | topicList | 1            | TOMORROW     | null           || TOURNAMENT_DATES_WRONG_FORMAT
 
     }
 
@@ -149,11 +153,11 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setTitle(TOURNAMENT_TITLE)
         tournamentDto.setTopicList(topicList)
         tournamentDto.setNumberOfQuestions(NUMBER_OF_QUESTIONS)
-        tournamentDto.setStartingDate(conclusionDate)
-        tournamentDto.setConclusionDate(startingDate)
+        tournamentDto.setStartingDate(LATER)
+        tournamentDto.setConclusionDate(TOMORROW)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then:
         thrown(TutorException)
@@ -171,11 +175,11 @@ class CreateTournamentServiceSpockTest extends Specification{
         tournamentDto.setTitle(TOURNAMENT_TITLE)
         tournamentDto.setTopicList(topicList2)
         tournamentDto.setNumberOfQuestions(0)
-        tournamentDto.setStartingDate(startingDate)
-        tournamentDto.setConclusionDate(conclusionDate)
+        tournamentDto.setStartingDate(TOMORROW)
+        tournamentDto.setConclusionDate(LATER)
 
         when:
-        tournamentService.createTournament(execution.getId(), tournamentDto)
+        tournamentService.createTournament(execution.getId(), userId, tournamentDto)
 
         then: "An exception is thrown"
         thrown(TutorException)

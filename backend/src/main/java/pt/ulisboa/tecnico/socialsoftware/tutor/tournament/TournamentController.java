@@ -1,13 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import java.security.Principal;
 import java.util.List;
@@ -21,9 +21,10 @@ public class TournamentController {
 
     @PostMapping("/executions/{executionId}/tournaments")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
-    public TournamentDto createTournament(@PathVariable int executionId, @RequestBody TournamentDto tournamentDto) {
-        formatDates(tournamentDto);
-        return tournamentService.createTournament(executionId, tournamentDto);
+    public TournamentDto createTournament(@PathVariable int executionId, Principal principal,
+                                          @RequestBody TournamentDto tournamentDto) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.createTournament(executionId, user.getId(), tournamentDto);
     }
 
     @GetMapping("/executions/{executionId}/tournaments/show-open")
@@ -39,20 +40,54 @@ public class TournamentController {
         return tournamentService.enrollInTournament(user.getId(), tournamentId);
     }
 
+
+    @GetMapping("/executions/{executionId}/tournaments/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public List<TournamentDto> getDashBoardTournaments(Principal principal, @PathVariable int executionId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.getDashBoardTournaments(user.getId(), executionId);
+    }
+
+    /* Used to test with DEMO_STUDENT, since we cant have more than 1
+     * This service allows a DEMO_STUDENT to enroll other students */
+    @PutMapping("/tournaments/{tournamentId}/enroll/{userId}")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public TournamentDto enrollInTournament(@PathVariable Integer tournamentId, @PathVariable Integer userId) {
+        return tournamentService.enrollInTournament(userId, tournamentId);
+    }
+
+
+    @DeleteMapping("/tournaments/{tournamentId}/cancel")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'CREATOR.ACCESS')")
+    public ResponseEntity cancelTournament(@PathVariable int tournamentId) {
+        tournamentService.cancelTournament(tournamentId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/executions/{executionId}/tournaments/available")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> showAvailableTournaments(@PathVariable int executionId) {
         return tournamentService.showAvailableTournaments(executionId);
     }
 
-    private void formatDates(TournamentDto tournament) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        if (tournament.getStartingDate() != null && !tournament.getStartingDate().matches("(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2})")){
-            tournament.setStartingDate(LocalDateTime.parse(tournament.getStartingDate().replaceAll(".$", ""), DateTimeFormatter.ISO_DATE_TIME).format(formatter));
-        }
-        if (tournament.getConclusionDate() !=null && !tournament.getConclusionDate().matches("(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2})"))
-            tournament.setConclusionDate(LocalDateTime.parse(tournament.getConclusionDate().replaceAll(".$", ""), DateTimeFormatter.ISO_DATE_TIME).format(formatter));
+    @GetMapping("/tournaments/{tournamentId}/start")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public StatementQuizDto startTournament(Principal principal, @PathVariable int tournamentId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.startTournament(user.getId(), tournamentId);
     }
 
+    @PutMapping("/tournaments/privacy/{privacy}")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public void changePrivacy(Principal principal, @PathVariable boolean privacy) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        tournamentService.changePrivacy(user.getId(), privacy);
+    }
+
+    @GetMapping("/tournaments/privacy")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public boolean getPrivacy(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.getPrivacy(user.getId());
+    }
 }

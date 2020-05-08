@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -28,6 +29,8 @@ class ShowOpenTournamentsServiceSpockPerformanceTest extends Specification {
     static final String ACRONYM = "C12"
     static final String ACADEMIC_TERM = "1º Semestre"
     static final String TOPIC_NAME = "TopicName"
+    static final String YESTERDAY = DateHandler.toISOString(DateHandler.now().minusDays(1))
+    static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
     @Autowired
     TournamentService tournamentService
@@ -73,10 +76,9 @@ class ShowOpenTournamentsServiceSpockPerformanceTest extends Specification {
         topicList.add(topicDto)
 
         and: "a tournament"
-        def tournamentDto = new TournamentDto("Torneio", topicList, 3, "2999-01-22 04:20", "2999-04-27 00:42")
+        def tournamentDto = new TournamentDto("Torneio", topicList, 3, YESTERDAY, LATER)
         def tournament = new Tournament(tournamentDto)
         tournament.setCourseExecution(courseExecution)
-        tournament.setStatus(Tournament.Status.OPEN)
         tournamentRepository.save(tournament)
 
         when:

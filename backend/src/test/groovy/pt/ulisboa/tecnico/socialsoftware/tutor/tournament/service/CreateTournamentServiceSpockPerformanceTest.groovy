@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -26,6 +26,8 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
     static final String ACRONYM = "C12"
     static final String ACADEMIC_TERM = "1º Semestre"
     static final String TOPIC_NAME = "TopicName"
+    static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
+    static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
 
     @Autowired
     TournamentService tournamentService
@@ -47,6 +49,11 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         def course = new Course(COURSE, Course.Type.TECNICO)
         courseRepository.save(course)
 
+        and: "a user"
+        def user = new User(STUDENT_NAME, USERNAME, 1, User.Role.STUDENT)
+        userRepository.save(user)
+        def userId = user.getId()
+
         and: "a course execution"
         def courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
@@ -61,10 +68,10 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         def topicList = new ArrayList()
         topicList.add(topicDto)
         and: "a tournamentDto"
-        def tournamentDto = new TournamentDto("Torneio", topicList, 3, "2999-01-22 04:20", "2999-04-27 00:42")
+        def tournamentDto = new TournamentDto("Torneio", topicList, 3, TOMORROW, LATER)
 
         when:
-        1.upto(3/*000*/, { tournamentService.createTournament(courseExecution.getId(),tournamentDto)})
+        1.upto(3/*000*/, { tournamentService.createTournament(courseExecution.getId(), userId, tournamentDto)})
 
         then:
         true

@@ -101,7 +101,7 @@
               <boolProp name="recycle">true</boolProp>
               <stringProp name="shareMode">shareMode.all</stringProp>
               <boolProp name="stopThread">false</boolProp>
-              <stringProp name="variableNames">title,numberOfQuestions,startingDate,conclusionDate,status</stringProp>
+              <stringProp name="variableNames">title,numberOfQuestions,startingDate,conclusionDate</stringProp>
             </CSVDataSet>
             <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to create tournaments" enabled="true">
@@ -124,8 +124,7 @@
         	&quot;id&quot;: 83,&#xd;
         	&quot;name&quot;:&quot;Architectural Style&quot;&#xd;
         }&#xd;
-    ],&#xd;
-	&quot;status&quot;: &quot;${status}&quot;&#xd;
+    ]&#xd;
 }&#xd;
 </stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
@@ -411,7 +410,10 @@
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">DELETE FROM tournaments WHERE title LIKE &apos;Torneio%&apos;;</stringProp>
+          <stringProp name="query">DELETE FROM tournaments_student_list WHERE tournaments_enrolled_id in (SELECT id FROM tournaments WHERE title like &apos;Torneio%&apos;);
+DELETE FROM tournaments_topic_list WHERE tournaments_id in (SELECT id FROM tournaments WHERE title like &apos;Torneio%&apos;);
+
+DELETE FROM tournaments WHERE title LIKE &apos;Torneio%&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>

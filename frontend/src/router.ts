@@ -29,10 +29,11 @@ import CreateTournamentView from '@/views/student/tournament/CreateTournamentVie
 import OpenTournamentsView from '@/views/student/tournament/OpenTournamentsView.vue';
 import EnrollInTournamentView from '@/views/student/tournament/EnrollInTournamentView.vue';
 
-
-
 import StudentQuestionView from '@/views/student/studentQuestion/StudentQuestionView.vue';
 import EvaluateQtsView from '@/views/teacher/studentQuestions/EvaluateQuestionsView.vue';
+import SQDashboardView from '@/views/student/studentQuestion/SQDashboardView.vue';
+import CancelTournamentView from '@/views/student/tournament/CancelTournamentView.vue';
+import TournamentDashboardView from '@/views/student/tournament/TournamentDashboardView.vue';
 
 Vue.use(Router);
 
@@ -140,6 +141,15 @@ let router = new Router({
       component: StudentView,
       children: [
         {
+          path: 'dashboard/questions',
+          name: 'questions-dashboard',
+          component: SQDashboardView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Questions Dashboard',
+            requiredAuth: 'Student'
+          }
+        },
+        {
           path: 'questions',
           name: 'student-questions',
           component: StudentQuestionView,
@@ -226,6 +236,24 @@ let router = new Router({
           component: OpenTournamentsView,
           meta: {
             title: process.env.VUE_APP_NAME + ' - Show Open Tournaments',
+            requiredAuth: 'Student'
+          }
+        },
+        {
+          path: 'tournament-cancel',
+          name: 'cancel-tournaments',
+          component: CancelTournamentView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Cancel Tournaments',
+            requiredAuth: 'Student'
+          }
+        },
+        {
+          path: 'dashboard/tournaments',
+          name: 'dashboard-tournaments',
+          component: TournamentDashboardView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Dashboard Tournaments',
             requiredAuth: 'Student'
           }
         },

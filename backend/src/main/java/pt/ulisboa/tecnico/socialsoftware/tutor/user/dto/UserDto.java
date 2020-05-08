@@ -1,9 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.user.dto;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import java.io.Serializable;
-import java.time.format.DateTimeFormatter;
 
 public class UserDto implements Serializable {
     private int id;
@@ -11,23 +11,19 @@ public class UserDto implements Serializable {
     private String name;
     private User.Role role;
     private String creationDate;
+    private boolean privacy;
 
     public UserDto(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.name = user.getName();
         this.role = user.getRole();
-
-        if (user.getCreationDate() != null)
-            this.creationDate = user.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        this.creationDate = DateHandler.toISOString(user.getCreationDate());
+        this.privacy = user.getPublicTournamentDashboard();
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -60,6 +56,14 @@ public class UserDto implements Serializable {
 
     public void setCreationDate(String creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public boolean getPrivacy() {
+        return privacy;
+    }
+
+    public void setPrivacy(boolean privacy) {
+        this.privacy = privacy;
     }
 
     @Override

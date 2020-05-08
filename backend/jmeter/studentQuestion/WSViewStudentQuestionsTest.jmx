@@ -277,7 +277,7 @@
           </HTTPSamplerProxy>
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert title" enabled="true">
-              <stringProp name="JSON_PATH">$[0].title</stringProp>
+              <stringProp name="JSON_PATH">$[-1].title</stringProp>
               <stringProp name="EXPECTED_VALUE">Student_Question_Title_FOR_TEST</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -286,7 +286,7 @@
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert content" enabled="true">
-              <stringProp name="JSON_PATH">$[0].content</stringProp>
+              <stringProp name="JSON_PATH">$[-1].content</stringProp>
               <stringProp name="EXPECTED_VALUE">Student_Question_Content_FOR_TEST</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -295,7 +295,7 @@
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert options" enabled="true">
-              <stringProp name="JSON_PATH">$[0].options</stringProp>
+              <stringProp name="JSON_PATH">$[-1].options</stringProp>
               <stringProp name="EXPECTED_VALUE">[&quot;Option_A_FOR_TEST&quot;,&quot;Option_B_FOR_TEST&quot;,&quot;Option_C_FOR_TEST&quot;,&quot;Option_D_FOR_TEST&quot;]</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
@@ -304,7 +304,7 @@
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert correct option" enabled="true">
-              <stringProp name="JSON_PATH">$[0].correct</stringProp>
+              <stringProp name="JSON_PATH">$[-1].correct</stringProp>
               <stringProp name="EXPECTED_VALUE">1</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
