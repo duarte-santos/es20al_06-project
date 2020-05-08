@@ -191,7 +191,7 @@
                 <v-icon size="22">description</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Available</v-list-item-title>
+                <v-list-item-title>Show Open</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item to="/student/tournament-enroll">

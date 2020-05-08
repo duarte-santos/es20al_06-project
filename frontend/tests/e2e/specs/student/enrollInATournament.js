@@ -41,9 +41,13 @@ describe('Enroll in a Tournament Walkthrough', () => {
     cy.log("Enroll twice")
     cy.goToTournamentEnrollments()
     cy.enrollInTournament(TITLE)
+
+    cy.log("Sai do menu e volta a tentar inscrever-se")
+    cy.contains('Demo Course').click()
+    cy.goToTournamentEnrollments()
     cy.enrollInTournament(TITLE)
 
-    cy.assertTournamentError(TITLE)
+    cy.assertTournamentError("Error: The student has signed up for this tournament before")
   });
 
 });

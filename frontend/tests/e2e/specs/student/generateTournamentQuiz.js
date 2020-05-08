@@ -9,7 +9,6 @@ describe('Generating a quiz by enrolling in a Tournament Walkthrough', () => {
 
     // Make sure the tournament is not already in the database
     cy.log("SQL command (requires db acess credentials)")
-    cy.wait(200)
     cy.deleteTournament(ID)
   })
 
@@ -17,7 +16,6 @@ describe('Generating a quiz by enrolling in a Tournament Walkthrough', () => {
     cy.contains('Demo Course').click()
     cy.contains('Logout').click()
     cy.log("SQL command (requires db acess credentials)")
-    cy.wait(200)
     cy.deleteTournament(ID)
   })
 
@@ -30,6 +28,7 @@ describe('Generating a quiz by enrolling in a Tournament Walkthrough', () => {
     cy.goToTournamentEnrollments()
     cy.enrollInTournament(TITLE)
 
+    cy.wait(1000)
     cy.log("Check if START button appears = Quiz was generated")
     cy.checkTournamentQuiz(TITLE)
 
