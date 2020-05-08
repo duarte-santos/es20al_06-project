@@ -85,8 +85,7 @@ public class Question implements DomainEntity {
         this.title = stQuestion.getTitle();
         this.content = stQuestion.getContent();
         this.status = Status.AVAILABLE;
-        this.setCreationDate(LocalDateTime.now());
-
+        this.creationDate = LocalDateTime.now();
         this.course = stQuestion.getCourse();
         course.addQuestion(this);
 

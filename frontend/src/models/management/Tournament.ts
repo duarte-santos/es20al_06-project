@@ -12,7 +12,6 @@ export default class Tournament {
   answeredList: User[] = [];
   creatorUsername!: string;
 
-
   topicList: Topic[] = [];
 
   constructor(jsonObj?: Tournament) {
@@ -48,6 +47,5 @@ export default class Tournament {
     }
     return false;
   }
-
 
 }

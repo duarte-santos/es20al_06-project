@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.2.1">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Web Service evaluateStudentQuestion" enabled="true">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Load Test Web Service makeStudentQuestionAvailable" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
@@ -92,7 +92,7 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to Create a StudentQuestion" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to Create an approved StudentQuestion" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -102,7 +102,8 @@
 	&quot;title&quot;: &quot;Student_Question_Title_FOR_TEST&quot;,&#xd;
 	&quot;content&quot;: &quot;Student_Question_Content_FOR_TEST&quot;,&#xd;
 	&quot;options&quot;: [ &quot;Option_A_FOR_TEST&quot;, &quot;Option_B_FOR_TEST&quot;, &quot;Option_C_FOR_TEST&quot;, &quot;Option_D_FOR_TEST&quot;],&#xd;
-	&quot;correct&quot;: &quot;1&quot;&#xd;
+	&quot;correct&quot;: &quot;1&quot;,&#xd;
+	&quot;state&quot;: &quot;APPROVED&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -130,11 +131,49 @@
             </JSONPostProcessor>
             <hashTree/>
             <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="BeanShell Assertion" enabled="true">
-              <stringProp name="BeanShellAssertion.query">${__setProperty(studentQuestionId,${id})}</stringProp>
+              <stringProp name="BeanShellAssertion.query">${__setProperty(firstId,${id})}</stringProp>
               <stringProp name="BeanShellAssertion.filename"></stringProp>
               <stringProp name="BeanShellAssertion.parameters"></stringProp>
               <boolProp name="BeanShellAssertion.resetInterpreter">false</boolProp>
             </BeanShellAssertion>
+            <hashTree/>
+          </hashTree>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop 300 times" enabled="true">
+            <boolProp name="LoopController.continue_forever">true</boolProp>
+            <stringProp name="LoopController.loops">300</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to Create an approved StudentQuestion" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
+	&quot;title&quot;: &quot;Student_Question_Title_FOR_TEST&quot;,&#xd;
+	&quot;content&quot;: &quot;Student_Question_Content_FOR_TEST&quot;,&#xd;
+	&quot;options&quot;: [ &quot;Option_A_FOR_TEST&quot;, &quot;Option_B_FOR_TEST&quot;, &quot;Option_C_FOR_TEST&quot;, &quot;Option_D_FOR_TEST&quot;],&#xd;
+	&quot;correct&quot;: &quot;1&quot;,&#xd;
+	&quot;state&quot;: &quot;APPROVED&quot;&#xd;
+}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${server}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/courses/${demoCourseId}/studentQuestions</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
             <hashTree/>
           </hashTree>
         </hashTree>
@@ -213,13 +252,13 @@
         </ResultCollector>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Users Thread Group" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="30 Users Thread Group" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.num_threads">30</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
@@ -268,52 +307,42 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to Evaluate a StudentQuestion" enabled="true">
-            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">														{&#xd;
-	&quot;state&quot;: &quot;APPROVED&quot;,&#xd;
-	&quot;justification&quot;: &quot;Justification_FOR_TEST&quot;&#xd;
-}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain">${server}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol"></stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/studentQuestions/${__property(studentQuestionId)}/evaluate</stringProp>
-            <stringProp name="HTTPSampler.method">PUT</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          </HTTPSamplerProxy>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop_10_times" enabled="true">
+            <boolProp name="LoopController.continue_forever">true</boolProp>
+            <stringProp name="LoopController.loops">10</stringProp>
+          </LoopController>
           <hashTree>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert state" enabled="true">
-              <stringProp name="JSON_PATH">$.state</stringProp>
-              <stringProp name="EXPECTED_VALUE">APPROVED</stringProp>
-              <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
-            </JSONPathAssertion>
+            <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Script to get StudentQuestion ids" enabled="true">
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="parameters">${__jm__Loop_10_times__idx}</stringProp>
+              <stringProp name="script">def threadNum = ctx.getThreadNum();
+def loopIter = args[0].toInteger();
+def firstId = (props.get(&quot;firstId&quot;)).toInteger();
+def currentSQId = firstId + threadNum * 10 + loopIter;
+vars.put(&quot;currentSQId&quot;, currentSQId.toString());
+</stringProp>
+              <stringProp name="scriptLanguage">groovy</stringProp>
+            </JSR223Sampler>
             <hashTree/>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert justification" enabled="true">
-              <stringProp name="JSON_PATH">$.justification</stringProp>
-              <stringProp name="EXPECTED_VALUE">Justification_FOR_TEST</stringProp>
-              <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
-            </JSONPathAssertion>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to make a StudentQuestion available" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${server}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/studentQuestions/${currentSQId}/available</stringProp>
+              <stringProp name="HTTPSampler.method">PUT</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
             <hashTree/>
           </hashTree>
         </hashTree>
@@ -428,7 +457,9 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
           <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="query">DELETE FROM student_question_options WHERE options in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
+          <stringProp name="query">DELETE FROM options WHERE content in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
+DELETE FROM questions WHERE title=&apos;Student_Question_Title_FOR_TEST&apos;;
+DELETE FROM student_question_options WHERE options in (&apos;Option_A_FOR_TEST&apos;,&apos;Option_B_FOR_TEST&apos;,&apos;Option_C_FOR_TEST&apos;,&apos;Option_D_FOR_TEST&apos;);
 DELETE FROM student_questions WHERE title=&apos;Student_Question_Title_FOR_TEST&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>

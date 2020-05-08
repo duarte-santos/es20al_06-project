@@ -79,6 +79,10 @@ public class StudentQuestionDto implements Serializable {
         return options;
     }
 
+    public void setOptions(List<String> options) {
+        this.options = options;
+    }
+
     public void addOption(String option) {
         this.options.add(option);
     }

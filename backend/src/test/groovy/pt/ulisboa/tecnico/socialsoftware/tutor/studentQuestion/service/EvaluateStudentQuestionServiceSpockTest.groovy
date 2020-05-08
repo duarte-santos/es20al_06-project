@@ -10,7 +10,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestionRepository;
@@ -38,9 +37,6 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
 
     @Autowired
     StudentQuestionService studentQuestionService
-
-    @Autowired
-    QuestionRepository questionRepository
 
     @Autowired
     CourseRepository courseRepository
@@ -85,7 +81,7 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         studentQuestionDto = new StudentQuestionDto()
     }
 
-    @Unroll("studentQuestion evaluation: #evaluation | #justification || questionCreated | addedJustification")
+    @Unroll("studentQuestion evaluation: #evaluation | #justification || addedJustification")
     def "teacher evaluates question with or without justification"() {
         // question is created, studentQuestion marked as approved
         given: "an evaluation"
@@ -107,45 +103,18 @@ public class EvaluateStudentQuestionServiceSpockTest extends Specification {
         result.getOptions().size() == 4
         result.correctOption() == OPTION_CORRECT_CONTENT
         result.getStudent().getId() == user.getId()
-        and: "the new question is or is not created"
-        questionWasCreated(questionCreated)
-        and: "if created, has the correct value"
-        checkNewQuestion(questionCreated)
 
         where:
-        evaluation                        | justification      || questionCreated | addedJustification
-        StudentQuestion.State.APPROVED    | null               || true            | null
-        StudentQuestion.State.APPROVED    | '  '               || true            | null
-        StudentQuestion.State.APPROVED    | JUSTIFICATION      || true            | JUSTIFICATION
-        StudentQuestion.State.REJECTED    | JUSTIFICATION      || false           | JUSTIFICATION
-    }
-
-    def questionWasCreated(boolean questionCreated) {
-        if (!questionCreated)
-            return questionRepository.count() == 0L
-        if (questionCreated)
-            return questionRepository.count() == 1L
-    }
-
-    def checkNewQuestion(boolean questionCreated) {
-        if (questionCreated) {
-            def question = questionRepository.findAll().get(0)
-            return (question.getId() != null
-                    && question.getTitle() == QUESTION_TITLE
-                    && question.getContent() == QUESTION_CONTENT
-                    && question.getOptions().size() == 4
-                    && question.getOptions().get(0).getCorrect()
-                    && !question.getOptions().get(1).getCorrect()
-                    && question.getImage().getId() != null
-                    && question.getImage().getUrl() == URL
-                    && question.getImage().getWidth() == 20)
-        }
-        return true
+        evaluation                        | justification      || addedJustification
+        StudentQuestion.State.APPROVED    | null               || null
+        StudentQuestion.State.APPROVED    | '  '               || null
+        StudentQuestion.State.APPROVED    | JUSTIFICATION      || JUSTIFICATION
+        StudentQuestion.State.REJECTED    | JUSTIFICATION      || JUSTIFICATION
     }
 
     @Unroll("invalid arguments: #previousState | #newState | #justification || errorMessage ")
     def "invalid input values"() {
-        // question is not created and exception is thrown
+        // student question is not changed and exception is thrown
         given: "a studentQuestion with a given state"
         studentQuestion.setState(previousState)
         and: "an evaluation"
