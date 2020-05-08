@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion;
+package pt.ulisboa.tecnico.socialsoftware.tutor.student_question;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class StudentQuestionController {
     }
 
     @PutMapping("/studentQuestions/{studentQuestionId}/topics")
-    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    @PreAuthorize("hasRole('ROLE_STUDENT') or ( hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS') )")
     public ResponseEntity updateStudentQuestionTopics(@PathVariable Integer studentQuestionId, @RequestBody String[] topics) {
         studentQuestionService.updateStudentQuestionTopics(studentQuestionId, topics);
 
@@ -71,7 +71,7 @@ public class StudentQuestionController {
     }
 
     @PutMapping("/studentQuestions/{studentQuestionId}/image")
-    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    @PreAuthorize("hasRole('ROLE_STUDENT') or ( hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS') )")
     public String updateStudentQuestionImage(@PathVariable Integer studentQuestionId, @RequestParam("file") MultipartFile file) throws IOException {
         logger.debug("uploadImage  studentQuestionId: {}: , filename: {}", studentQuestionId, file.getContentType());
 
@@ -120,11 +120,33 @@ public class StudentQuestionController {
     }
 
     @PutMapping("/studentQuestions/{studentQuestionId}")
-    @PreAuthorize("hasRole('ROLE_STUDENT')")
-    public StudentQuestionDto editStudentQuestion(@PathVariable int studentQuestionId,
+    @PreAuthorize("hasRole('ROLE_STUDENT') or ( hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS') )")
+    public StudentQuestionDto editStudentQuestion(@PathVariable int studentQuestionId, Authentication authentication,
                                                   @Valid @RequestBody StudentQuestionDto studentQuestionDto) {
+        User user = ((User) authentication.getPrincipal());
 
-        return studentQuestionService.editStudentQuestion(studentQuestionId, studentQuestionDto);
+        if (user.getRole() == User.Role.STUDENT) // student editing
+            return studentQuestionService.editRejectedStudentQuestion(studentQuestionId, studentQuestionDto);
+
+        else // teacher editing
+            return studentQuestionService.editApprovedStudentQuestion(studentQuestionId, studentQuestionDto);
+
+    }
+
+    @GetMapping("/dashboards/myself/studentQuestions")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public SQDashboardDto getSQDashboard(Authentication authentication) {
+        Integer studentId = ((User) authentication.getPrincipal()).getId();
+        return studentQuestionService.getSQDashboard(studentId);
+    }
+
+    @PutMapping("/dashboards/myself/studentQuestions/privacy")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public ResponseEntity changeSQDashboardPrivacy(Authentication authentication, @RequestBody SQDashboardDto dto) {
+        Integer studentId = ((User) authentication.getPrincipal()).getId();
+        studentQuestionService.changeSQDashboardPrivacy(studentId, dto.isVisible());
+
+        return ResponseEntity.ok().build();
     }
 
 }

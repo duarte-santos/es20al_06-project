@@ -4,7 +4,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.DomainEntity;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.Visitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
+import pt.ulisboa.tecnico.socialsoftware.tutor.student_question.StudentQuestion;
 
 import javax.persistence.*;
 

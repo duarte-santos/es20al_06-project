@@ -160,6 +160,28 @@
           <v-icon>fas fa-user</v-icon>
         </v-btn>
 
+        <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" text dark>
+              Dashboard
+              <v-icon>dashboard</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item
+              to="/student/dashboard/questions"
+              data-cy="question-dashboard"
+            >
+              <v-list-item-action>
+                <v-icon size="22">question_answer</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Question</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
         <v-btn
           to="/student/questions"
           v-if="isStudent && currentCourse"
@@ -392,6 +414,13 @@
               <v-icon>fas fa-user</v-icon>
             </v-list-item-action>
             <v-list-item-content>Stats</v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/student/dashboard/questions">
+            <v-list-item-action>
+              <v-icon>dashboard</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>Questions Dashboard</v-list-item-content>
           </v-list-item>
 
           <v-list-item to="/student/questions">

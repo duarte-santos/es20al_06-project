@@ -48,6 +48,8 @@ public class User implements UserDetails, DomainEntity {
     private Integer numberOfCorrectInClassAnswers;
     private Integer numberOfCorrectStudentAnswers;
 
+    private Boolean publicSQDashboard;
+
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
@@ -84,11 +86,22 @@ public class User implements UserDetails, DomainEntity {
         this.numberOfCorrectTeacherAnswers = 0;
         this.numberOfCorrectInClassAnswers = 0;
         this.numberOfCorrectStudentAnswers = 0;
+        this.publicSQDashboard = true;
     }
 
     @Override
     public void accept(Visitor visitor) {
         visitor.visitUser(this);
+    }
+
+    public Boolean getPublicSQDashboard() {
+        if (this.publicSQDashboard == null)
+            this.publicSQDashboard = true;
+        return this.publicSQDashboard;
+    }
+
+    public void setPublicSQDashboard(Boolean bool) {
+        this.publicSQDashboard = bool;
     }
 
     public Set<Tournament> getTournamentsEnrolled() {
