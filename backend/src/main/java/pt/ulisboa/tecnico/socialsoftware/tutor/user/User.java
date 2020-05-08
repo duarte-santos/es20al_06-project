@@ -63,6 +63,9 @@ public class User implements UserDetails, DomainEntity {
     @ManyToMany(mappedBy = "studentList")
     private Set<Tournament> tournamentsEnrolled = new HashSet<>();
 
+    @ManyToMany(mappedBy = "answeredList")
+    private Set<Tournament> tournamentsAnswered = new HashSet<>();
+
     public User() {
     }
 

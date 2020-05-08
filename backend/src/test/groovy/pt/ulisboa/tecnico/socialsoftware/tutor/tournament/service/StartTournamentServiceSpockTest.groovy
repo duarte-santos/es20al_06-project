@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
@@ -17,6 +18,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
@@ -68,7 +70,10 @@ class StartTournamentServiceSpockTest extends Specification{
     UserRepository userRepository
 
     @Autowired
-    QuestionRepository questionRepository;
+    QuestionRepository questionRepository
+
+    @Autowired
+    QuizAnswerRepository quizAnswerRepository
 
 
     def creator
@@ -136,7 +141,7 @@ class StartTournamentServiceSpockTest extends Specification{
 
     }
 
-    def "an enrolled student starts answering to a tournament's questions"(){
+    def "an enrolled student participates in the tournament"(){
         given: "An open tournament"
         tournament.setStartingDate(YESTERDAY)
         tournament.setConclusionDate(TOMORROW)
@@ -144,13 +149,13 @@ class StartTournamentServiceSpockTest extends Specification{
         tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
 
         when:
-        def result = tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
+        tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
+        def result = quizAnswerRepository.findAll().get(0)
         /* The actual answering of questions is controlled by the Quiz Services, which are out of
         the scope of this test. */
 
-        then: "The tournament was started"
-        /* No exceptions were thrown */
-        result == true;
+        then: "The tournament was started - Quiz answers were created for the student"
+        result.getQuiz() == tournament.getQuiz()
     }
 
     def "a student that's not enrolled tries to participate in a tournament"(){
@@ -181,7 +186,7 @@ class StartTournamentServiceSpockTest extends Specification{
 
         then: "An exception was thrown"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.QUIZ_NOT_GENERATED
+        error.errorMessage == ErrorMessage.QUIZ_CANT_BE_GENERATED
     }
 
     def "the student tries to participate in a tournament that hasn't started yet"(){
@@ -212,6 +217,22 @@ class StartTournamentServiceSpockTest extends Specification{
         then: "An exception was thrown"
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.TOURNAMENT_IS_FINISHED
+    }
+
+    def "the student tries to participate in a tournament 2 times"(){
+        given: "An open tournament"
+        tournament.setStartingDate(YESTERDAY)
+        tournament.setConclusionDate(TOMORROW)
+        and: "An enrolled student"
+        tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
+
+        when:
+        tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
+        tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
+
+        then: "An exception was thrown"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.STUDENT_ALREADY_PARTICIPATED
     }
 
     @TestConfiguration

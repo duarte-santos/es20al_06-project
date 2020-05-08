@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -63,7 +64,7 @@ public class TournamentController {
 
     @GetMapping("/tournaments/{tournamentId}/start")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
-    public boolean startTournament(Principal principal, @PathVariable int tournamentId) {
+    public StatementQuizDto startTournament(Principal principal, @PathVariable int tournamentId) {
         User user = (User) ((Authentication) principal).getPrincipal();
         return tournamentService.startTournament(user.getId(), tournamentId);
     }

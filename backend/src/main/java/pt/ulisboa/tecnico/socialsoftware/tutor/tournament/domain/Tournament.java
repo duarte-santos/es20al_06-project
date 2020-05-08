@@ -43,6 +43,9 @@ public class Tournament{
     @ManyToMany
     private List<User> studentList = new ArrayList<>();
 
+    @ManyToMany
+    private List<User> answeredList = new ArrayList<>();
+
 
     private Integer numberOfQuestions;
     private LocalDateTime startingDate;
@@ -126,6 +129,11 @@ public class Tournament{
             throw new TutorException(TOURNAMENT_IS_CLOSED);
 
         studentList.add(student);
+    }
+
+    public boolean isOpen(){
+        LocalDateTime now = LocalDateTime.now();
+        return (startingDate.isBefore(now) && conclusionDate.isAfter(now));
     }
 
     public CourseExecution getCourseExecution() {
@@ -231,5 +239,12 @@ public class Tournament{
         courseExecution = null;
     }
 
+    public List<User> getAnsweredList() {
+        return answeredList;
+    }
+
+    public void setAnsweredList(List<User> answeredList) {
+        this.answeredList = answeredList;
+    }
 }
 

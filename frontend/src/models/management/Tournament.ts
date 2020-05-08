@@ -9,6 +9,7 @@ export default class Tournament {
   startingDate!: string;
   conclusionDate!: string;
   studentList: User[] = [];
+  answeredList: User[] = [];
   creatorUsername!: string;
 
 
@@ -23,12 +24,29 @@ export default class Tournament {
       this.startingDate = jsonObj.startingDate;
       this.conclusionDate = jsonObj.conclusionDate;
       this.studentList = jsonObj.studentList;
+      this.answeredList = jsonObj.answeredList;
 
       if (jsonObj.startingDate)
         this.startingDate = ISOtoString(jsonObj.startingDate);
       if (jsonObj.conclusionDate)
         this.conclusionDate = ISOtoString(jsonObj.conclusionDate);
     }
+  }
+
+  public isEnrolled(user : User){
+    for (let i = 0; i<this.studentList.length; i++){
+      if (user.username == this.studentList[i].username)
+        return true;
+    }
+    return false;
+  }
+
+  public hasAnswered(user : User){
+    for (let i = 0; i<this.answeredList.length; i++){
+      if (user.username == this.answeredList[i].username)
+        return true;
+    }
+    return false;
   }
 
 

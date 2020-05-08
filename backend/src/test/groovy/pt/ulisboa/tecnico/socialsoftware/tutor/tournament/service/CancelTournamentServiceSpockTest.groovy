@@ -109,23 +109,9 @@ class CancelTournamentServiceSpockTest extends Specification{
         topicList = new ArrayList()
         topicList.add(topic)
 
-
-        /* Question */
-        question = new Question()
-        question.setKey(1)
-        question.setCourse(course)
-        question.setTitle(QUESTION_TITLE)
-        question.addTopic(topic)
-        question.setStatus(Question.Status.AVAILABLE)
-        questionRepository.save(question)
-
-        questionDto = new QuestionDto(question)
-        questionDto.setKey(1)
-        questionDto.setSequence(1)
-
     }
 
-    def "Student cancels an existing tournament (no quiz)"(){
+    def "Student cancels an existing tournament"(){
         given: "a tournament"
         tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
         Tournament tournament = new Tournament(tournamentDto, creator)
@@ -140,26 +126,10 @@ class CancelTournamentServiceSpockTest extends Specification{
 
         then: "The tournament is no longer in the data base"
         result.size() == 0
-
-    }
-
-    def "Student cancels a tournament with a generated quiz"(){
-        given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
-        Tournament tournament = new Tournament(tournamentDto, creator)
-        tournament.setCourseExecution(execution)
-        tournament.setTopicList(topicList)
-        tournamentRepository.save(tournament)
-        tournamentId = tournament.getId()
-
-        when:
-        tournamentService.createTournamentQuiz(tournament)
-        tournamentService.cancelTournament(tournamentId)
-
-        then: "The tournament and quiz are properly deleted"
-        tournamentRepository.findAll().size() == 0
-        quizRepository.findAll().size() == 0
-
+        creator.getTournamentsEnrolled().size() == 0
+        for(Topic t: topicList){
+            !t.getTournaments().contains(tournament)
+        }
 
     }
 

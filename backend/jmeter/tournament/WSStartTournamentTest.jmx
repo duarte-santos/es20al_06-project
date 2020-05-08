@@ -340,13 +340,12 @@
           </HTTPSamplerProxy>
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assertion Tournament is Started" enabled="true">
-              <stringProp name="JSON_PATH">$</stringProp>
-              <stringProp name="EXPECTED_VALUE">true</stringProp>
+              <stringProp name="JSON_PATH">$.title</stringProp>
+              <stringProp name="EXPECTED_VALUE">Torneio1 (Quiz)</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
               <boolProp name="ISREGEX">false</boolProp>
-              <stringProp name="TestPlan.comments">If all goes right, a true boolean is returned (An exception will be returned otherwise)</stringProp>
             </JSONPathAssertion>
             <hashTree/>
           </hashTree>

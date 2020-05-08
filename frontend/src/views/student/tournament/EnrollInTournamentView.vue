@@ -38,7 +38,11 @@
         </div>
         <div :id="tournament.id" class="col last-col">
           <div>
-            <v-icon style="color: green" @click="enroll(tournament)">
+            <v-icon
+                    v-if="!tournament.isEnrolled(currentUser)"
+                    style="color: green"
+                    @click="enroll(tournament)"
+            >
               as fa-user-plus
             </v-icon>
           </div>
@@ -59,6 +63,7 @@ export default class EnrollInTournamentView extends Vue {
   tournaments: Tournament[] = [];
   user: User = new User();
   status: String[] = [];
+  currentUser: User = this.$store.getters.getUser;
 
   async created() {
     await this.$store.dispatch('loading');

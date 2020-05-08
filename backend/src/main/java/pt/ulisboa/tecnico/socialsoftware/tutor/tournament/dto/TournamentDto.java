@@ -6,6 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.io.Serializable;
@@ -24,6 +25,7 @@ public class TournamentDto implements Serializable{
     private String startingDate;
     private String conclusionDate;
     private List<UserDto> studentList = new ArrayList<>();
+    private List<UserDto> answeredList = new ArrayList<>();
     private Integer creatingUserId;
     private Integer quizId;
     private String creatorUsername;
@@ -54,6 +56,7 @@ public class TournamentDto implements Serializable{
         }
 
         setStudentList(tournament.getStudentList().stream().map(UserDto::new).collect(Collectors.toList()));
+        setAnsweredList(tournament.getAnsweredList().stream().map(UserDto::new).collect(Collectors.toList()));
     }
 
     public TournamentDto(String title, List<TopicDto> topicList, Integer numOfQuestions, String startingDate, String conclusionDate){
@@ -145,5 +148,13 @@ public class TournamentDto implements Serializable{
 
     public void setCreatingUserId(Integer creatingUserId) {
         this.creatingUserId = creatingUserId;
+    }
+
+    public List<UserDto> getAnsweredList() {
+        return answeredList;
+    }
+
+    public void setAnsweredList(List<UserDto> answeredList) {
+        this.answeredList = answeredList;
     }
 }
