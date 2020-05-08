@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h2>Available Tournaments</h2>
+    <h2>All Tournaments</h2>
     <ul data-cy="tournamentsList">
       <li class="list-header">
         <div class="col">Title</div>
@@ -44,7 +44,7 @@
         <div class="col last-col">
           <div>
             <v-icon v-if="status[index] == 'CLOSED' && tournament.creatorUsername == user.username"
-                    style="color: green"
+                    style="color: darkred"
                     @click="cancel(tournament)"
             >
               fas fa-trash

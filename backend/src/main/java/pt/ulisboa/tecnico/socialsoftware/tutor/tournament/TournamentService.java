@@ -117,7 +117,21 @@ public class TournamentService{
                     .filter(tournament -> DateHandler.now().isBefore(tournament.getConclusionDate()))
                     .filter(tournament -> tournament.getStartingDate().isBefore(DateHandler.now()))
                     .map(TournamentDto::new).collect(Collectors.toList());
-        }
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<TournamentDto> getDashBoardTournaments(int userId){
+        return tournamentRepository.findParticipated(userId).stream()
+                .filter(tournament -> DateHandler.now().isAfter(tournament.getConclusionDate()))
+                .map(TournamentDto::new).collect(Collectors.toList());
+
+
+    }
+
+
 
     @Retryable(
             value = { SQLException.class },

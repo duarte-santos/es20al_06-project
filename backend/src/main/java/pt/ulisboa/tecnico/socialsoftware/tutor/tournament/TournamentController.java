@@ -40,6 +40,13 @@ public class TournamentController {
         return tournamentService.enrollInTournament(user.getId(), tournamentId);
     }
 
+    @GetMapping("/tournaments/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public List<TournamentDto> getDashBoardTournaments(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.getDashBoardTournaments(user.getId());
+    }
+
     /* Used to test with DEMO_STUDENT, since we cant have more than 1
      * This service allows a DEMO_STUDENT to enroll other students */
     @PutMapping("/tournaments/{tournamentId}/enroll/{userId}")

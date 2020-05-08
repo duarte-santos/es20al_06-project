@@ -256,7 +256,7 @@ Cypress.Commands.add('shouldCloseConfirmationAlert', () => {
 
 Cypress.Commands.add('goToTournamentCanceling', () => {
   cy.contains('Tournaments').click()
-  cy.contains('Cancel').click()
+  cy.contains('Show All').click()
 });
 
 

@@ -157,4 +157,5 @@ public class TournamentDto implements Serializable{
     public void setAnsweredList(List<UserDto> answeredList) {
         this.answeredList = answeredList;
     }
+
 }

@@ -204,10 +204,10 @@
             </v-list-item>
             <v-list-item to="/student/tournament-cancel">
               <v-list-item-action>
-                <v-icon size="27">fas fa-times</v-icon>
+                <v-icon size="27">description</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Cancel</v-list-item-title>
+                <v-list-item-title>Show All</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
