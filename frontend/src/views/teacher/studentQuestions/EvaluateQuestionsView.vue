@@ -26,6 +26,29 @@
           @click="showQuestionDialog(item)"
       /></template>
 
+      <template v-slot:item.topics="{ item }">
+        <template v-if="item.state === 'APPROVED'">
+          <edit-question-topics
+            :question="item"
+            :topics="topics"
+            v-on:stquestion-changed-topics="onQuestionChangedTopics"
+            data-cy="topics"
+          />
+        </template>
+      </template>
+
+      <template v-slot:item.image="{ item }">
+        <template v-if="item.state === 'APPROVED'">
+          <v-file-input
+            show-size
+            dense
+            small-chips
+            @change="handleFileUpload($event, item)"
+            accept="image/*"
+          />
+        </template>
+      </template>
+
       <template v-slot:item.state="{ item }">
         <v-chip
           :color="getStateColor(item.state)"
@@ -67,7 +90,7 @@
               small
               class="mr-2"
               v-on="on"
-              @click="makeQuestionAvailable(item)"
+              @click="editQuestion(item)"
               data-cy="available"
               color="blue"
               >check_circle</v-icon
@@ -91,6 +114,13 @@
       :question="currentQuestion"
       v-on:save-studentquestionevaluation="onSaveStudentQuestionEvaluation"
     />
+
+    <edit-question-dialog
+      v-if="currentQuestion"
+      v-model="editQuestionDialog"
+      :question="currentQuestion"
+      v-on:save-studentquestion="makeQuestionAvailable"
+    />
   </v-card>
 </template>
 
@@ -103,18 +133,24 @@ import ShowStudentQuestionDialog from '@/views/student/studentQuestion/ShowStude
 import EvaluateStudentQuestionDialog from '@/views/teacher/studentQuestions/EvaluateStudentQuestionDialog.vue';
 import Image from '@/models/management/Image';
 import Question from '@/models/management/Question';
+import EditStudentQuestionDialog from '@/views/student/studentQuestion/EditStudentQuestionDialog.vue';
+import EditStudentQuestionTopics from '@/views/student/studentQuestion/EditStudentQuestionTopics.vue';
 
 @Component({
   components: {
     'show-question-dialog': ShowStudentQuestionDialog,
-    'evaluate-question-dialog': EvaluateStudentQuestionDialog
+    'evaluate-question-dialog': EvaluateStudentQuestionDialog,
+    'edit-question-dialog': EditStudentQuestionDialog,
+    'edit-question-topics': EditStudentQuestionTopics
   }
 })
 export default class EvaluateQuestionView extends Vue {
   studentQuestions: StudentQuestion[] = [];
+  topics: string[] = [];
   currentQuestion: StudentQuestion | null = null;
   questionDialog: boolean = false;
   evaluateDialog: boolean = false;
+  editQuestionDialog: boolean = false;
   search: string = '';
   headers: object = [
     {
@@ -167,7 +203,14 @@ export default class EvaluateQuestionView extends Vue {
   async created() {
     await this.$store.dispatch('loading');
     try {
-      this.studentQuestions = await RemoteServices.getCourseStudentQuestions();
+      let auxtopics;
+      [auxtopics, this.studentQuestions] = await Promise.all([
+        RemoteServices.getTopics(),
+        RemoteServices.getCourseStudentQuestions()
+      ]);
+      for (let i = 0; i < auxtopics.length; i++) {
+        this.topics.push(auxtopics[i].name);
+      }
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
@@ -195,12 +238,7 @@ export default class EvaluateQuestionView extends Vue {
   }
 
   async makeQuestionAvailable(question: StudentQuestion) {
-    if (
-      question.id &&
-      confirm(
-        'Are you sure you want to add this question to the question pool?'
-      )
-    ) {
+    if (question.id) {
       try {
         const result = await RemoteServices.makeStudentQuestionAvailable(
           question.id
@@ -209,6 +247,8 @@ export default class EvaluateQuestionView extends Vue {
           q => q.id !== result.id
         );
         this.studentQuestions.unshift(result);
+        this.editQuestionDialog = false;
+        this.currentQuestion = null;
       } catch (error) {
         await this.$store.dispatch('error', error);
       }
@@ -222,6 +262,36 @@ export default class EvaluateQuestionView extends Vue {
     this.studentQuestions.unshift(question);
     this.evaluateDialog = false;
     this.currentQuestion = null;
+  }
+
+  async editQuestion(question: StudentQuestion) {
+    this.currentQuestion = question;
+    this.editQuestionDialog = true;
+  }
+
+  onQuestionChangedTopics(questionId: Number, changedTopics: string[]) {
+    let question = this.studentQuestions.find(
+      (question: StudentQuestion) => question.id == questionId
+    );
+    if (question) {
+      question.topics = changedTopics;
+    }
+  }
+
+  async handleFileUpload(event: File, question: Question) {
+    if (question.id) {
+      try {
+        const imageURL = await RemoteServices.updateStudentQuestionImage(
+          event,
+          question.id
+        );
+        question.image = new Image();
+        question.image.url = imageURL;
+        confirm('Image ' + imageURL + ' was uploaded!');
+      } catch (error) {
+        await this.$store.dispatch('error', error);
+      }
+    }
   }
 
   getStateColor(state: string) {

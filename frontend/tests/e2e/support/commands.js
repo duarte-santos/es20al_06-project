@@ -408,7 +408,6 @@ Cypress.Commands.add('addStudentQuestionTopic', (title, topic) => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
     .find('[data-cy="topics"]')
     .type(topic)
     .type('{enter}');
@@ -439,7 +438,16 @@ Cypress.Commands.add('closeException', () => {
 
 Cypress.Commands.add('makeStudentQuestionAvailable', title => {
   findRowAndClick(title, 'available', 8);
+  editAndSave(null, null, [], null);
 });
+
+Cypress.Commands.add(
+  'makeStudentQuestionAvailableWithEdit',
+  (oldTitle, title, content, optionList, correct) => {
+    findRowAndClick(oldTitle, 'available', 8);
+    editAndSave(title, content, optionList, correct);
+  }
+);
 
 Cypress.Commands.add('assertCantMakeSQAvailable', title => {
   cy.contains(title)
@@ -473,4 +481,9 @@ Cypress.Commands.add('editNotAvailable', title => {
     .should('have.length', 7)
     .find('[data-cy="edit"]')
     .should('not.exist');
+});
+
+Cypress.Commands.add('gotoSQDashboard', () => {
+  cy.contains('Dashboard').click();
+  cy.get('[data-cy="question-dashboard"]').click();
 });

@@ -5,7 +5,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.DomainEntity;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.Visitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
-import pt.ulisboa.tecnico.socialsoftware.tutor.studentQuestion.StudentQuestion;
+import pt.ulisboa.tecnico.socialsoftware.tutor.student_question.StudentQuestion;
 
 import javax.persistence.*;
 import java.util.HashSet;
