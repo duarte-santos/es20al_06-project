@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -20,10 +21,10 @@ public class TournamentController {
 
     @PostMapping("/executions/{executionId}/tournaments")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
-    public TournamentDto createTournament(@PathVariable int executionId, Authentication authentication,
+    public TournamentDto createTournament(@PathVariable int executionId, Principal principal,
                                           @RequestBody TournamentDto tournamentDto) {
-        Integer studentId = ((User) authentication.getPrincipal()).getId();
-        return tournamentService.createTournament(executionId, studentId, tournamentDto);
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.createTournament(executionId, user.getId(), tournamentDto);
     }
 
     @GetMapping("/executions/{executionId}/tournaments/show-open")
@@ -39,6 +40,13 @@ public class TournamentController {
         return tournamentService.enrollInTournament(user.getId(), tournamentId);
     }
 
+    @GetMapping("/tournaments/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public List<TournamentDto> getDashBoardTournaments(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.getDashBoardTournaments(user.getId());
+    }
+
     /* Used to test with DEMO_STUDENT, since we cant have more than 1
      * This service allows a DEMO_STUDENT to enroll other students */
     @PutMapping("/tournaments/{tournamentId}/enroll/{userId}")
@@ -48,7 +56,7 @@ public class TournamentController {
     }
 
 
-    @DeleteMapping("/tournaments/{tournamentId}/delete")
+    @DeleteMapping("/tournaments/{tournamentId}/cancel")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'CREATOR.ACCESS')")
     public ResponseEntity cancelTournament(@PathVariable int tournamentId) {
         tournamentService.cancelTournament(tournamentId);
@@ -59,6 +67,13 @@ public class TournamentController {
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> showAvailableTournaments(@PathVariable int executionId) {
         return tournamentService.showAvailableTournaments(executionId);
+    }
+
+    @GetMapping("/tournaments/{tournamentId}/start")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public StatementQuizDto startTournament(Principal principal, @PathVariable int tournamentId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.startTournament(user.getId(), tournamentId);
     }
 
 }

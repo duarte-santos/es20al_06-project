@@ -28,12 +28,15 @@
           {{ tournament.numberOfQuestions }}
         </div>
         <div :id="tournament.id" class="col last-col">
+          <v-icon style="color: green" v-if="tournament.hasAnswered(currentUser)">
+            fas fa-check
+          </v-icon>
           <v-btn
             medium
             width="3cm"
             color="primary"
-            @click="answerQuiz(tournament)"
-            v-if="tournament.studentList.length > 1"
+            @click="answerTournament(tournament)"
+            v-else-if="tournament.studentList.length > 1"
             :data-cy="tournament.title + '.startButton'"
           >
             START
@@ -51,10 +54,14 @@ import RemoteServices from '@/services/RemoteServices';
 import StatementQuestion from '@/models/statement/StatementQuestion';
 import StatementAnswer from '@/models/statement/StatementAnswer';
 import Tournament from '@/models/management/Tournament';
+import StatementManager from '@/models/statement/StatementManager';
+import StatementQuiz from '@/models/statement/StatementQuiz';
+import User from '@/models/user/User';
 
 @Component
 export default class OpenTournamentsView extends Vue {
   tournaments: Tournament[] = [];
+  currentUser: User = this.$store.getters.getUser;
 
   async created() {
     await this.$store.dispatch('loading');
@@ -66,13 +73,14 @@ export default class OpenTournamentsView extends Vue {
     await this.$store.dispatch('clearLoading');
   }
 
-  async answerQuiz(tournament: Tournament) {
+  async answerTournament(tournament: Tournament) {
     await this.$store.dispatch('loading');
     try {
-      document.getElementById(tournament.id.toString())!.style.visibility =
-        'hidden';
-      // TODO call remote services
-      // this.$forceUpdate();
+      document.getElementById(tournament.id.toString())!.style.visibility = 'hidden';
+      let statementQuiz: StatementQuiz = await RemoteServices.startTournament(tournament);
+      let statementManager: StatementManager = StatementManager.getInstance;
+      statementManager.statementQuiz = statementQuiz;
+      await this.$router.push({ name: 'solve-quiz' });
     } catch (error) {
       await this.$store.dispatch('error', error);
     }

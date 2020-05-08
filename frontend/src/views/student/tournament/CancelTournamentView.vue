@@ -1,12 +1,13 @@
 <template>
   <div class="container">
-    <h2>Available Tournaments</h2>
+    <h2>All Tournaments</h2>
     <ul data-cy="tournamentsList">
       <li class="list-header">
         <div class="col">Title</div>
         <div class="col">Questions</div>
         <div class="col">Start</div>
         <div class="col">End</div>
+        <div class="col">Creator</div>
         <div class="col">Status</div>
 
         <div class="col last-col"><v-icon>fas fa-check</v-icon></div>
@@ -20,6 +21,7 @@
         class="list-row"
         v-for="(tournament,index) in tournaments"
         :key="tournament.id"
+        :id="tournament.id"
       >
         <div class="col" style="font-weight: bold">
           {{ tournament.title }}
@@ -34,16 +36,18 @@
           {{ tournament.conclusionDate }}
         </div>
         <div class="col">
+          {{ tournament.creatorUsername }}
+        </div>
+        <div class="col">
           {{ status[index] }}
         </div>
-        <div :id="tournament.id" class="col last-col">
+        <div class="col last-col">
           <div>
-            <v-icon
-                    v-if="!tournament.isEnrolled(currentUser)"
-                    style="color: green"
-                    @click="enroll(tournament)"
+            <v-icon v-if="status[index] == 'CLOSED' && tournament.creatorUsername == user.username"
+                    style="color: darkred"
+                    @click="cancel(tournament)"
             >
-              as fa-user-plus
+              fas fa-trash
             </v-icon>
           </div>
         </div>
@@ -59,11 +63,10 @@ import Tournament from '@/models/management/Tournament';
 import User from '@/models/user/User';
 
 @Component
-export default class EnrollInTournamentView extends Vue {
+export default class CancelTournamentView extends Vue {
   tournaments: Tournament[] = [];
   user: User = new User();
   status: String[] = [];
-  currentUser: User = this.$store.getters.getUser;
 
   async created() {
     await this.$store.dispatch('loading');
@@ -89,12 +92,12 @@ export default class EnrollInTournamentView extends Vue {
     await this.$store.dispatch('clearLoading');
   }
 
-  async enroll(tournament: Tournament) {
+  async cancel(tournament: Tournament) {
     await this.$store.dispatch('loading');
     try {
-      document.getElementById(tournament.id.toString())!.style.visibility =
-        'hidden';
-      await RemoteServices.enrollInTournament(tournament);
+      await RemoteServices.deleteTournament(tournament.id);
+
+      document.getElementById(tournament.id.toString())!.style.visibility = 'hidden';
       this.$forceUpdate();
     } catch (error) {
       await this.$store.dispatch('error', error);
@@ -143,11 +146,11 @@ export default class EnrollInTournamentView extends Vue {
     }
 
     .col last-col {
-      width: 15%;
+      width: 13%;
     }
 
     .col {
-      width: 17% !important;
+      width: 14% !important;
       margin: auto; /* Important */
       text-align: center;
       word-break: break-word;

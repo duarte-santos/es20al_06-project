@@ -640,7 +640,7 @@ export default class RemoteServices {
 
   static async deleteTournament(tournamentId: number) {
     return httpClient
-      .delete(`/tournament/${tournamentId}/cancel`)
+      .delete(`/tournaments/${tournamentId}/cancel`)
       .catch(async error => {
         throw Error(await this.errorMessage(error));
       });
@@ -655,6 +655,17 @@ export default class RemoteServices {
         return response.data.map((tournament: any) => {
           return new Tournament(tournament);
         });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static startTournament(tournament: Tournament): Promise<StatementQuiz> {
+    return httpClient
+      .get(`/tournaments/${tournament.id}/start`)
+      .then(response => {
+        return new StatementQuiz(response.data);
       })
       .catch(async error => {
         throw Error(await this.errorMessage(error));

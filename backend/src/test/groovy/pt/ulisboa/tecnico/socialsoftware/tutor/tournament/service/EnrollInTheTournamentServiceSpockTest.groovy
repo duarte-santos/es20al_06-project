@@ -52,6 +52,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
     static final String ACADEMIC_TERM = "1 SEM"
     static final String TOPIC_NAME = "TopicName"
     static final int NUMBER_OF_QUESTIONS = 1
+    static final String YESTERDAY = DateHandler.toISOString(DateHandler.now().minusDays(1))
     static final String TOMORROW = DateHandler.toISOString(DateHandler.now().plusDays(1))
     static final String LATER = DateHandler.toISOString(DateHandler.now().plusDays(2))
     public static final String QUESTION_TITLE = 'question title'
@@ -117,7 +118,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         topicList.add(topic)
 
 
-        /* Question */
+        /* Create new questions associated with the created Topic */
         question = new Question()
         question.setKey(1)
         question.setCourse(course)
@@ -134,7 +135,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
 
     def "the tournament exists, a student enrolls in it and a quiz is generated"(){
         given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, TOMORROW, LATER)
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, YESTERDAY, TOMORROW)
         Tournament tournament = new Tournament(tournamentDto, creator)
         tournament.setCourseExecution(execution)
         tournament.setTopicList(topicList)
@@ -200,9 +201,9 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         thrown(TutorException)
     }
 
-    def "the quiz cant be generated because there arent enough questions"(){
+    def "the quiz cant be generated because there aren't enough questions"(){
         given: "a tournament"
-        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, 3, TOMORROW, LATER)
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, 3, YESTERDAY, TOMORROW)
         Tournament tournament = new Tournament(tournamentDto, creator)
         tournament.setCourseExecution(execution)
         tournament.setTopicList(topicList)

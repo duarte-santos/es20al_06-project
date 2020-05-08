@@ -8,21 +8,22 @@ export default class Tournament {
   numberOfQuestions!: number;
   startingDate!: string;
   conclusionDate!: string;
-  status!: string | undefined;
   studentList: User[] = [];
+  answeredList: User[] = [];
+  creatorUsername!: string;
 
   topicList: Topic[] = [];
 
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {
       this.id = jsonObj.id;
+      this.creatorUsername = jsonObj.creatorUsername;
       this.numberOfQuestions = jsonObj.numberOfQuestions;
       this.title = jsonObj.title;
-      this.status = jsonObj.status;
       this.startingDate = jsonObj.startingDate;
       this.conclusionDate = jsonObj.conclusionDate;
-
       this.studentList = jsonObj.studentList;
+      this.answeredList = jsonObj.answeredList;
 
       if (jsonObj.startingDate)
         this.startingDate = ISOtoString(jsonObj.startingDate);
@@ -31,7 +32,20 @@ export default class Tournament {
     }
   }
 
-  getTitle() {
-    return this.title;
+  public isEnrolled(user : User){
+    for (let i = 0; i<this.studentList.length; i++){
+      if (user.username == this.studentList[i].username)
+        return true;
+    }
+    return false;
   }
+
+  public hasAnswered(user : User){
+    for (let i = 0; i<this.answeredList.length; i++){
+      if (user.username == this.answeredList[i].username)
+        return true;
+    }
+    return false;
+  }
+
 }
