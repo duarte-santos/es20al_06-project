@@ -79,7 +79,7 @@ public class Quiz implements DomainEntity {
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "quiz", fetch=FetchType.LAZY, orphanRemoval=true)
+    @OneToOne(mappedBy = "quiz")
     private Tournament tournament;
 
     public Quiz() {}
@@ -123,6 +123,14 @@ public class Quiz implements DomainEntity {
             generateKeys();
 
         return key;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 
     public void setKey(Integer key) {

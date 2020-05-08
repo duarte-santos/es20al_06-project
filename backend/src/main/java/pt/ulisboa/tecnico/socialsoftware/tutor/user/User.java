@@ -48,7 +48,10 @@ public class User implements UserDetails, DomainEntity {
     private Integer numberOfCorrectInClassAnswers;
     private Integer numberOfCorrectStudentAnswers;
 
+
     private Boolean publicSQDashboard;
+    private Boolean publicTournamentDashboard;
+
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
@@ -104,6 +107,16 @@ public class User implements UserDetails, DomainEntity {
         this.publicSQDashboard = bool;
     }
 
+    public Boolean getPublicTournamentDashboard() {
+        if (this.publicTournamentDashboard == null)
+            this.publicTournamentDashboard = true;
+        return this.publicTournamentDashboard;
+    }
+
+    public void setPublicTournamentDashboard(Boolean bool) {
+        this.publicTournamentDashboard = bool;
+    }
+
     public Set<Tournament> getTournamentsEnrolled() {
         return tournamentsEnrolled;
     }
@@ -156,6 +169,7 @@ public class User implements UserDetails, DomainEntity {
     public void setTournamentsAnswered(Set<Tournament> tournamentsAnswered) {
         this.tournamentsAnswered = tournamentsAnswered;
     }
+
 
     public Role getRole() {
         return role;

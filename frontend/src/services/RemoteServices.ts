@@ -627,12 +627,48 @@ export default class RemoteServices {
       });
   }
 
+  static getDashBoardTournaments(): Promise<Tournament[]> {
+    return httpClient
+      .get(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/dashboard`
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static getTournamentPrivacy(): Promise<boolean> {
+    return httpClient
+      .get(
+        `/tournaments/privacy`
+      )
+      .then(response => {
+        return response.data;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static enrollInTournament(tournament: Tournament): Promise<Tournament> {
     return httpClient
       .put(`/tournaments/${tournament.id}/enroll`)
       .then(response => {
         return new Tournament(response.data);
       })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async changeTournamentPrivacy(privacy: boolean) {
+    return httpClient
+      .put(`/tournaments/privacy/${privacy}`)
       .catch(async error => {
         throw Error(await this.errorMessage(error));
       });

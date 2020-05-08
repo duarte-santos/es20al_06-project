@@ -1,4 +1,4 @@
-describe('Answering a quiz after enrolling in a Tournament Walkthrough', () => {
+describe('Checking Tournament results in dashboard Walkthrough', () => {
 
   const ID = 666
   const TITLE = 'TorneioTeste'
@@ -19,7 +19,7 @@ describe('Answering a quiz after enrolling in a Tournament Walkthrough', () => {
     cy.deleteTournament(ID)
   })
 
-  it('login, enroll in an open tournament, answer the tournament quiz', () => {
+  it('login, answer a quiz and check the results in dashboard', () => {
 
     cy.log("SQL command (requires db access credentials)")
     cy.createTournamentDifferentStudent(ID, TITLE, CREATOR)
@@ -29,12 +29,26 @@ describe('Answering a quiz after enrolling in a Tournament Walkthrough', () => {
     cy.enrollInTournament(TITLE)
 
     cy.wait(1000)
-    cy.log("Answer the tournament quiz")
     cy.answerTournamentQuiz(TITLE)
 
-    cy.log("Check that we can't answer the tournament quiz again")
-    cy.checkTournamentQuizAnswered(TITLE)
+    cy.log("Close tournament (requires db access credentials)")
+    cy.closeTournament(ID)
+
+    cy.goToDashboard()
+    cy.wait(1000)
+    cy.checkTournamentInDashboard(TITLE)
 
   });
+
+  it('change dashboard privacy', () => {
+    cy.goToDashboard()
+    cy.wait(1000)
+    // Change privacy
+    cy.get('[data-cy="privacy"]')
+      .parent()
+      .click();
+  });
+
+
 
 });

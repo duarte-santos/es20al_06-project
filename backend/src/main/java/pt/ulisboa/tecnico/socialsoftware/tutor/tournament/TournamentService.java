@@ -123,8 +123,8 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<TournamentDto> getDashBoardTournaments(int userId){
-        return tournamentRepository.findParticipated(userId).stream()
+    public List<TournamentDto> getDashBoardTournaments(int userId, int executionId){
+        return tournamentRepository.findParticipated(userId, executionId).stream()
                 .filter(tournament -> DateHandler.now().isAfter(tournament.getConclusionDate()))
                 .map(TournamentDto::new).collect(Collectors.toList());
 
@@ -201,6 +201,7 @@ public class TournamentService{
         quiz.setCourseExecution(courseExecution);
         courseExecution.addQuiz(quiz);
 
+        quiz.setTournament(tournament);
         quizRepository.save(quiz);
         tournament.setQuiz(quiz);
     }
@@ -281,5 +282,25 @@ public class TournamentService{
         StatementQuizDto statementQuizDto = new StatementQuizDto(quizAnswer);
 
         return statementQuizDto;
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void changePrivacy(int userId, boolean privacy) {
+
+        User user =  userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+
+        user.setPublicTournamentDashboard(privacy);
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public boolean getPrivacy(int userId) {
+        User user =  userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        return user.getPublicTournamentDashboard();
     }
 }

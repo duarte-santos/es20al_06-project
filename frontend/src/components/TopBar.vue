@@ -179,7 +179,16 @@
                 <v-list-item-title>Question</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+            <v-list-item to="/student/dashboard/tournaments">
+              <v-list-item-action>
+                <v-icon size="22">fas fa-trophy</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Tournament </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
+
         </v-menu>
 
         <v-btn
@@ -208,6 +217,14 @@
                 <v-list-item-title>Create</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+            <v-list-item to="/student/tournament-enroll">
+              <v-list-item-action>
+                <v-icon size="19">fas fa-user-plus</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Join</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
             <v-list-item to="/student/tournament-open">
               <v-list-item-action>
                 <v-icon size="22">description</v-icon>
@@ -216,17 +233,9 @@
                 <v-list-item-title>Show Open</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item to="/student/tournament-enroll">
-              <v-list-item-action>
-                <v-icon size="22">fas fa-user-plus</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Join</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
             <v-list-item to="/student/tournament-cancel">
               <v-list-item-action>
-                <v-icon size="27">description</v-icon>
+                <v-icon size="22">description</v-icon>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>Show All</v-list-item-title>

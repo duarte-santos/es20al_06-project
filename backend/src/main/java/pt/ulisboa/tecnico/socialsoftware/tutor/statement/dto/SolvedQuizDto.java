@@ -15,12 +15,18 @@ public class SolvedQuizDto implements Serializable {
     private StatementQuizDto statementQuiz;
     private List<CorrectAnswerDto> correctAnswers = new ArrayList<>();
     private String answerDate;
+    private int tournamentId;
 
     public SolvedQuizDto() {
     }
 
     public SolvedQuizDto(QuizAnswer quizAnswer) {
         this.statementQuiz = new StatementQuizDto(quizAnswer);
+
+        if (quizAnswer.getQuiz().getTournament() == null)
+            this.tournamentId = -1;
+        else
+            this.tournamentId = quizAnswer.getQuiz().getTournament().getId();
 
         this.correctAnswers = quizAnswer.getQuestionAnswers().stream()
                 .sorted(Comparator.comparing(QuestionAnswer::getSequence))
@@ -52,6 +58,14 @@ public class SolvedQuizDto implements Serializable {
 
     public void setAnswerDate(String answerDate) {
         this.answerDate = answerDate;
+    }
+
+    public int getTournamentId() {
+        return tournamentId;
+    }
+
+    public void setTournamentId(int tournamentId) {
+        this.tournamentId = tournamentId;
     }
 
     @Override

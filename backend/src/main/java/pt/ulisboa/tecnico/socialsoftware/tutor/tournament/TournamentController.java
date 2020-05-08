@@ -40,11 +40,12 @@ public class TournamentController {
         return tournamentService.enrollInTournament(user.getId(), tournamentId);
     }
 
-    @GetMapping("/tournaments/dashboard")
-    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
-    public List<TournamentDto> getDashBoardTournaments(Principal principal) {
+
+    @GetMapping("/executions/{executionId}/tournaments/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public List<TournamentDto> getDashBoardTournaments(Principal principal, @PathVariable int executionId) {
         User user = (User) ((Authentication) principal).getPrincipal();
-        return tournamentService.getDashBoardTournaments(user.getId());
+        return tournamentService.getDashBoardTournaments(user.getId(), executionId);
     }
 
     /* Used to test with DEMO_STUDENT, since we cant have more than 1
@@ -76,4 +77,17 @@ public class TournamentController {
         return tournamentService.startTournament(user.getId(), tournamentId);
     }
 
+    @PutMapping("/tournaments/privacy/{privacy}")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public void changePrivacy(Principal principal, @PathVariable boolean privacy) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        tournamentService.changePrivacy(user.getId(), privacy);
+    }
+
+    @GetMapping("/tournaments/privacy")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public boolean getPrivacy(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.getPrivacy(user.getId());
+    }
 }
