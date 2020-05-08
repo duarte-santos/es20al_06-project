@@ -40,7 +40,7 @@
         v-for="tournament in tournaments"
         :key="tournament.id"
       >
-        <div class="col">
+        <div class="col" data-cy="tournamentTitle">
           {{ tournament.title }}
         </div>
         <div class="col">
@@ -84,6 +84,7 @@ export default class TournamentDashboardView extends Vue {
     let quiz;
 
     for(let i=0; i< this.quizzes.length;i++){
+      console.log(this.quizzes[i].tournamentId)
       if(this.quizzes[i].tournamentId == tournament.id){
         quiz = this.quizzes[i];
       }

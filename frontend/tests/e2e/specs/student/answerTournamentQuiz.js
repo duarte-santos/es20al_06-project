@@ -29,7 +29,7 @@ describe('Generating a quiz by enrolling in a Tournament Walkthrough', () => {
     cy.enrollInTournament(TITLE)
 
     cy.wait(1000)
-    cy.log("Check if START button appears = Quiz was generated")
+    cy.log("Answer the tournament quiz")
     cy.answerTournamentQuiz(TITLE)
 
     cy.log("Check that we can't answer the tournament quiz again")

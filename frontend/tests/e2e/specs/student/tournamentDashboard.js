@@ -29,13 +29,14 @@ describe('Checking Tournament results in dashboard Walkthrough', () => {
     cy.enrollInTournament(TITLE)
 
     cy.wait(1000)
-    cy.log("Check if START button appears = Quiz was generated")
     cy.answerTournamentQuiz(TITLE)
+
+    cy.log("Close tournament (requires db access credentials)")
+    cy.closeTournament(ID)
 
     cy.goToDashboard()
     cy.wait(1000)
-
-
+    cy.checkTournamentInDashboard(TITLE)
 
   });
 

@@ -46,18 +46,16 @@ public class Tournament{
     @ManyToMany
     private List<User> answeredList = new ArrayList<>();
 
-
     private Integer numberOfQuestions;
     private LocalDateTime startingDate;
     private LocalDateTime conclusionDate;
-
 
     @ManyToOne
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
 
-    @OneToOne
-    @JoinColumn(name = "quiz_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "quiz_id", referencedColumnName = "id")
     private Quiz quiz;
 
     public Tournament(){}

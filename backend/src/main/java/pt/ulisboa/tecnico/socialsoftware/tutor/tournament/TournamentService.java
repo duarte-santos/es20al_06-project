@@ -201,6 +201,7 @@ public class TournamentService{
         quiz.setCourseExecution(courseExecution);
         courseExecution.addQuiz(quiz);
 
+        quiz.setTournament(tournament);
         quizRepository.save(quiz);
         tournament.setQuiz(quiz);
     }

@@ -302,6 +302,24 @@ Cypress.Commands.add('answerTournamentQuiz', (title) => {
   cy.wait(200)
   cy.get('[data-cy="' + title + '.startButton"]').click()
   cy.wait(200)
+
+  /* Answer Questions */
+  cy.get('.option-list > :nth-child(1)').click()
+  cy.get('.option-list > :nth-child(1)').click()
+  cy.get('div.square').click()
+  cy.wait(1000)
+  cy.get('.option-list > :nth-child(2)').click()
+  cy.get('div.square').click()
+  cy.wait(1000)
+  cy.get('.option-list > :nth-child(3)').click()
+  cy.get('div.square').click()
+  cy.wait(1000)
+  cy.get('.option-list > :nth-child(4)').click()
+  cy.get('div.square').click()
+  cy.wait(1000)
+  cy.get('.option-list > :nth-child(1)').click()
+
+  cy.wait(1000)
   cy.get('.end-quiz').click()
   cy.wait(200)
   cy.get('.primary--text').click()
@@ -321,30 +339,46 @@ Cypress.Commands.add('goToDashboard', () => {
   cy.contains('Dashboard').click()
 });
 
+Cypress.Commands.add('checkTournamentInDashboard', (title) => {
+  cy.get('[data-cy="tournamentTitle"]').should(
+    (element) => {
+      expect(element).to.contain(title)
+    })
+});
+
 
 /* ****** Create Tournament with Different Student ****** */
 
 Cypress.Commands.add('createTournamentDifferentStudent', (id, title, creator) => {
   // Create tournament
-  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
+  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
     '"INSERT INTO tournaments (id, starting_date, conclusion_date, number_of_questions, title, course_execution_id, creator_id) ' +
     'VALUES (' + id + ', \'2018-04-28 05:32:00\', \'2100-04-28 05:32:00\', 5,\'' + title + '\', 11,' + creator + ');"')
 
   // Enroll creator in the tournament
-  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
+  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
     '"INSERT INTO tournaments_student_list (tournaments_enrolled_id, student_list_id) ' +
     'VALUES (' + id + ',' + creator + ');"')
 
   // Add topics
-  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
+  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
     '"INSERT INTO tournaments_topic_list (tournaments_id, topic_list_id) ' +
     'VALUES (' + id + ',100);"')
+});
+
+/* ********** Close a Tournament ********** */
+Cypress.Commands.add('closeTournament', (id) => {
+  // Create tournament
+  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
+    '"UPDATE tournaments\n' +
+    'SET conclusion_date = \'2018-04-29 05:32:00\' ' +
+    'WHERE id = ' + id + '; "')
 });
 
 /* ********** Delete Tournament from DB ********** */
 
 Cypress.Commands.add('deleteTournament', (id) => {
-  cy.exec('PGPASSWORD=dude psql -d tutordb -U guilherme -h localhost -c ' +
+  cy.exec('PGPASSWORD=c3 psql -d tutordb -U c3 -h localhost -c ' +
     '"DELETE FROM tournaments_topic_list WHERE tournaments_id =' + id + '; ' +
     ' DELETE FROM tournaments_student_list WHERE tournaments_enrolled_id =' + id + '; ' +
     ' DELETE FROM tournaments_answered_list WHERE tournaments_answered_id =' + id + '; ' +
