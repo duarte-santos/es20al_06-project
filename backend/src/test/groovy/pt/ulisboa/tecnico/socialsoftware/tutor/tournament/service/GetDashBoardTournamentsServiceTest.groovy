@@ -130,7 +130,7 @@ class GetDashBoardTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament3)
 
         when:
-        def result = tournamentService.getDashBoardTournaments(studentId)
+        def result = tournamentService.getDashBoardTournaments(studentId, execution.getId())
 
         then: "The returned data is correct"
         //Tournament 2 is still open so it should not be returned
@@ -148,7 +148,7 @@ class GetDashBoardTournamentsServiceTest extends Specification{
         tournamentRepository.save(tournament3)
 
         when:
-        def result = tournamentService.getDashBoardTournaments(studentId)
+        def result = tournamentService.getDashBoardTournaments(studentId, execution.getId())
 
         then: "Empty list is returned"
         result.size() == 0

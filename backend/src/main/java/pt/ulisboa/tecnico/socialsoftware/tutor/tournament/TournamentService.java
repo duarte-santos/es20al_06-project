@@ -123,8 +123,8 @@ public class TournamentService{
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<TournamentDto> getDashBoardTournaments(int userId){
-        return tournamentRepository.findParticipated(userId).stream()
+    public List<TournamentDto> getDashBoardTournaments(int userId, int executionId){
+        return tournamentRepository.findParticipated(userId, executionId).stream()
                 .filter(tournament -> DateHandler.now().isAfter(tournament.getConclusionDate()))
                 .map(TournamentDto::new).collect(Collectors.toList());
 
