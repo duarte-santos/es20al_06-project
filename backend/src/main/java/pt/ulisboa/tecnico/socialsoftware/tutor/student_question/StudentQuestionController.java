@@ -63,7 +63,7 @@ public class StudentQuestionController {
     }
 
     @PutMapping("/studentQuestions/{studentQuestionId}/topics")
-    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    @PreAuthorize("hasRole('ROLE_STUDENT') or ( hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS') )")
     public ResponseEntity updateStudentQuestionTopics(@PathVariable Integer studentQuestionId, @RequestBody String[] topics) {
         studentQuestionService.updateStudentQuestionTopics(studentQuestionId, topics);
 
@@ -71,7 +71,7 @@ public class StudentQuestionController {
     }
 
     @PutMapping("/studentQuestions/{studentQuestionId}/image")
-    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    @PreAuthorize("hasRole('ROLE_STUDENT') or ( hasRole('ROLE_TEACHER') and hasPermission(#studentQuestionId, 'STUDENT_QUESTION.ACCESS') )")
     public String updateStudentQuestionImage(@PathVariable Integer studentQuestionId, @RequestParam("file") MultipartFile file) throws IOException {
         logger.debug("uploadImage  studentQuestionId: {}: , filename: {}", studentQuestionId, file.getContentType());
 

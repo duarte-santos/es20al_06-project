@@ -299,6 +299,9 @@ public class StudentQuestion {
         checkDifferentStudentQuestion(studentQuestionDto);
 
         updateStudentQuestion(studentQuestionDto);
+
+        this.state = State.AWAITING_APPROVAL;
+        this.justification = null;
     }
 
     public void editApprovedStudentQuestion(StudentQuestionDto studentQuestionDto) {
@@ -316,9 +319,6 @@ public class StudentQuestion {
         this.content = studentQuestionDto.getContent();
         this.options = studentQuestionDto.getOptions();
         this.correct = studentQuestionDto.getCorrect();
-
-        this.justification = null;
-        this.state = State.AWAITING_APPROVAL;
     }
 
     public void checkDifferentStudentQuestion(StudentQuestionDto studentQuestionDto) {
