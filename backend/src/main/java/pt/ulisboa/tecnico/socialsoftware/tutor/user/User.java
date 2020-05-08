@@ -48,6 +48,8 @@ public class User implements UserDetails, DomainEntity {
     private Integer numberOfCorrectInClassAnswers;
     private Integer numberOfCorrectStudentAnswers;
 
+    private String privacy;
+
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
@@ -143,6 +145,15 @@ public class User implements UserDetails, DomainEntity {
     public void setTournamentsAnswered(Set<Tournament> tournamentsAnswered) {
         this.tournamentsAnswered = tournamentsAnswered;
     }
+
+    public String getPrivacy() {
+        return privacy;
+    }
+
+    public void setPrivacy(String privacy) {
+        this.privacy = privacy;
+    }
+
 
     public Role getRole() {
         return role;

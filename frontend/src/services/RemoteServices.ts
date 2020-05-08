@@ -652,6 +652,14 @@ export default class RemoteServices {
       });
   }
 
+  static async changePrivacy(privacy: String) {
+    return httpClient
+      .put(`/tournaments/privacy`)
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static async deleteTournament(tournamentId: number) {
     return httpClient
       .delete(`/tournaments/${tournamentId}/cancel`)

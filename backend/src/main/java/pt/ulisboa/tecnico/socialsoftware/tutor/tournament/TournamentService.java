@@ -283,4 +283,15 @@ public class TournamentService{
 
         return statementQuizDto;
     }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void changePrivacy(int userId, String privacy) {
+
+        User user =  userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+
+        user.setPrivacy(privacy);
+    }
 }
