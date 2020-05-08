@@ -40,6 +40,7 @@ public class TournamentController {
         return tournamentService.enrollInTournament(user.getId(), tournamentId);
     }
 
+
     @GetMapping("/executions/{executionId}/tournaments/dashboard")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> getDashBoardTournaments(Principal principal, @PathVariable int executionId) {
@@ -76,4 +77,10 @@ public class TournamentController {
         return tournamentService.startTournament(user.getId(), tournamentId);
     }
 
+    @PutMapping("/tournaments/privacy")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public void changePrivacy(Principal principal, @RequestBody String privacy) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        tournamentService.changePrivacy(user.getId(), privacy);
+    }
 }

@@ -60,19 +60,21 @@ import RemoteServices from '@/services/RemoteServices';
 import SolvedQuiz from '@/models/statement/SolvedQuiz';
 import StatementManager from '@/models/statement/StatementManager';
 import Tournament from '@/models/management/Tournament';
+import User from '@/models/user/User';
 
 @Component
 export default class TournamentDashboardView extends Vue {
   tournaments: Tournament[] = [];
   quizzes: SolvedQuiz[] = [];
-  privacy: String = this.$store.getters.getUser.privacy
+  user: User = this.$store.getters.getUser;
+  privacy: String = '';
 
   async created() {
     await this.$store.dispatch('loading');
     try {
       this.tournaments = (await RemoteServices.getDashBoardTournaments());
       this.quizzes = (await RemoteServices.getSolvedQuizzes());
-
+      this.privacy = this.user.privacy;
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
@@ -84,7 +86,6 @@ export default class TournamentDashboardView extends Vue {
     let quiz;
 
     for(let i=0; i< this.quizzes.length;i++){
-      console.log(this.quizzes[i].tournamentId)
       if(this.quizzes[i].tournamentId == tournament.id){
         quiz = this.quizzes[i];
       }
@@ -105,12 +106,12 @@ export default class TournamentDashboardView extends Vue {
     }
     return `${correct}/${quiz.statementQuiz.questions.length}`;
   }
-/*
+
   async changePrivacy(privacy : string){
     this.privacy = privacy;
     await RemoteServices.changePrivacy(privacy);
   }
-*/
+
 }
 </script>
 

@@ -1,4 +1,4 @@
-describe('Generating a quiz by enrolling in a Tournament Walkthrough', () => {
+describe('Answering a quiz after enrolling in a Tournament Walkthrough', () => {
 
   const ID = 666
   const TITLE = 'TorneioTeste'
