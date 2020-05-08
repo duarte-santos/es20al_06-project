@@ -2,29 +2,6 @@
   <div class="container">
     <h2>Tournament Dashboard - Tournament results</h2>
     <ul>
-      <div>
-        <div>
-          Privacy={{privacy}}
-        </div>
-        <v-btn
-                medium
-                width="3cm"
-                color="primary"
-                @click="changePrivacy('PUBLIC')"
-        >
-          MAKE PUBLIC
-        </v-btn>
-        <v-btn
-                medium
-                width="3cm"
-
-                color="primary"
-                @click="changePrivacy('PRIVATE')"
-
-        >
-          MAKE PRIVATE
-        </v-btn>
-      </div>
       <li class="list-header ">
         <div class="col">Title</div>
         <div class="col">#Questions</div>
@@ -51,6 +28,18 @@
         </div>
       </li>
     </ul>
+    <div class="privacy-container">
+    <div class="dashboard-privacy">
+      <v-switch
+              v-model="privacy"
+              inset
+              class="ma-4"
+              :label="`VISIBILITY: ${privacy ? 'PUBLIC' : 'PRIVATE'}`"
+              @change="savePrivacy"
+              data-cy="privacy"
+      />
+    </div>
+    </div>
   </div>
 </template>
 
@@ -67,14 +56,14 @@ export default class TournamentDashboardView extends Vue {
   tournaments: Tournament[] = [];
   quizzes: SolvedQuiz[] = [];
   user: User = this.$store.getters.getUser;
-  privacy: String = '';
+  privacy: boolean = true; // true = public
 
   async created() {
     await this.$store.dispatch('loading');
     try {
       this.tournaments = (await RemoteServices.getDashBoardTournaments());
       this.quizzes = (await RemoteServices.getSolvedQuizzes());
-      this.privacy = this.user.privacy;
+      this.privacy = (await RemoteServices.getTournamentPrivacy());
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
@@ -107,15 +96,33 @@ export default class TournamentDashboardView extends Vue {
     return `${correct}/${quiz.statementQuiz.questions.length}`;
   }
 
-  async changePrivacy(privacy : string){
-    this.privacy = privacy;
-    await RemoteServices.changePrivacy(privacy);
+  async savePrivacy() {
+      try {
+        await RemoteServices.changeTournamentPrivacy(this.privacy);
+      } catch (error) {
+        await this.$store.dispatch('error', error);
+      }
   }
 
 }
 </script>
 
 <style lang="scss" scoped>
+.privacy-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  height: 100%;
+}
+
+.dashboard-privacy {
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 5px;
+  align-content: center;
+}
+
 .container {
   max-width: 1000px;
   margin-left: auto;

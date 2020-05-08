@@ -249,7 +249,7 @@ let router = new Router({
           }
         },
         {
-          path: 'tournament-dashboard',
+          path: 'dashboard/tournaments',
           name: 'dashboard-tournaments',
           component: TournamentDashboardView,
           meta: {

@@ -300,6 +300,7 @@ Cypress.Commands.add('answerTournamentQuiz', (title) => {
   cy.contains('Tournaments').click()
   cy.contains('Show Open').click()
   cy.wait(200)
+  cy.contains('Open Tournaments').click()
   cy.get('[data-cy="' + title + '.startButton"]').click()
   cy.wait(200)
 
@@ -335,8 +336,8 @@ Cypress.Commands.add('checkTournamentQuizAnswered', (title) => {
 /* ********** Dashboard ********** */
 
 Cypress.Commands.add('goToDashboard', () => {
-  cy.contains('Tournaments').click()
   cy.contains('Dashboard').click()
+  cy.contains('Tournament ').click()
 });
 
 Cypress.Commands.add('checkTournamentInDashboard', (title) => {

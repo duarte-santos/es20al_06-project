@@ -77,10 +77,17 @@ public class TournamentController {
         return tournamentService.startTournament(user.getId(), tournamentId);
     }
 
-    @PutMapping("/tournaments/privacy")
+    @PutMapping("/tournaments/privacy/{privacy}")
     @PreAuthorize("hasRole('ROLE_STUDENT')")
-    public void changePrivacy(Principal principal, @RequestBody String privacy) {
+    public void changePrivacy(Principal principal, @PathVariable boolean privacy) {
         User user = (User) ((Authentication) principal).getPrincipal();
         tournamentService.changePrivacy(user.getId(), privacy);
+    }
+
+    @GetMapping("/tournaments/privacy")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public boolean getPrivacy(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.getPrivacy(user.getId());
     }
 }

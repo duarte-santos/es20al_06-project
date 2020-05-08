@@ -642,6 +642,19 @@ export default class RemoteServices {
       });
   }
 
+  static getTournamentPrivacy(): Promise<boolean> {
+    return httpClient
+      .get(
+        `/tournaments/privacy`
+      )
+      .then(response => {
+        return response.data;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static enrollInTournament(tournament: Tournament): Promise<Tournament> {
     return httpClient
       .put(`/tournaments/${tournament.id}/enroll`)
@@ -653,9 +666,9 @@ export default class RemoteServices {
       });
   }
 
-  static async changePrivacy(privacy: String) {
+  static async changeTournamentPrivacy(privacy: boolean) {
     return httpClient
-      .put(`/tournaments/privacy`)
+      .put(`/tournaments/privacy/${privacy}`)
       .catch(async error => {
         throw Error(await this.errorMessage(error));
       });

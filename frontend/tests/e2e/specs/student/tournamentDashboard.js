@@ -40,4 +40,15 @@ describe('Checking Tournament results in dashboard Walkthrough', () => {
 
   });
 
+  it('change dashboard privacy', () => {
+    cy.goToDashboard()
+    cy.wait(1000)
+    // Change privacy
+    cy.get('[data-cy="privacy"]')
+      .parent()
+      .click();
+  });
+
+
+
 });

@@ -50,8 +50,7 @@ public class User implements UserDetails, DomainEntity {
 
 
     private Boolean publicSQDashboard;
-
-    private String privacy;
+    private Boolean publicTournamentDashboard;
 
 
     @Column(name = "creation_date")
@@ -108,6 +107,16 @@ public class User implements UserDetails, DomainEntity {
         this.publicSQDashboard = bool;
     }
 
+    public Boolean getPublicTournamentDashboard() {
+        if (this.publicTournamentDashboard == null)
+            this.publicTournamentDashboard = true;
+        return this.publicTournamentDashboard;
+    }
+
+    public void setPublicTournamentDashboard(Boolean bool) {
+        this.publicTournamentDashboard = bool;
+    }
+
     public Set<Tournament> getTournamentsEnrolled() {
         return tournamentsEnrolled;
     }
@@ -159,14 +168,6 @@ public class User implements UserDetails, DomainEntity {
 
     public void setTournamentsAnswered(Set<Tournament> tournamentsAnswered) {
         this.tournamentsAnswered = tournamentsAnswered;
-    }
-
-    public String getPrivacy() {
-        return privacy;
-    }
-
-    public void setPrivacy(String privacy) {
-        this.privacy = privacy;
     }
 
 

@@ -10,7 +10,7 @@ export default class User {
   role!: string;
   courses: CourseMap = {};
   coursesNumber: number = 0;
-  privacy!: string;
+  privacy!: boolean;
 
   constructor(jsonObj?: User) {
     if (jsonObj) {
