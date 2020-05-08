@@ -224,4 +224,13 @@ public class StudentQuestionService {
         return dashboardDto;
     }
 
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void changeSQDashboardPrivacy(int userId, boolean bool) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        user.setPublicSQDashboard(bool);
+    }
+
 }
