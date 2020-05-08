@@ -1,13 +1,4 @@
 describe('make StudentQuestion available walkthrough', () => {
-  beforeEach(() => {
-    cy.demoStudentLogin();
-    cy.studentMyQuestions();
-  });
-
-  afterEach(() => {
-    cy.logout();
-  });
-
   const TITLE1 = 'TEST-TITLE1';
   const CONTENT = 'TEST-CONTENT';
   const CORRECT = 4;
@@ -26,6 +17,15 @@ describe('make StudentQuestion available walkthrough', () => {
   const TOPIC2 = 'Availability';
   const APPROVED = 'APPROVED';
   const REJECTED = 'REJECTED';
+
+  beforeEach(() => {
+    cy.demoStudentLogin();
+    cy.studentMyQuestions();
+  });
+
+  afterEach(() => {
+    cy.logout();
+  });
 
   it('[ok] teacher approves and makes a student question with 2 topics available', () => {
     // create question

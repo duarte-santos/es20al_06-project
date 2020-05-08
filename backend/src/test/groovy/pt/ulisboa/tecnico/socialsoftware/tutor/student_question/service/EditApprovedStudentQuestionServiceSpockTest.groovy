@@ -120,14 +120,6 @@ class EditApprovedStudentQuestionServiceSpockTest extends Specification {
         result.getId() == studentQuestion.getId()
         result.getTitle() == NEW_QUESTION_TITLE
         result.getContent() == NEW_QUESTION_CONTENT
-
-        result.getState() == StudentQuestion.State.AWAITING_APPROVAL
-        result.getJustification() == null
-        // result.getImage() != null
-        result.getImage().getId() == image.getId()
-        result.getImage().getUrl() == IMAGE_URL
-        result.getImage().getWidth() == IMAGE_WIDTH
-
         def resultOptions = result.getOptions()
         resultOptions.size() == 4
         result.getCorrect() == NEW_CORRECT_INDEX
@@ -135,6 +127,13 @@ class EditApprovedStudentQuestionServiceSpockTest extends Specification {
         resultOptions.get(1) == NEW_CORRECT_OPTION
         resultOptions.get(2) == NEW_INCORRECT_OPTION
         resultOptions.get(3) == NEW_INCORRECT_OPTION
+        and: "are not changed"
+        result.getState() == StudentQuestion.State.APPROVED
+        result.getJustification() == JUSTIFICATION
+        // result.getImage() != null
+        result.getImage().getId() == image.getId()
+        result.getImage().getUrl() == IMAGE_URL
+        result.getImage().getWidth() == IMAGE_WIDTH
     }
 
     @Unroll("non approved sq: #state")

@@ -9,7 +9,10 @@
     <!-- If Cypress is acting funny add height parameter to v-card: <v-card height="500"> -->
     <v-card>
       <v-card-title>
-        <span class="headline">
+        <span v-if="question.state === 'APPROVED'" class="headline">
+          Make Question Available
+        </span>
+        <span v-else class="headline">
           {{
             editQuestion && editQuestion.id === null
               ? 'New Question'
@@ -68,12 +71,23 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
-          color="blue darken-1"
+          color="grey"
           @click="$emit('dialog', false)"
           data-cy="cancelButton"
           >Cancel</v-btn
         >
-        <v-btn color="blue darken-1" @click="saveQuestion" data-cy="saveButton"
+        <v-btn
+          v-if="question.state === 'APPROVED'"
+          color="blue darken-1"
+          @click="saveQuestion"
+          data-cy="saveButton"
+          >Make Available</v-btn
+        >
+        <v-btn
+          v-else
+          color="blue darken-1"
+          @click="saveQuestion"
+          data-cy="saveButton"
           >Save</v-btn
         >
       </v-card-actions>
