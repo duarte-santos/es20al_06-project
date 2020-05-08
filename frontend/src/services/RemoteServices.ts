@@ -793,4 +793,17 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
+
+  static async changeSQDashboardPrivacy(
+    dashboard: SQDashboard
+  ): Promise<string> {
+    return httpClient
+      .put('/dashboards/myself/studentQuestions/privacy', dashboard)
+      .then(response => {
+        return response.data as string;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
 }
