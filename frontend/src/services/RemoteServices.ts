@@ -626,6 +626,21 @@ export default class RemoteServices {
       });
   }
 
+  static getDashBoardTournaments(): Promise<Tournament[]> {
+    return httpClient
+      .get(
+        `/executions/${Store.getters.getCurrentCourse.courseExecutionId}/tournaments/dashboard`
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static enrollInTournament(tournament: Tournament): Promise<Tournament> {
     return httpClient
       .put(`/tournaments/${tournament.id}/enroll`)

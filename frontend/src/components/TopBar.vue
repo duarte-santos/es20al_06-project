@@ -210,6 +210,14 @@
                 <v-list-item-title>Show All</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+            <v-list-item to="/student/tournament-dashboard">
+              <v-list-item-action>
+                <v-icon size="22">fas fa-user</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Dashboard</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-menu>
 

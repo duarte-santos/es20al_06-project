@@ -125,6 +125,14 @@ public class Quiz implements DomainEntity {
         return key;
     }
 
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
+
     public void setKey(Integer key) {
         this.key = key;
     }
