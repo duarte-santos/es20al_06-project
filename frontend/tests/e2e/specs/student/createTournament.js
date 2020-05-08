@@ -1,12 +1,24 @@
 describe('Create Tournament Walkthrough', () => {
+
+  const ID = 666
+  const TITLE = 'TorneioTeste'
+  const CREATOR = 651
+
   beforeEach(() => {
     cy.demoStudentLogin()
+
+    // Make sure the tournament is not already in the database
+    cy.log("SQL command (requires db acess credentials)")
+    cy.deleteTournament(ID)
+
     cy.gotoCreateTournamentPage()
   })
 
   afterEach(() => {
+    cy.contains('Demo Course').click()
     cy.contains('Logout').click()
-    //should delete after each, but we don't have a functionality for it
+    cy.log("SQL command (requires db acess credentials)")
+    cy.deleteTournament(ID)
   })
 
 

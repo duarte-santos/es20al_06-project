@@ -63,6 +63,9 @@ public class User implements UserDetails, DomainEntity {
     @ManyToMany(mappedBy = "studentList")
     private Set<Tournament> tournamentsEnrolled = new HashSet<>();
 
+    @ManyToMany(mappedBy = "answeredList")
+    private Set<Tournament> tournamentsAnswered = new HashSet<>();
+
     public User() {
     }
 
@@ -131,6 +134,14 @@ public class User implements UserDetails, DomainEntity {
 
     public void setEnrolledCoursesAcronyms(String enrolledCoursesAcronyms) {
         this.enrolledCoursesAcronyms = enrolledCoursesAcronyms;
+    }
+
+    public Set<Tournament> getTournamentsAnswered() {
+        return tournamentsAnswered;
+    }
+
+    public void setTournamentsAnswered(Set<Tournament> tournamentsAnswered) {
+        this.tournamentsAnswered = tournamentsAnswered;
     }
 
     public Role getRole() {

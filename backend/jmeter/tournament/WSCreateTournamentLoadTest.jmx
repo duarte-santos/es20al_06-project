@@ -259,8 +259,8 @@
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">DELETE FROM tournaments_student_list WHERE tournaments_enrolled_id in (SELECT id FROM tournaments WHERE title=&apos;Torneio%&apos;);
-DELETE FROM tournaments_topic_list WHERE tournaments_id in (SELECT id FROM tournaments WHERE title=&apos;Torneio%&apos;);
+          <stringProp name="query">DELETE FROM tournaments_student_list WHERE tournaments_enrolled_id in (SELECT id FROM tournaments WHERE title like &apos;Torneio%&apos;);
+DELETE FROM tournaments_topic_list WHERE tournaments_id in (SELECT id FROM tournaments WHERE title like &apos;Torneio%&apos;);
 
 DELETE FROM tournaments WHERE title LIKE &apos;Torneio%&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>

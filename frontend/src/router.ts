@@ -33,6 +33,7 @@ import EnrollInTournamentView from '@/views/student/tournament/EnrollInTournamen
 
 import StudentQuestionView from '@/views/student/studentQuestion/StudentQuestionView.vue';
 import EvaluateQtsView from '@/views/teacher/studentQuestions/EvaluateQuestionsView.vue';
+import CancelTournamentView from '@/views/student/tournament/CancelTournamentView.vue';
 
 Vue.use(Router);
 
@@ -226,6 +227,15 @@ let router = new Router({
           component: OpenTournamentsView,
           meta: {
             title: process.env.VUE_APP_NAME + ' - Show Open Tournaments',
+            requiredAuth: 'Student'
+          }
+        },
+        {
+          path: 'tournament-cancel',
+          name: 'cancel-tournaments',
+          component: CancelTournamentView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Cancel Tournaments',
             requiredAuth: 'Student'
           }
         },

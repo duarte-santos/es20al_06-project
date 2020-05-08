@@ -1,4 +1,4 @@
-describe('Enroll in a Tournament Walkthrough', () => {
+describe('Generating a quiz by enrolling in a Tournament Walkthrough', () => {
 
   const ID = 666
   const TITLE = 'TorneioTeste'
@@ -6,31 +6,35 @@ describe('Enroll in a Tournament Walkthrough', () => {
 
   beforeEach(() => {
     cy.demoStudentLogin()
-    cy.wait(200)
+
     // Make sure the tournament is not already in the database
     cy.log("SQL command (requires db access credentials)")
     cy.deleteTournament(ID)
   })
 
-
   afterEach(() => {
     cy.contains('Demo Course').click()
     cy.contains('Logout').click()
-    cy.wait(200)
     cy.log("SQL command (requires db access credentials)")
     cy.deleteTournament(ID)
   })
 
-  it('login, enroll in a tournament', () => {
+  it('login, enroll in an open tournament, answer the tournament quiz', () => {
 
     cy.log("SQL command (requires db access credentials)")
     cy.createTournamentDifferentStudent(ID, TITLE, CREATOR)
 
-    cy.log("Enroll in a tournament")
+    cy.log("Enroll in the tournament")
     cy.goToTournamentEnrollments()
     cy.enrollInTournament(TITLE)
 
-    cy.assertEnrolled(TITLE)
+    cy.wait(1000)
+    cy.log("Check if START button appears = Quiz was generated")
+    cy.answerTournamentQuiz(TITLE)
+
+    cy.log("Check that we can't answer the tournament quiz again")
+    cy.checkTournamentQuizAnswered(TITLE)
+
   });
 
 });
