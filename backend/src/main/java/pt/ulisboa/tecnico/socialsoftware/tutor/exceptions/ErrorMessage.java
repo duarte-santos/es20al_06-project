@@ -74,6 +74,7 @@ public enum ErrorMessage {
     TOURNAMENT_IS_FINISHED("The tournament is already finished"),
     QUIZ_CANT_BE_GENERATED("The tournament quiz can't be generated"),
     STUDENT_ALREADY_PARTICIPATED("The student has already participated in this tournament"),
+    STUDENT_NEEDS_2_QUIZZES("The student hasn't answered to 2 quizzes yet"),
 
     STUDENT_QUESTION_NOT_FOUND("Student's question not found with id %d"),
     STUDENT_QUESTION_ALREADY_EVALUATED("Student's question has already been evaluated"),

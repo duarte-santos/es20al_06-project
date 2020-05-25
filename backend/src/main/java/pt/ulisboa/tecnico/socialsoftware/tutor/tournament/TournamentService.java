@@ -275,6 +275,10 @@ public class TournamentService{
         if (tournament.getAnsweredList().contains(user))
             throw new TutorException(STUDENT_ALREADY_PARTICIPATED);
 
+        if (user.getNumberOfStudentQuizzes() < 2){
+            throw new TutorException(STUDENT_NEEDS_2_QUIZZES);
+        }
+
         tournament.getAnsweredList().add(user);
 
         QuizAnswer quizAnswer = new QuizAnswer(user, quiz);

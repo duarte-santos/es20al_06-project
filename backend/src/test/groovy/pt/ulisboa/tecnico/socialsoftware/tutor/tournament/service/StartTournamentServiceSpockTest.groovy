@@ -141,6 +141,23 @@ class StartTournamentServiceSpockTest extends Specification{
 
     }
 
+    def "user answers that has answered 2 quizzes starts the tournament"(){
+        given: "An open tournament"
+        tournament.setStartingDate(YESTERDAY)
+        tournament.setConclusionDate(TOMORROW)
+
+        and: "A user that has answered 2 quizzes"
+        enrollingStudent.setNumberOfStudentQuizzes(2);
+        tournamentService.enrollInTournament(enrollingStudent.getId(), tournamentId)
+
+        when:
+        tournamentService.startTournament(enrollingStudent.getId(), tournamentId)
+        def result = quizAnswerRepository.findAll().get(0)
+
+        then: "The tournament was started - Quiz answers were created for the student"
+        result.getQuiz() == tournament.getQuiz()
+    }
+
     def "an enrolled student participates in the tournament"(){
         given: "An open tournament"
         tournament.setStartingDate(YESTERDAY)
