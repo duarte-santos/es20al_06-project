@@ -146,6 +146,39 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         thrown(TutorException)
     }
 
+    def "student enrolls in the tournament without having answered to at least two quizzes previously"() {
+        given: "a tournament and a student"
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        Tournament tournament = new Tournament(tournamentDto)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
+
+        when:
+        tournamentService.enrollInTournament(studentId, tournamentId)
+
+        then: "Throw an Exception"
+        thrown(TutorException)
+
+    }
+
+    def "student enrolls in the tournament having answered at least two quizzes previously"() {
+        given: "a tournament and a student"
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicList, NUMBER_OF_QUESTIONS, startingDate, conclusionDate)
+        Tournament tournament = new Tournament(tournamentDto)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
+
+        when:
+        tournamentService.enrollInTournament(studentId, tournamentId)
+        def result = tournamentRepository.findAll().get(0)
+
+        then: "Student is enrolled in the tournament"
+        result.getStudentList().size() == 1
+        result.getStudentList().get(0) == enrollingStudent
+    }
+
+
+
     @TestConfiguration
     static class TournamentServiceImplTestContextConfiguration {
 

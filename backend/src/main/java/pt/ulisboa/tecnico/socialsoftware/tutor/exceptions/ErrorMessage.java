@@ -52,6 +52,8 @@ public enum ErrorMessage {
     TOURNAMENT_IS_CLOSED("The tournament is closed"),
     NO_OPEN_TOURNAMENTS("There are no open tournaments"),
     STUDENT_ALREADY_ENROLLED("The student has signed up for this tournament before"),
+    STUDENT_HASNT_DONE_ENOUGH_QUIZZES_TO_ENROLL_IN_TOURNAMENT("The user done less than two quizzes"),
+
 
     STUDENT_QUESTION_NOT_FOUND("Student's question not found with id %d"),
     STUDENT_QUESTION_ALREADY_EVALUATED("Student's question has already been evaluated"),

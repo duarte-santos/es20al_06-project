@@ -96,6 +96,9 @@ public class TournamentService{
 
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
+        if(user.getNumberOfStudentQuizzes() < 2)
+            throw new TutorException(STUDENT_HASNT_DONE_ENOUGH_QUIZZES_TO_ENROLL_IN_TOURNAMENT);
+
 
         if(tournament.getStudentList().contains(user))
             throw new TutorException(STUDENT_ALREADY_ENROLLED);
