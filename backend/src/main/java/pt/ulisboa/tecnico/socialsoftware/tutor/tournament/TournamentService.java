@@ -169,6 +169,11 @@ public class TournamentService{
 
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
+
+        if (user.getNumberOfStudentQuizzes() < 2){
+            throw new TutorException(NOT_ENOUGH_QUIZZES);
+        }
+
         tournament.addStudent(user);
         user.getTournamentsEnrolled().add(tournament);
 

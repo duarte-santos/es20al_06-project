@@ -104,7 +104,7 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         userRepository.save(creator)
 
         enrollingStudent = new User(STUDENT_NAME2, USERNAME2, 2, User.Role.STUDENT)
-        userRepository.save(enrollingStudent)
+        //userRepository.save(enrollingStudent)
         studentId = enrollingStudent.getId()
 
         topicDto = new TopicDto()
@@ -216,6 +216,26 @@ class EnrollInTheTournamentServiceSpockTest extends Specification{
         then: "Throw an Exception : Not enough questions"
         def error = thrown(TutorException)
         error.errorMessage == ErrorMessage.NOT_ENOUGH_QUESTIONS
+    }
+
+    def "discussao: Student enroll in torunament after doing completing two quizes"(){
+        given: "a tournament"
+        tournamentDto = new TournamentDto(TOURNAMENT_TITLE, topicDtoList, NUMBER_OF_QUESTIONS, YESTERDAY, TOMORROW)
+        Tournament tournament = new Tournament(tournamentDto, creator)
+        tournament.setCourseExecution(execution)
+        tournament.setTopicList(topicList)
+        tournamentRepository.save(tournament)
+        tournamentId = tournament.getId()
+        enrollingStudent.setnumberOfStudentQuizzes(3);
+        userRepository.save(enrollingStudent);
+
+        when:
+        tournamentService.enrollInTournament(studentId, tournamentId);
+
+        then: "should throw an error"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.NOT_ENOUGH_QUIZZES;
+
     }
 
 
